@@ -1,7 +1,8 @@
 "use client";
 
 import { CityPicker } from "@/components/city-picker";
-import { Button, Card, EmptyState, Input, PageHeader, SectionLabel } from "@/components/ui";
+import { SupportIllustration } from "@/components/support-illustration";
+import { Button, EmptyState, SectionLabel } from "@/components/ui";
 import { api } from "@/lib/api";
 import { cityApiName, citiesFromApi, FALLBACK_CITIES, mergeCities, normalizeCity } from "@/lib/cities";
 import { useI18n } from "@/lib/i18n";
@@ -54,82 +55,112 @@ export default function HomeSearchPage() {
     router.push(`/trips/available?from=${encodeURIComponent(fromName)}&to=${encodeURIComponent(toName)}&date=${date}`);
   }
 
+  function searchRoute(routeFrom: City, routeTo: City) {
+    setFrom(normalizeCity(routeFrom));
+    setTo(normalizeCity(routeTo));
+  }
+
   return (
     <div>
-      <PageHeader title={t("new_booking")} subtitle={t("new_booking_subtitle")} />
-
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,420px)_1fr]">
-        <Card className="space-y-4">
-          <SectionLabel>{t("journey_detail")}</SectionLabel>
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => setPicker("from")}
-              className="flex w-full items-center gap-3 rounded-lg border border-border px-3.5 py-2.5 text-left transition hover:border-primary/50"
-            >
-              <LocationIcon />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("leaving_from")}</p>
-                <p className={from ? "truncate font-semibold text-navy" : "truncate text-text-faint"}>
-                  {from ? from.sys : t("leaving_from")}
-                </p>
-              </div>
-            </button>
-            <button
-              type="button"
-              onClick={() => setPicker("to")}
-              className="flex w-full items-center gap-3 rounded-lg border border-border px-3.5 py-2.5 text-left transition hover:border-primary/50"
-            >
-              <PinIcon />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("going_to")}</p>
-                <p className={to ? "truncate font-semibold text-navy" : "truncate text-text-faint"}>
-                  {to ? to.sys : t("going_to")}
-                </p>
-              </div>
-            </button>
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-2xl bg-navy px-6 py-10 sm:px-10 sm:py-14">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+            backgroundSize: "26px 26px",
+          }}
+        />
+        <div
+          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl"
+          aria-hidden
+        />
+        <div className="relative flex items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <p className="text-2xl font-semibold leading-snug tracking-tight text-white sm:text-3xl">
+              {t("new_booking_hero_title")}
+            </p>
+            <p className="mt-2 text-sm text-white/70 sm:text-base">{t("new_booking_hero_subtitle")}</p>
           </div>
+          <SupportIllustration className="hidden h-40 w-40 shrink-0 xl:block" />
+        </div>
+      </div>
 
-          <label className="block space-y-1.5">
-            <span className="text-[13px] font-medium text-text-muted">{t("departure")}</span>
-            <Input
-              type="date"
-              value={date}
-              min={formatDateISO(new Date())}
-              onChange={(e) => setDate(e.target.value)}
-            />
-            <span className="block text-xs text-text-faint">{formatDisplayDate(new Date(date))}</span>
+      {/* Elevated search widget */}
+      <div className="relative z-10 -mt-8 rounded-2xl border border-border bg-surface p-3 shadow-lg shadow-navy/5 sm:-mt-9 sm:p-4">
+        <div className="flex flex-col divide-y divide-border lg:flex-row lg:divide-x lg:divide-y-0">
+          <button
+            type="button"
+            onClick={() => setPicker("from")}
+            className="flex flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left transition hover:bg-surface-muted"
+          >
+            <LocationIcon />
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("leaving_from")}</p>
+              <p className={from ? "truncate font-semibold text-navy" : "truncate text-text-faint"}>
+                {from ? from.sys : t("leaving_from")}
+              </p>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPicker("to")}
+            className="flex flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left transition hover:bg-surface-muted"
+          >
+            <PinIcon />
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("going_to")}</p>
+              <p className={to ? "truncate font-semibold text-navy" : "truncate text-text-faint"}>
+                {to ? to.sys : t("going_to")}
+              </p>
+            </div>
+          </button>
+          <label className="flex flex-1 cursor-pointer items-center gap-3 rounded-xl px-4 py-3 transition hover:bg-surface-muted">
+            <CalendarIcon />
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("departure")}</p>
+              <input
+                type="date"
+                value={date}
+                min={formatDateISO(new Date())}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full truncate border-none bg-transparent p-0 font-semibold text-navy outline-none [color-scheme:light]"
+              />
+            </div>
           </label>
-
-          <Button className="w-full" loading={loading} onClick={search}>
-            {t("search_bus")}
-          </Button>
-        </Card>
-
-        <div>
-          <SectionLabel>{t("recent_searches")}</SectionLabel>
-          <div className="mt-2">
-            {recents.length ? (
-              <div className="grid gap-2 sm:grid-cols-2">
-                {recents.slice(0, 6).map((item) => (
-                  <button
-                    key={`${item.from.sys}-${item.to.sys}`}
-                    className="rounded-lg border border-border bg-surface px-4 py-3 text-left text-sm transition hover:border-primary/50 hover:bg-surface-muted"
-                    onClick={() => {
-                      setFrom(normalizeCity(item.from));
-                      setTo(normalizeCity(item.to));
-                    }}
-                  >
-                    <span className="font-semibold text-navy">{item.from.sys}</span>
-                    <span className="mx-2 text-text-faint">→</span>
-                    <span className="font-semibold text-navy">{item.to.sys}</span>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <EmptyState title={t("no_recent_searches")} hint={t("no_recent_searches_hint")} />
-            )}
+          <div className="flex items-center p-1.5 lg:pl-3">
+            <Button className="w-full lg:w-auto" loading={loading} onClick={search}>
+              {t("search_bus")}
+            </Button>
           </div>
+        </div>
+      </div>
+
+      {/* Popular / recent routes */}
+      <div className="mt-8">
+        <SectionLabel>{t("popular_routes")}</SectionLabel>
+        <div className="mt-3">
+          {recents.length ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {recents.slice(0, 6).map((item) => (
+                <button
+                  key={`${item.from.sys}-${item.to.sys}`}
+                  onClick={() => searchRoute(item.from, item.to)}
+                  className="group flex items-center gap-3 rounded-xl border border-border bg-surface p-4 text-left transition hover:border-primary/40 hover:bg-surface-muted"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                    <RouteIcon />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-navy">{item.from.sys}</p>
+                    <p className="truncate text-xs text-text-faint">→ {item.to.sys}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <EmptyState title={t("no_recent_searches")} hint={t("no_recent_searches_hint")} />
+          )}
         </div>
       </div>
 
@@ -162,6 +193,23 @@ function PinIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-gold">
       <path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11Z" />
       <circle cx="12" cy="10" r="2.5" />
+    </svg>
+  );
+}
+function CalendarIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-primary">
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M8 3v4M16 3v4M3 10h18" />
+    </svg>
+  );
+}
+function RouteIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="6" cy="6" r="2.5" />
+      <circle cx="18" cy="18" r="2.5" />
+      <path d="M8 7c3 0 2 6 5 6M13 13c1.5 0 2-1 3.5-1" />
     </svg>
   );
 }

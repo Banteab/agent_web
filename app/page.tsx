@@ -1,6 +1,7 @@
 "use client";
 
 import { BrandLogo } from "@/components/brand-logo";
+import { SupportIllustration } from "@/components/support-illustration";
 import { Button, Field, Input } from "@/components/ui";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
@@ -41,7 +42,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-dvh bg-surface">
-      <div className="relative hidden w-[42%] flex-col justify-between overflow-hidden bg-navy px-12 py-12 text-white lg:flex">
+      <div className="relative hidden w-[42%] flex-col overflow-hidden bg-navy px-12 py-12 text-white lg:flex">
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.07]"
           style={{
@@ -50,16 +51,27 @@ export default function LoginPage() {
             backgroundSize: "28px 28px",
           }}
         />
-        <div className="relative flex items-center gap-2.5">
-          <BrandLogo compact imgClassName="h-9 w-9" />
-          <span className="text-base font-semibold tracking-tight">Biftu Bus</span>
+        <div className="relative flex items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2.5">
+            <BrandLogo compact imgClassName="h-9 w-9" />
+            <span className="text-base font-semibold tracking-tight">Biftu Bus</span>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-gold">
+            <PhoneIcon />
+            {t("call_center_line")} 9439
+          </span>
         </div>
-        <div className="relative max-w-sm">
-          <p className="text-2xl font-semibold leading-snug tracking-tight">
-            {t("login_hero_title")}
-          </p>
-          <p className="mt-3 text-sm leading-relaxed text-white/70">{t("login_hero_subtitle")}</p>
+
+        <div className="relative flex flex-1 flex-col items-center justify-center gap-6">
+          <SupportIllustration className="h-56 w-full max-w-xs" />
+          <div className="max-w-sm text-center">
+            <p className="text-2xl font-semibold leading-snug tracking-tight">
+              {t("login_hero_title")}
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-white/70">{t("login_hero_subtitle")}</p>
+          </div>
         </div>
+
         <p className="relative text-xs text-white/50">© {new Date().getFullYear()} Biftu Bus. {t("login_footer")}</p>
       </div>
 
@@ -99,5 +111,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 5c0 8.284 6.716 15 15 15l2-4-6-2-2 2c-2.5-1-4-2.5-5-5l2-2-2-6-4 2Z" />
+    </svg>
   );
 }
