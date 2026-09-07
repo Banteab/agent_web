@@ -6,7 +6,7 @@ import { usePendingBankPaymentsCount } from "@/lib/use-pending-bank-payments-cou
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrandLogo } from "./brand-logo";
 import { Protected } from "./protected";
 
@@ -17,8 +17,8 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "workspace",
     items: [
-      { href: "/menu", key: "dashboard", icon: DashboardIcon },
       { href: "/home", key: "new_booking", icon: HomeIcon },
+      { href: "/menu", key: "dashboard", icon: DashboardIcon },
       { href: "/trips", key: "trip", icon: BusIcon },
       { href: "/pending-payments", key: "pending_payments", icon: PendingPaymentIcon, badge: true },
       { href: "/cancel", key: "cancel", icon: CancelIcon },
@@ -41,6 +41,8 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+const SIDEBAR_COLLAPSED_KEY = "sidebarCollapsed";
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { t } = useI18n();
@@ -48,10 +50,33 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pendingCount = usePendingBankPaymentsCount();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerPathname, setDrawerPathname] = useState(pathname);
+  const [collapsed, setCollapsed] = useState(false);
 
   if (pathname !== drawerPathname) {
     setDrawerPathname(pathname);
     setDrawerOpen(false);
+  }
+
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      try {
+        setCollapsed(window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "1");
+      } catch {
+        // ignore
+      }
+    });
+  }, []);
+
+  function toggleCollapsed() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem(SIDEBAR_COLLAPSED_KEY, next ? "1" : "0");
+      } catch {
+        // ignore
+      }
+      return next;
+    });
   }
 
   const initials =
@@ -61,16 +86,36 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <Protected>
       <div className="min-h-dvh bg-page md:flex">
         {/* Desktop sidebar */}
-        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-surface md:flex">
-          <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
+        <aside
+          className={cn(
+            "sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-border bg-surface transition-[width] duration-150 md:flex",
+            collapsed ? "w-[76px]" : "w-64",
+          )}
+        >
+          <div className={cn("flex h-16 items-center gap-2.5 border-b border-border", collapsed ? "justify-center px-2" : "px-5")}>
             <BrandLogo compact imgClassName="h-8 w-8" />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-navy">Biftu Bus</p>
-              <p className="truncate text-[11px] text-text-faint">{associationName}</p>
-            </div>
+            {!collapsed ? (
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-navy">Biftu Bus</p>
+                <p className="truncate text-[11px] text-text-faint">{associationName}</p>
+              </div>
+            ) : null}
           </div>
-          <SidebarNav pathname={pathname} pendingCount={pendingCount} t={t} />
-          <SidebarFooter initials={initials} profile={profile} t={t} logout={logout} />
+          <SidebarNav pathname={pathname} pendingCount={pendingCount} t={t} collapsed={collapsed} />
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            aria-label={collapsed ? t("expand_sidebar") : t("collapse_sidebar")}
+            title={collapsed ? t("expand_sidebar") : t("collapse_sidebar")}
+            className={cn(
+              "mx-3 mb-2 flex h-9 items-center gap-2 rounded-lg text-text-faint transition hover:bg-surface-muted hover:text-text-muted",
+              collapsed ? "justify-center px-0" : "justify-start px-3",
+            )}
+          >
+            <CollapseIcon collapsed={collapsed} />
+            {!collapsed ? <span className="text-[13px] font-medium">{t("collapse_sidebar")}</span> : null}
+          </button>
+          <SidebarFooter initials={initials} profile={profile} t={t} logout={logout} collapsed={collapsed} />
         </aside>
 
         {/* Mobile drawer */}
@@ -157,18 +202,22 @@ function SidebarNav({
   pathname,
   pendingCount,
   t,
+  collapsed = false,
 }: {
   pathname: string;
   pendingCount: number;
   t: (key: string) => string;
+  collapsed?: boolean;
 }) {
   return (
     <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
       {NAV_GROUPS.map((group) => (
         <div key={group.label} className="space-y-1">
-          <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-text-faint">
-            {t(group.label)}
-          </p>
+          {!collapsed ? (
+            <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-text-faint">
+              {t(group.label)}
+            </p>
+          ) : null}
           {group.items.map((item) => {
             const active = isActive(pathname, item.href);
             const Icon = item.icon;
@@ -176,18 +225,29 @@ function SidebarNav({
               <Link
                 key={item.href}
                 href={item.href}
+                title={collapsed ? t(item.key) : undefined}
                 className={cn(
-                  "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13.5px] font-medium transition",
+                  "group relative flex items-center gap-3 rounded-lg py-2 text-[13.5px] font-medium transition",
+                  collapsed ? "justify-center px-0" : "px-3",
                   active ? "bg-primary-soft text-primary" : "text-text-muted hover:bg-surface-muted hover:text-text",
                 )}
               >
                 {active ? <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-primary" /> : null}
-                <Icon className={cn("h-[18px] w-[18px] shrink-0", active ? "text-primary" : "text-text-faint group-hover:text-text-muted")} />
-                <span className="flex-1 truncate">{t(item.key)}</span>
-                {item.badge && pendingCount > 0 ? (
-                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-[11px] font-semibold text-white">
-                    {pendingCount > 99 ? "99+" : pendingCount}
-                  </span>
+                <span className="relative shrink-0">
+                  <Icon className={cn("h-[18px] w-[18px]", active ? "text-primary" : "text-text-faint group-hover:text-text-muted")} />
+                  {collapsed && item.badge && pendingCount > 0 ? (
+                    <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-danger" />
+                  ) : null}
+                </span>
+                {!collapsed ? (
+                  <>
+                    <span className="flex-1 truncate">{t(item.key)}</span>
+                    {item.badge && pendingCount > 0 ? (
+                      <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-[11px] font-semibold text-white">
+                        {pendingCount > 99 ? "99+" : pendingCount}
+                      </span>
+                    ) : null}
+                  </>
                 ) : null}
               </Link>
             );
@@ -203,12 +263,40 @@ function SidebarFooter({
   profile,
   t,
   logout,
+  collapsed = false,
 }: {
   initials: string;
   profile: { firstName?: string; lastName?: string; phoneNo?: string } | null;
   t: (key: string) => string;
   logout: () => void;
+  collapsed?: boolean;
 }) {
+  const name = profile ? `${profile.firstName || ""} ${profile.lastName || ""}`.trim() || t("profile") : t("profile");
+
+  if (collapsed) {
+    return (
+      <div className="border-t border-border p-3">
+        <div className="flex flex-col items-center gap-2">
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary"
+            title={name}
+          >
+            {initials}
+          </span>
+          <button
+            type="button"
+            onClick={logout}
+            aria-label={t("logout")}
+            title={t("logout")}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-faint transition hover:bg-danger-soft hover:text-danger"
+          >
+            <LogoutIcon />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="border-t border-border p-3">
       <div className="flex items-center gap-2.5 rounded-lg px-2 py-2">
@@ -216,9 +304,7 @@ function SidebarFooter({
           {initials}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-semibold text-text">
-            {profile ? `${profile.firstName || ""} ${profile.lastName || ""}`.trim() || t("profile") : t("profile")}
-          </p>
+          <p className="truncate text-[13px] font-semibold text-text">{name}</p>
           <p className="truncate text-[11px] text-text-faint">{profile?.phoneNo || ""}</p>
         </div>
         <button
@@ -342,6 +428,15 @@ function LogoutIcon({ className }: { className?: string }) {
     <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
       <path d="M16 17l5-5-5-5M21 12H9" />
+    </svg>
+  );
+}
+function CollapseIcon({ collapsed, className }: { collapsed: boolean; className?: string }) {
+  return (
+    <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M9 4v16" />
+      {collapsed ? <path d="M13.5 9.5 16 12l-2.5 2.5" /> : <path d="M16.5 9.5 14 12l2.5 2.5" />}
     </svg>
   );
 }
