@@ -7,11 +7,13 @@ import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
 import type { RouteSalesData } from "@/lib/types";
 import { formatDateISO, formatMoney } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SalesReportPage() {
   const { t } = useI18n();
   const toast = useToast();
+  const router = useRouter();
   const today = formatDateISO(new Date());
   const [start, setStart] = useState(today);
   const [end, setEnd] = useState(today);
@@ -53,14 +55,31 @@ export default function SalesReportPage() {
                   <p className="font-bold text-navy">{formatMoney(dayTotal)}</p>
                 </div>
                 <div className="divide-y divide-border text-sm">
-                  {day.routeSales?.map((sale) => (
-                    <div key={`${sale.from}-${sale.to}`} className="flex items-center justify-between gap-3 py-2">
-                      <span className="text-text-muted">
-                        {sale.from} → {sale.to} <span className="text-text-faint">({sale.totalTickets})</span>
-                      </span>
-                      <span className="font-semibold text-primary">{formatMoney(sale.ticketSales)}</span>
-                    </div>
-                  ))}
+                  {day.routeSales?.map((sale) => {
+                    const passengers = sale.passengers || sale.tickets;
+                    return (
+                      <div key={`${sale.from}-${sale.to}`} className="space-y-1.5 py-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-text-muted">
+                            {sale.from} → {sale.to} <span className="text-text-faint">({sale.totalTickets})</span>
+                          </span>
+                          <span className="font-semibold text-primary">{formatMoney(sale.ticketSales)}</span>
+                        </div>
+                        {passengers?.length ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              sessionStorage.setItem("passengerList", JSON.stringify(passengers));
+                              router.push("/reports/passengers");
+                            }}
+                          >
+                            {t("passengers")} ({passengers.length})
+                          </Button>
+                        ) : null}
+                      </div>
+                    );
+                  })}
                 </div>
               </Card>
             );

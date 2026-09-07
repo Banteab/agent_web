@@ -64,10 +64,12 @@ export const STORAGE_KEYS = {
   searchedBus: "searchedBus",
   bookingSession: "bookingSession",
   pendingBankPayments: "pendingBankPayments",
+  cancellationReasons: "cancellationReasons",
 } as const;
 
 export const BOOKING_HOLD_MS = 180_000;
 export const MAX_SEATS = 6;
+export const PENDING_BANK_PAYMENT_TTL_MS = 10 * 60_000;
 
 export const LOCALES = [
   { id: "en-US", label: "English (US)", flag: "🇺🇸" },

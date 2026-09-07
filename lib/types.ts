@@ -190,11 +190,35 @@ export type Ticket = {
 
 export type TicketListItem = Ticket;
 
+// A per-ticket row inside a route's breakdown. Field names are read
+// defensively (see reportPassengerFields in lib/utils.ts) since different
+// report endpoints on the API label the same data slightly differently.
+export type ReportPassenger = {
+  passenger?: string;
+  name?: string;
+  seat?: string;
+  ticketNo?: string;
+  ticket_no?: string;
+  price?: string | number;
+  amount?: string | number;
+  phoneNumber?: string;
+  phone?: string;
+  paymentMethod?: string;
+  bank?: string;
+  bankReferenceNumber?: string;
+  transactionNumber?: string;
+  reference?: string;
+  refNumber?: string;
+  referenceNumber?: string;
+};
+
 export type RouteSales = {
   from?: string;
   to?: string;
   totalTickets?: number;
   ticketSales?: number;
+  passengers?: ReportPassenger[];
+  tickets?: ReportPassenger[];
 };
 
 export type RouteSalesData = {
@@ -215,12 +239,7 @@ export type TicketReport = {
   ticket?: Ticket[];
   route?: {
     route?: string;
-    passengers?: {
-      passenger?: string;
-      seat?: string;
-      ticketNo?: string;
-      price?: string;
-    }[];
+    passengers?: ReportPassenger[];
   }[];
 };
 
