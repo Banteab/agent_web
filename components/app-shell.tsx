@@ -19,7 +19,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/home", key: "new_booking", icon: HomeIcon },
       { href: "/menu", key: "dashboard", icon: DashboardIcon },
-      { href: "/trips", key: "trip", icon: BusIcon },
+      // Fast Booking is hidden for now — keep the route working, just don't surface it in the nav.
+      // { href: "/trips", key: "trip", icon: BusIcon },
       { href: "/pending-payments", key: "pending_payments", icon: PendingPaymentIcon, badge: true },
       { href: "/cancel", key: "cancel", icon: CancelIcon },
       { href: "/checker", key: "checker", icon: CheckIcon },
@@ -328,14 +329,15 @@ function HomeIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-function BusIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="4" y="3" width="16" height="14" rx="2" />
-      <path d="M6 17v2M18 17v2M4 11h16" />
-    </svg>
-  );
-}
+// Unused while Fast Booking is hidden from the nav — see NAV_GROUPS above.
+// function BusIcon({ className }: { className?: string }) {
+//   return (
+//     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+//       <rect x="4" y="3" width="16" height="14" rx="2" />
+//       <path d="M6 17v2M18 17v2M4 11h16" />
+//     </svg>
+//   );
+// }
 function PendingPaymentIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

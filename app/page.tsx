@@ -42,7 +42,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-dvh bg-surface">
-      <div className="relative hidden w-[42%] flex-col overflow-hidden bg-navy px-12 py-12 text-white lg:flex">
+      <div className="relative hidden w-[38%] shrink-0 flex-col overflow-hidden bg-navy px-6 py-6 text-white sm:px-8 sm:py-8 md:flex lg:w-[42%] lg:px-12 lg:py-12">
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.07]"
           style={{
@@ -51,7 +51,7 @@ export default function LoginPage() {
             backgroundSize: "28px 28px",
           }}
         />
-        <div className="relative flex items-center justify-between gap-2.5">
+        <div className="relative flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2.5">
             <BrandLogo compact imgClassName="h-9 w-9" />
             <span className="text-base font-semibold tracking-tight">Biftu Bus</span>
@@ -62,10 +62,10 @@ export default function LoginPage() {
           </span>
         </div>
 
-        <div className="relative flex flex-1 flex-col items-center justify-center gap-6">
-          <SupportIllustration className="h-56 w-full max-w-xs" />
+        <div className="relative flex flex-1 flex-col items-center justify-center gap-6 py-6">
+          <SupportIllustration className="h-40 w-full max-w-[220px] lg:h-56 lg:max-w-xs" />
           <div className="max-w-sm text-center">
-            <p className="text-2xl font-semibold leading-snug tracking-tight">
+            <p className="text-xl font-semibold leading-snug tracking-tight lg:text-2xl">
               {t("login_hero_title")}
             </p>
             <p className="mt-3 text-sm leading-relaxed text-white/70">{t("login_hero_subtitle")}</p>
@@ -75,9 +75,9 @@ export default function LoginPage() {
         <p className="relative text-xs text-white/50">© {new Date().getFullYear()} Biftu Bus. {t("login_footer")}</p>
       </div>
 
-      <div className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-10 lg:px-16">
+      <div className="flex flex-1 flex-col justify-center overflow-y-auto px-6 py-10 sm:px-10 lg:px-16">
         <div className="mx-auto w-full max-w-sm">
-          <div className="mb-8 flex items-center gap-2.5 lg:hidden">
+          <div className="mb-8 flex items-center gap-2.5 md:hidden">
             <BrandLogo compact imgClassName="h-9 w-9" />
             <span className="text-base font-semibold tracking-tight text-navy">Biftu Bus</span>
           </div>

@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from "./constants";
+import { PENDING_BANK_PAYMENT_TTL_MS, STORAGE_KEYS } from "./constants";
 import type { BookingSession, SearchResult } from "./types";
 
 const browser = () => typeof window !== "undefined";
@@ -103,4 +103,81 @@ export function setBookingSession(session: BookingSession) {
 export function clearBookingSession() {
   if (!browser()) return;
   sessionStorage.removeItem(STORAGE_KEYS.bookingSession);
+}
+
+export type PendingBankPayment = {
+  bookingId: number;
+  addedAt: string;
+  fromCity?: string;
+  toCity?: string;
+  phoneNumber?: string;
+  passengers?: string;
+  price?: number;
+  travelDate?: string;
+  /** Which bank the customer was told to pay into (e.g. "Awash Bank"). */
+  bank?: string;
+};
+
+/** Bank payments are only confirmable for PENDING_BANK_PAYMENT_TTL_MS after being added. */
+export function pendingBankPaymentExpiresAt(entry: Pick<PendingBankPayment, "addedAt">) {
+  return new Date(entry.addedAt).getTime() + PENDING_BANK_PAYMENT_TTL_MS;
+}
+
+export function isPendingBankPaymentExpired(entry: Pick<PendingBankPayment, "addedAt">, now = Date.now()) {
+  return now >= pendingBankPaymentExpiresAt(entry);
+}
+
+function readPendingBankPayments(): PendingBankPayment[] {
+  try {
+    const raw = JSON.parse(storage.get(STORAGE_KEYS.pendingBankPayments) || "[]");
+    return Array.isArray(raw) ? (raw as PendingBankPayment[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export const PENDING_BANK_PAYMENTS_EVENT = "pending-bank-payments-changed";
+
+function writePendingBankPayments(list: PendingBankPayment[]) {
+  storage.set(STORAGE_KEYS.pendingBankPayments, JSON.stringify(list));
+  if (browser()) window.dispatchEvent(new Event(PENDING_BANK_PAYMENTS_EVENT));
+}
+
+export function getPendingBankPayments(): PendingBankPayment[] {
+  if (!browser()) return [];
+  return readPendingBankPayments();
+}
+
+export function addPendingBankPayment(entry: Omit<PendingBankPayment, "addedAt">) {
+  if (!browser()) return;
+  const list = readPendingBankPayments().filter((item) => item.bookingId !== entry.bookingId);
+  list.unshift({ ...entry, addedAt: new Date().toISOString() });
+  writePendingBankPayments(list);
+}
+
+export function removePendingBankPayment(bookingId: number) {
+  if (!browser()) return;
+  writePendingBankPayments(readPendingBankPayments().filter((item) => item.bookingId !== bookingId));
+}
+
+function readCancellationReasons(): Record<string, string> {
+  try {
+    const raw = JSON.parse(storage.get(STORAGE_KEYS.cancellationReasons) || "{}");
+    return raw && typeof raw === "object" ? raw : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Records why an agent cancelled a ticket, kept client-side for the cancelled-ticket detail view. */
+export function setCancellationReason(ticketId: number, reason: string) {
+  if (!browser()) return;
+  const map = readCancellationReasons();
+  map[String(ticketId)] = reason;
+  storage.set(STORAGE_KEYS.cancellationReasons, JSON.stringify(map));
+}
+
+export function getCancellationReason(ticketId?: number | null): string {
+  if (!browser() || !ticketId) return "";
+  return readCancellationReasons()[String(ticketId)] || "";
 }
