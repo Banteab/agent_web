@@ -328,6 +328,7 @@
     "bank_transaction_number": "Bank Transaction Number",
     "bank_transaction_number_required": "Bank transaction number is required",
     "payment_confirmed": "Payment confirmed",
+    "booking_expired_or_not_found": "This reservation expired or was removed. Create a new booking.",
     "filter_all": "All",
     "cancel_button": "Cancel",
     "today": "Har'a",

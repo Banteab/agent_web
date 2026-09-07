@@ -151,11 +151,26 @@ export const api = {
   },
 
   // BookingService.updateBookingPaymentData  PUT /booking/payment-data/:id
-  updatePayment(bookingId: number, paymentOption: string, referenceNumber: string) {
+  updatePayment(
+    bookingId: number,
+    paymentOption: string,
+    referenceNumber: string,
+    bank?: string,
+  ) {
     return apiRequest<ApiMessage>(ENDPOINTS.paymentData(bookingId), {
       method: "PUT",
-      form: { paymentOption, referenceNumber },
+      form: {
+        paymentOption,
+        referenceNumber,
+        ...(bank ? { bank } : {}),
+      },
     });
+  },
+
+  // GET /booking/agent/pending-bank-payments
+  async getPendingBankPayments() {
+    const data = await apiRequest<Booking[]>(ENDPOINTS.pendingBankPayments);
+    return asList<Booking>(data);
   },
 
   // Agent bank confirm — saves txn, marks BOOKED, issues tickets (no bank API)

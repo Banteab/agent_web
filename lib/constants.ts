@@ -18,6 +18,7 @@ export const ENDPOINTS = {
   tripById: (id: number | string) => `/trips/${id}`,
   formattedSeats: (id: number | string) => `/trips/formatted-seats/${id}`,
   firstSeat: "/booking/agent",
+  pendingBankPayments: "/booking/agent/pending-bank-payments",
   topUp: "/top-up-request",
   updateSeat: (bookingId: number | string, seat: number | string) =>
     `/booking/update-seat/${bookingId}/seat/${seat}`,
@@ -63,11 +64,13 @@ export const STORAGE_KEYS = {
   recentHistories: "recentHistories",
   searchedBus: "searchedBus",
   bookingSession: "bookingSession",
-  pendingBankPayments: "pendingBankPayments",
 } as const;
 
 export const BOOKING_HOLD_MS = 180_000;
 export const MAX_SEATS = 6;
+
+/** Dispatched after pending bank payments change (confirm, new checkout). */
+export const PENDING_PAYMENTS_REFRESH_EVENT = "pending-payments-refresh";
 
 export const LOCALES = [
   { id: "en-US", label: "English (US)", flag: "🇺🇸" },

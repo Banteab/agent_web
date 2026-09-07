@@ -8,11 +8,11 @@ import { useAuth } from "@/lib/auth-context";
 import { CHECKOUT_BANKS } from "@/lib/constants";
 import { useI18n } from "@/lib/i18n";
 import {
-  addPendingBankPayment,
   clearBookingSession,
   getBookingSession,
   setBookingSession,
 } from "@/lib/storage";
+import { notifyPendingPaymentsRefresh } from "@/lib/use-pending-bank-payments-count";
 import { useToast } from "@/lib/toast-context";
 import type { Booking } from "@/lib/types";
 import { cn, formatMoney, parsePassengerNames } from "@/lib/utils";
@@ -67,25 +67,22 @@ export default function PaymentPage() {
     }
     setSaving(true);
     try {
-      const res = await api.updatePayment(current.bookingId, method, reference.trim());
+      const bankName = CHECKOUT_BANKS.find((item) => item.id === bank)?.name;
+      const res = await api.updatePayment(
+        current.bookingId,
+        method,
+        reference.trim(),
+        method === "BANK" ? bankName : undefined,
+      );
       if (res.success === false) {
         toast.error(res.message || t("error_occured"));
         return;
       }
       setBookingSession(current);
       if (method === "BANK") {
-        addPendingBankPayment({
-          bookingId: current.bookingId,
-          fromCity: current.fromCity,
-          toCity: current.toCity,
-          phoneNumber: current.phoneNumber || booking?.phoneNumber,
-          passengers: current.passengers || booking?.passengers,
-          price: total,
-          travelDate: current.isoDate || booking?.trip?.travelDate,
-          bank: CHECKOUT_BANKS.find((item) => item.id === bank)?.name,
-        });
         toast.success(res.message || t("booking_added"));
         clearBookingSession();
+        notifyPendingPaymentsRefresh();
         router.replace("/home");
         return;
       }
