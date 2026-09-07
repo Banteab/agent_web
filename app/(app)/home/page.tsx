@@ -1,6 +1,7 @@
 "use client";
 
 import { CityPicker } from "@/components/city-picker";
+import { SupportIllustration } from "@/components/support-illustration";
 import { Button, EmptyState, SectionLabel } from "@/components/ui";
 import { api } from "@/lib/api";
 import { cityApiName, citiesFromApi, FALLBACK_CITIES, mergeCities, normalizeCity } from "@/lib/cities";
@@ -74,11 +75,14 @@ export default function HomeSearchPage() {
           className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl"
           aria-hidden
         />
-        <div className="relative max-w-xl">
-          <p className="text-2xl font-semibold leading-snug tracking-tight text-white sm:text-3xl">
-            {t("new_booking_hero_title")}
-          </p>
-          <p className="mt-2 text-sm text-white/70 sm:text-base">{t("new_booking_hero_subtitle")}</p>
+        <div className="relative flex items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <p className="text-2xl font-semibold leading-snug tracking-tight text-white sm:text-3xl">
+              {t("new_booking_hero_title")}
+            </p>
+            <p className="mt-2 text-sm text-white/70 sm:text-base">{t("new_booking_hero_subtitle")}</p>
+          </div>
+          <SupportIllustration className="hidden h-40 w-40 shrink-0 xl:block" />
         </div>
       </div>
 
