@@ -121,7 +121,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-xl border border-border bg-surface p-5", className)}>
+    <div className={cn("rounded-xl border border-border bg-surface p-5 shadow-sm", className)}>
       {children}
     </div>
   );
@@ -225,7 +225,14 @@ export function StatCard({
   hint?: React.ReactNode;
 }) {
   return (
-    <Card className="flex items-start gap-3">
+    <Card
+      className={cn(
+        "flex items-start gap-3 border-t-[3px] transition hover:-translate-y-0.5 hover:shadow-md",
+        tone === "primary" && "border-t-primary",
+        tone === "gold" && "border-t-gold",
+        tone === "neutral" && "border-t-border-strong",
+      )}
+    >
       {icon ? (
         <span
           className={cn(
