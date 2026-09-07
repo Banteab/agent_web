@@ -1,3 +1,5 @@
+import { formatEthiopianDate } from "./ethiopian-calendar";
+
 export function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
@@ -9,7 +11,10 @@ export function formatDateISO(date: Date) {
   return `${y}-${m}-${d}`;
 }
 
-export function formatDisplayDate(date: Date) {
+export function formatDisplayDate(date: Date, locale?: string) {
+  if (locale?.startsWith("am")) {
+    return formatEthiopianDate(date);
+  }
   return date.toLocaleDateString(undefined, {
     weekday: "short",
     day: "numeric",

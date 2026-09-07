@@ -6,6 +6,7 @@ import { Button, EmptyState, SectionLabel } from "@/components/ui";
 import { api } from "@/lib/api";
 import { cityApiName, citiesFromApi, FALLBACK_CITIES, mergeCities, normalizeCity } from "@/lib/cities";
 import { useI18n } from "@/lib/i18n";
+import { formatEthiopianDate } from "@/lib/ethiopian-calendar";
 import { addRecentHistory, parseRecentHistory, setBookingSession } from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { City } from "@/lib/types";
@@ -14,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function HomeSearchPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const toast = useToast();
   const router = useRouter();
   const [from, setFrom] = useState<City | null>(null);
@@ -47,7 +48,7 @@ export default function HomeSearchPage() {
     setBookingSession({
       fromCity: fromName,
       toCity: toName,
-      visualDate: formatDisplayDate(new Date(date)),
+      visualDate: formatDisplayDate(new Date(date), locale),
       isoDate: date,
       selectedSeats: [],
     });
@@ -126,6 +127,9 @@ export default function HomeSearchPage() {
                 onChange={(e) => setDate(e.target.value)}
                 className="w-full truncate border-none bg-transparent p-0 font-semibold text-navy outline-none [color-scheme:light]"
               />
+              {locale?.startsWith("am") && (
+                <p className="truncate text-[11px] text-text-faint">{formatEthiopianDate(new Date(date))}</p>
+              )}
             </div>
           </label>
           <div className="flex items-center p-1.5 lg:pl-3">
