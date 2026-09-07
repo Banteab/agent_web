@@ -9,9 +9,22 @@ type BrandLogoProps = {
   className?: string;
   imgClassName?: string;
   onDark?: boolean;
+  /** Mark only, no wordmark underneath — for inline use next to separate text (sidebar/header). */
+  compact?: boolean;
 };
 
-export function BrandLogo({ className, imgClassName, onDark = false }: BrandLogoProps) {
+export function BrandLogo({ className, imgClassName, onDark = false, compact = false }: BrandLogoProps) {
+  if (compact) {
+    return (
+      <Image
+        src={biftuLogo}
+        alt={BRAND_NAME}
+        className={cn("h-8 w-8 shrink-0 rounded-lg object-contain", imgClassName, className)}
+        priority
+      />
+    );
+  }
+
   return (
     <span
       className={cn(
@@ -27,8 +40,7 @@ export function BrandLogo({ className, imgClassName, onDark = false }: BrandLogo
         priority
       />
       <span className="text-xl font-black italic tracking-wide">
-        <span className="text-[#002366]">BIFTU</span>{" "}
-        <span className="text-[#f2b31a]">BUS</span>
+        <span className="text-navy">BIFTU</span> <span className="text-gold">BUS</span>
       </span>
     </span>
   );
