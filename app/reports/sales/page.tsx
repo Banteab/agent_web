@@ -1,7 +1,7 @@
 "use client";
 
 import { Protected } from "@/components/protected";
-import { Button, Card, EmptyState, PageHeader, SectionLabel, Spinner } from "@/components/ui";
+import { Button, Card, EmptyState, Input, PageHeader, SectionLabel, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
@@ -32,11 +32,11 @@ export default function SalesReportPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("sales_report")} backHref="/menu" />
         <Card className="mb-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-          <input type="date" value={start} onChange={(e) => setStart(e.target.value)} className="min-h-11 rounded-full bg-slate-100 px-4" />
-          <input type="date" value={end} onChange={(e) => setEnd(e.target.value)} className="min-h-11 rounded-full bg-slate-100 px-4" />
+          <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
+          <Input type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
           <Button onClick={load} loading={loading}>
             {t("search")}
           </Button>
@@ -52,11 +52,11 @@ export default function SalesReportPage() {
                   <SectionLabel>{day.date}</SectionLabel>
                   <p className="font-bold text-navy">{formatMoney(dayTotal)}</p>
                 </div>
-                <div className="divide-y divide-slate-100 text-sm">
+                <div className="divide-y divide-border text-sm">
                   {day.routeSales?.map((sale) => (
                     <div key={`${sale.from}-${sale.to}`} className="flex items-center justify-between gap-3 py-2">
-                      <span className="text-slate-600">
-                        {sale.from} → {sale.to} <span className="text-slate-400">({sale.totalTickets})</span>
+                      <span className="text-text-muted">
+                        {sale.from} → {sale.to} <span className="text-text-faint">({sale.totalTickets})</span>
                       </span>
                       <span className="font-semibold text-primary">{formatMoney(sale.ticketSales)}</span>
                     </div>

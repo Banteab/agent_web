@@ -28,7 +28,7 @@ function ReportDetail() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("report")} backHref="/reports" />
         {loading ? <Spinner /> : null}
         {!loading && !report?.ticket?.length && !report?.route?.length ? (
@@ -39,7 +39,7 @@ function ReportDetail() {
             <Card key={ticket.id} className="flex items-center justify-between gap-3">
               <div>
                 <p className="font-bold text-navy">{ticket.ticketNo}</p>
-                <p className="text-sm text-slate-500">{ticket.passenger}</p>
+                <p className="text-sm text-text-muted">{ticket.passenger}</p>
               </div>
               <Badge tone="info">{t("seat")} {ticket.seat}</Badge>
             </Card>
@@ -49,7 +49,7 @@ function ReportDetail() {
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="font-bold text-navy">{route.route}</p>
-                  <p className="text-sm text-slate-500">{route.passengers?.length || 0} {t("ticket")}</p>
+                  <p className="text-sm text-text-muted">{route.passengers?.length || 0} {t("ticket")}</p>
                 </div>
                 <p className="text-lg font-bold text-primary">
                   {formatMoney(

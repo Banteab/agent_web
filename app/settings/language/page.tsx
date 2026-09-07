@@ -11,9 +11,9 @@ export default function LanguagePage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("language")} backHref="/settings" />
-        <Card className="divide-y divide-slate-100 p-0">
+        <Card className="divide-y divide-border p-0">
           {LOCALES.map((item) => (
             <button
               key={item.id}

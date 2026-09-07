@@ -18,7 +18,7 @@ export default function ProfilePage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("profile")} backHref="/menu" />
         {!profile ? <Spinner /> : (
           <Card className="space-y-4">
@@ -28,7 +28,7 @@ export default function ProfilePage() {
                 <p className="text-xl font-bold text-navy">
                   {profile.firstName} {profile.lastName}
                 </p>
-                <p className="text-sm text-slate-500">{profile.phoneNo}</p>
+                <p className="text-sm text-text-muted">{profile.phoneNo}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

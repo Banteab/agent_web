@@ -25,7 +25,7 @@ export default function OfechoPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title="Ofecho" backHref="/reports" />
         {loading ? <Spinner /> : null}
         {!loading && !rows.length ? <EmptyState title={t("no_content")} /> : null}
@@ -34,10 +34,10 @@ export default function OfechoPage() {
             <Card key={`${row.name}-${index}`} className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="truncate font-bold text-navy">{row.name}</p>
-                <p className="truncate text-sm text-slate-500">
+                <p className="truncate text-sm text-text-muted">
                   {row.from} → {row.to} · {t("seat")} {row.seat}
                 </p>
-                <p className="text-sm text-slate-400">{row.bus}</p>
+                <p className="text-sm text-text-faint">{row.bus}</p>
               </div>
               <p className="shrink-0 text-lg font-bold text-primary">{formatMoney(row.price)}</p>
             </Card>

@@ -50,7 +50,7 @@ export default function BookedDetailPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("booking_detail")} backHref="/booked" />
         <Card className="space-y-3">
           <BrandLogo className="mx-auto" imgClassName="h-16" />

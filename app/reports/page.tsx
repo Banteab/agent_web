@@ -15,7 +15,7 @@ export default function ReportsPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("report")} backHref="/menu" />
         <Card className="space-y-4">
           <Select value={type} onChange={(e) => setType(e.target.value)}>

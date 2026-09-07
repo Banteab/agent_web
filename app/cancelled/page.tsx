@@ -27,7 +27,7 @@ export default function CancelledPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("cancelled")} backHref="/menu" />
         {loading ? <Spinner /> : null}
         {!loading && !tickets.length ? <EmptyState title={t("no_ticket_data")} /> : null}
@@ -46,14 +46,14 @@ export default function CancelledPage() {
                 <Card className="flex items-center justify-between gap-3 transition hover:ring-primary/30">
                   <div className="min-w-0">
                     <p className="truncate font-bold text-navy">{ticket.ticketNo}</p>
-                    <p className="truncate text-sm text-slate-500">{ticket.passenger}</p>
-                    <p className="mt-1 truncate text-sm text-slate-600">
+                    <p className="truncate text-sm text-text-muted">{ticket.passenger}</p>
+                    <p className="mt-1 truncate text-sm text-text-muted">
                       {route?.from || ticket.booking?.trip?.from} → {route?.to || ticket.booking?.trip?.to}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     <StatusBadge status={ticket.status} />
-                    <span className="text-slate-300">›</span>
+                    <span className="text-text-faint">›</span>
                   </div>
                 </Card>
               </button>

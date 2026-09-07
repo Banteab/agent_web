@@ -27,7 +27,7 @@ export default function PassengerListPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("passengers")} backHref="/reports" />
         {!rows.length ? <EmptyState title={t("no_content")} /> : null}
         <div className="space-y-3">
@@ -35,7 +35,7 @@ export default function PassengerListPage() {
             <Card key={`${row.ticketNo}-${index}`} className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="truncate font-bold text-navy">{row.passenger}</p>
-                <p className="truncate text-sm text-slate-500">
+                <p className="truncate text-sm text-text-muted">
                   {row.ticketNo} · {t("seat")} {row.seat}
                 </p>
               </div>
