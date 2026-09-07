@@ -116,20 +116,45 @@ export default function PendingPaymentsPage() {
   return (
     <Protected>
       <div className="mx-auto max-w-6xl">
-        <PageHeader title={t("pending_payments")} />
+        <PageHeader
+          title={t("pending_payments")}
+          subtitle={t("pending_payments_subtitle")}
+          action={
+            !loading && rows.length ? (
+              <Badge tone="pending" className="hidden sm:inline-flex">
+                {rows.length} {t("pending_payment")}
+              </Badge>
+            ) : undefined
+          }
+        />
 
-        <Card className="mb-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+        <Card className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-text-faint"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <Input
+              placeholder={t("search_pending_payments")}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
           <Input
-            placeholder={t("search_pending_payments")}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <input
             type="date"
             value={travelDate}
             onChange={(e) => setTravelDate(e.target.value)}
             aria-label={t("travel_date")}
-            className="min-h-12 rounded-full border border-transparent bg-slate-100 px-4 text-sm text-slate-800 outline-none focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
+            className="sm:w-48"
           />
         </Card>
 
@@ -143,7 +168,7 @@ export default function PendingPaymentsPage() {
           <>
             <TableFrame className="hidden md:block">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <thead className="bg-surface-muted text-xs font-semibold uppercase tracking-wide text-text-faint">
                   <tr>
                     <th className="px-4 py-3">{t("pnr")}</th>
                     <th className="px-4 py-3">{t("reservation_no")}</th>
@@ -151,13 +176,13 @@ export default function PendingPaymentsPage() {
                     <th className="px-4 py-3">{t("phone")}</th>
                     <th className="px-4 py-3">{t("from")}/{t("to")}</th>
                     <th className="px-4 py-3">{t("travel_date")}</th>
-                    <th className="px-4 py-3">{t("amount")}</th>
+                    <th className="px-4 py-3 text-right">{t("amount")}</th>
                     <th className="px-4 py-3">{t("booking_date")}</th>
                     <th className="px-4 py-3">{t("status")}</th>
                     <th className="px-4 py-3" />
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-border">
                   {filtered.map((row) => (
                     <PendingRow key={row.entry.bookingId} row={row} onConfirm={setConfirmRow} onRemoveStale={removeStale} t={t} />
                   ))}
@@ -228,25 +253,27 @@ function PendingRow({
   t: (key: string) => string;
 }) {
   return (
-    <tr className="align-middle text-navy">
-      <td className="px-4 py-3 font-semibold">{row.booking?.refNumber || "-"}</td>
-      <td className="px-4 py-3">{row.entry.bookingId}</td>
+    <tr className="align-middle text-text transition hover:bg-surface-muted/60">
+      <td className="px-4 py-3 font-semibold text-navy">{row.booking?.refNumber || "-"}</td>
+      <td className="px-4 py-3 text-text-muted">{row.entry.bookingId}</td>
       <td className="px-4 py-3">{passengerLabel(row)}</td>
-      <td className="px-4 py-3">{row.booking?.phoneNumber || row.entry.phoneNumber || "-"}</td>
+      <td className="px-4 py-3 text-text-muted">{row.booking?.phoneNumber || row.entry.phoneNumber || "-"}</td>
       <td className="px-4 py-3">{routeLabel(row)}</td>
-      <td className="px-4 py-3">{travelDateLabel(row)}</td>
-      <td className="px-4 py-3 font-semibold">{amountLabel(row)}</td>
-      <td className="px-4 py-3 text-slate-500">{bookingDateLabel(row)}</td>
+      <td className="px-4 py-3 text-text-muted">{travelDateLabel(row)}</td>
+      <td className="px-4 py-3 text-right font-semibold text-navy">{amountLabel(row)}</td>
+      <td className="px-4 py-3 text-text-muted">{bookingDateLabel(row)}</td>
       <td className="px-4 py-3">
         {row.loadError ? <Badge tone="danger">{t("error_occured")}</Badge> : <Badge tone="pending">{t("pending_payment")}</Badge>}
       </td>
       <td className="px-4 py-3 text-right">
         {row.loadError ? (
-          <Button variant="ghost" onClick={() => onRemoveStale(row.entry.bookingId)}>
+          <Button variant="ghost" size="sm" onClick={() => onRemoveStale(row.entry.bookingId)}>
             {t("cancel_button")}
           </Button>
         ) : (
-          <Button onClick={() => onConfirm(row)}>{t("confirm_payment")}</Button>
+          <Button size="sm" onClick={() => onConfirm(row)}>
+            {t("confirm_payment")}
+          </Button>
         )}
       </td>
     </tr>
@@ -269,11 +296,11 @@ function PendingCard({
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="font-bold text-navy">{row.booking?.refNumber || `#${row.entry.bookingId}`}</p>
-          <p className="text-slate-500">{passengerLabel(row)}</p>
+          <p className="text-text-muted">{passengerLabel(row)}</p>
         </div>
         {row.loadError ? <Badge tone="danger">{t("error_occured")}</Badge> : <Badge tone="pending">{t("pending_payment")}</Badge>}
       </div>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-slate-600">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-text-muted">
         <span>{t("from")}/{t("to")}</span>
         <span className="text-right font-semibold text-navy">{routeLabel(row)}</span>
         <span>{t("travel_date")}</span>
@@ -329,6 +356,7 @@ function ConfirmPaymentModal({
       open={!!row}
       onClose={onClose}
       title={t("confirm_payment")}
+      subtitle={`${t("pnr")} ${row.booking?.refNumber || `#${row.entry.bookingId}`}`}
       footer={
         <>
           <Button variant="ghost" className="flex-1" onClick={onClose} disabled={saving}>
@@ -345,25 +373,37 @@ function ConfirmPaymentModal({
         </>
       }
     >
-      <div className="space-y-3 text-sm">
-        <DetailRow label={t("pnr")} value={row.booking?.refNumber || "-"} />
-        <DetailRow label={t("reservation_no")} value={String(row.entry.bookingId)} />
-        <DetailRow label={t("passenger")} value={passengerLabel(row)} />
-        <DetailRow label={`${t("from")}/${t("to")}`} value={routeLabel(row)} />
-        <DetailRow label={t("travel_date")} value={travelDateLabel(row)} />
-        <DetailRow label={t("amount")} value={amountLabel(row)} />
-        <DetailRow label={t("status")} value={t("pending_payment")} />
-        <label className="block space-y-1.5 pt-2">
-          <span className="text-sm font-semibold text-slate-600">
-            {t("bank_transaction_number")} <span className="text-rose-500">*</span>
-          </span>
-          <Input
-            value={transactionNumber}
-            onChange={(e) => setTransactionNumber(e.target.value)}
-            placeholder={t("bank_transaction_number")}
-            autoFocus
-          />
-        </label>
+      <div className="space-y-4 text-sm">
+        <div className="flex items-center justify-between rounded-lg bg-warning-soft px-3.5 py-2.5">
+          <span className="text-xs font-semibold uppercase tracking-wide text-warning">{t("pending_payment")}</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-warning">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </div>
+
+        <div className="space-y-1 rounded-lg border border-border p-3.5">
+          <DetailRow label={t("reservation_no")} value={String(row.entry.bookingId)} />
+          <DetailRow label={t("passenger")} value={passengerLabel(row)} />
+          <DetailRow label={`${t("from")}/${t("to")}`} value={routeLabel(row)} />
+          <DetailRow label={t("travel_date")} value={travelDateLabel(row)} />
+          <div className="my-1 border-t border-border" />
+          <DetailRow label={t("amount")} value={<span className="text-base text-primary">{amountLabel(row)}</span>} />
+        </div>
+
+        <div className="space-y-1.5 rounded-lg border border-primary/20 bg-primary-soft/50 p-3.5">
+          <label className="block space-y-1.5">
+            <span className="text-[13px] font-semibold text-navy">
+              {t("bank_transaction_number")} <span className="text-danger">*</span>
+            </span>
+            <Input
+              value={transactionNumber}
+              onChange={(e) => setTransactionNumber(e.target.value)}
+              placeholder={t("bank_transaction_number_placeholder")}
+              autoFocus
+            />
+          </label>
+          <p className="text-xs text-text-muted">{t("bank_transaction_number_hint")}</p>
+        </div>
       </div>
     </Modal>
   );
