@@ -91,12 +91,162 @@ export function Card({
   );
 }
 
-export function EmptyState({ title, hint }: { title: string; hint?: string }) {
+export function EmptyState({
+  title,
+  hint,
+  icon,
+  action,
+}: {
+  title: string;
+  hint?: string;
+  icon?: React.ReactNode;
+  action?: React.ReactNode;
+}) {
   return (
-    <Card className="text-center">
+    <Card className="flex flex-col items-center gap-2 py-10 text-center">
+      {icon ? <span className="mb-1 text-slate-300">{icon}</span> : null}
       <p className="font-semibold text-slate-700">{title}</p>
-      {hint ? <p className="mt-1 text-sm text-slate-500">{hint}</p> : null}
+      {hint ? <p className="max-w-xs text-sm text-slate-500">{hint}</p> : null}
+      {action ? <div className="mt-2">{action}</div> : null}
     </Card>
+  );
+}
+
+export function ErrorState({
+  title,
+  hint,
+  onRetry,
+}: {
+  title: string;
+  hint?: string;
+  onRetry?: () => void;
+}) {
+  return (
+    <Card className="flex flex-col items-center gap-2 border border-rose-100 py-10 text-center">
+      <p className="font-semibold text-rose-600">{title}</p>
+      {hint ? <p className="max-w-xs text-sm text-slate-500">{hint}</p> : null}
+      {onRetry ? (
+        <Button variant="ghost" className="mt-2" onClick={onRetry}>
+          Try again
+        </Button>
+      ) : null}
+    </Card>
+  );
+}
+
+const badgeTones = {
+  neutral: "bg-slate-100 text-slate-600",
+  info: "bg-azure text-navy",
+  pending: "bg-amber-100 text-amber-700",
+  success: "bg-emerald-100 text-emerald-700",
+  danger: "bg-rose-100 text-rose-700",
+} as const;
+
+export function Badge({
+  children,
+  tone = "neutral",
+  className,
+}: {
+  children: React.ReactNode;
+  tone?: keyof typeof badgeTones;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide",
+        badgeTones[tone],
+        className,
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+export function StatCard({
+  label,
+  value,
+  icon,
+  tone = "neutral",
+}: {
+  label: string;
+  value: React.ReactNode;
+  icon?: React.ReactNode;
+  tone?: "neutral" | "primary" | "gold";
+}) {
+  return (
+    <Card className="flex items-center gap-3 !p-4">
+      {icon ? (
+        <span
+          className={cn(
+            "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+            tone === "primary" && "bg-primary/10 text-primary",
+            tone === "gold" && "bg-gold/15 text-[#a3760b]",
+            tone === "neutral" && "bg-slate-100 text-slate-500",
+          )}
+        >
+          {icon}
+        </span>
+      ) : null}
+      <div className="min-w-0">
+        <p className="truncate text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+        <p className="text-xl font-bold text-navy">{value}</p>
+      </div>
+    </Card>
+  );
+}
+
+export function TableFrame({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn("overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100", className)}>
+      <div className="overflow-x-auto">{children}</div>
+    </div>
+  );
+}
+
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center sm:p-4">
+      <div
+        className="absolute inset-0 bg-navy/50 backdrop-blur-[1px]"
+        onClick={onClose}
+        aria-hidden
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className="relative flex max-h-[90dvh] w-full flex-col rounded-t-3xl bg-white shadow-xl sm:max-w-md sm:rounded-3xl"
+      >
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+          <h2 className="text-base font-bold text-navy">{title}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
+        {footer ? <div className="flex gap-2 border-t border-slate-100 px-5 py-4">{footer}</div> : null}
+      </div>
+    </div>
   );
 }
 
