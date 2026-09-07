@@ -374,5 +374,8 @@
     "calculation": "ሕሳብ",
     "reference_number": "ቁ. ምልክት",
     "bank": "ባንክ",
-    "information": "ሓበሬታ"
+    "information": "ሓበሬታ",
+    "cancellation_reason": "ምኽንያት ስርዛት",
+    "cancellation_reason_placeholder": "እዚ ትኬት ስለምንታይ ከምዝስረዝ ግለጹ",
+    "cancellation_reason_required": "በጃኹም ምኽንያት ስርዛት የእትዉ"
 }

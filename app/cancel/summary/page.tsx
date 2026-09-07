@@ -1,9 +1,10 @@
 "use client";
 
 import { Protected } from "@/components/protected";
-import { Button, Card, DetailRow, EmptyState, PageHeader, Spinner, StatusBadge } from "@/components/ui";
+import { Button, Card, DetailRow, EmptyState, Field, PageHeader, Spinner, StatusBadge, Textarea } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+import { setCancellationReason } from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { Ticket } from "@/lib/types";
 import { formatMoney, parseSelectedRoute } from "@/lib/utils";
@@ -19,6 +20,7 @@ function CancelSummary() {
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [reason, setReason] = useState("");
 
   useEffect(() => {
     if (!ticketNo) {
@@ -34,9 +36,14 @@ function CancelSummary() {
 
   async function confirm() {
     if (!ticket?.id) return;
+    if (!reason.trim()) {
+      toast.error(t("cancellation_reason_required"));
+      return;
+    }
     setCancelling(true);
     try {
       const res = await api.cancelTicket(ticket.id);
+      setCancellationReason(ticket.id, reason.trim());
       toast.success(res.message || t("ticket_cancelled"));
       router.replace("/cancelled");
     } catch (err) {
@@ -67,6 +74,13 @@ function CancelSummary() {
             <DetailRow label={t("to")} value={route?.to || ticket.booking?.trip?.to} />
             <DetailRow label={t("seat")} value={ticket.seat} />
             <DetailRow label={t("price")} value={formatMoney(ticket.booking?.price || route?.price)} />
+            <Field label={t("cancellation_reason")} required>
+              <Textarea
+                placeholder={t("cancellation_reason_placeholder")}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+              />
+            </Field>
             <Button variant="danger" className="w-full" loading={cancelling} onClick={confirm}>
               {t("cancel_this_ticket")}
             </Button>

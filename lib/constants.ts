@@ -62,6 +62,7 @@ export const STORAGE_KEYS = {
   searchedBus: "searchedBus",
   bookingSession: "bookingSession",
   pendingBankPayments: "pendingBankPayments",
+  cancellationReasons: "cancellationReasons",
 } as const;
 
 export const BOOKING_HOLD_MS = 180_000;

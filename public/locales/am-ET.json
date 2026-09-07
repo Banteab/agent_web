@@ -374,5 +374,8 @@
     "calculation": "ስሌት",
     "reference_number": "የማጣቀሻ ቁጥር",
     "bank": "ባንክ",
-    "information": "መረጃ"
+    "information": "መረጃ",
+    "cancellation_reason": "የስረዛ ምክንያት",
+    "cancellation_reason_placeholder": "ይህ ትኬት ለምን እንደሚሰረዝ ያብራሩ",
+    "cancellation_reason_required": "እባክዎ የስረዛ ምክንያት ያስገቡ"
 }

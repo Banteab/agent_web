@@ -388,5 +388,8 @@
     "active_ticket": "Active Ticket",
     "booked_ticket": "Booked Ticket",
     "passangerdetails": "Passenger Details",
-    "journey_details": "Journey Details"
+    "journey_details": "Journey Details",
+    "cancellation_reason": "Cancellation Reason",
+    "cancellation_reason_placeholder": "Explain why this ticket is being cancelled",
+    "cancellation_reason_required": "Please enter a reason for the cancellation"
 }

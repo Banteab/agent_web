@@ -3,6 +3,7 @@
 import { Protected } from "@/components/protected";
 import { Card, DetailRow, PageHeader, StatusBadge } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
+import { getCancellationReason } from "@/lib/storage";
 import type { TicketListItem } from "@/lib/types";
 import { formatMoney, parseSelectedRoute } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -24,6 +25,7 @@ export default function CancelledDetailPage() {
 
   if (!ticket) return null;
   const route = ticket.booking?.parseSelectedRoute || parseSelectedRoute(ticket.booking?.selectedRoute);
+  const reason = getCancellationReason(ticket.id);
 
   return (
     <Protected>
@@ -36,6 +38,7 @@ export default function CancelledDetailPage() {
           <DetailRow label={t("to")} value={route?.to || ticket.booking?.trip?.to} />
           <DetailRow label={t("seat")} value={ticket.seat} />
           <DetailRow label={t("price")} value={formatMoney(ticket.booking?.trip?.price || route?.price)} />
+          {reason ? <DetailRow label={t("cancellation_reason")} value={reason} /> : null}
         </Card>
       </div>
     </Protected>

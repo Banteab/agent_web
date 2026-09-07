@@ -374,5 +374,8 @@
     "calculation": "Hisaaba",
     "reference_number": "Lak. Ibsaa",
     "bank": "Baankii",
-    "information": "Odeeffannoo"
+    "information": "Odeeffannoo",
+    "cancellation_reason": "Sababa Haqamuu",
+    "cancellation_reason_placeholder": "Tikeetni kun maaliif akka haqamu ibsi",
+    "cancellation_reason_required": "Maaloo sababa haqamuu galchi"
 }

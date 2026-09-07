@@ -150,3 +150,25 @@ export function removePendingBankPayment(bookingId: number) {
   if (!browser()) return;
   writePendingBankPayments(readPendingBankPayments().filter((item) => item.bookingId !== bookingId));
 }
+
+function readCancellationReasons(): Record<string, string> {
+  try {
+    const raw = JSON.parse(storage.get(STORAGE_KEYS.cancellationReasons) || "{}");
+    return raw && typeof raw === "object" ? raw : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Records why an agent cancelled a ticket, kept client-side for the cancelled-ticket detail view. */
+export function setCancellationReason(ticketId: number, reason: string) {
+  if (!browser()) return;
+  const map = readCancellationReasons();
+  map[String(ticketId)] = reason;
+  storage.set(STORAGE_KEYS.cancellationReasons, JSON.stringify(map));
+}
+
+export function getCancellationReason(ticketId?: number | null): string {
+  if (!browser() || !ticketId) return "";
+  return readCancellationReasons()[String(ticketId)] || "";
+}
