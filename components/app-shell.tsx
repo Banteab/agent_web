@@ -36,6 +36,13 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/profile", key: "profile", icon: ProfileIcon },
     ],
   },
+  {
+    label: "support",
+    items: [
+      { href: "/help", key: "help", icon: HelpIcon },
+      { href: "/about", key: "about", icon: InfoIcon },
+    ],
+  },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -408,6 +415,23 @@ function ProfileIcon({ className }: { className?: string }) {
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="8" r="3.5" />
       <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+    </svg>
+  );
+}
+function HelpIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7" />
+      <path d="M12 17h.01" />
+    </svg>
+  );
+}
+function InfoIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5M12 8h.01" />
     </svg>
   );
 }
