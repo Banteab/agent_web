@@ -1,21 +1,41 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PENDING_BANK_PAYMENTS_EVENT, getPendingBankPayments } from "./storage";
+import { api } from "./api";
+import { PENDING_PAYMENTS_REFRESH_EVENT } from "./constants";
 
 export function usePendingBankPaymentsCount() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    const sync = () => setCount(getPendingBankPayments().length);
+    let cancelled = false;
+
+    const sync = () => {
+      api
+        .getPendingBankPayments()
+        .then((list) => {
+          if (!cancelled) setCount(list.length);
+        })
+        .catch(() => {
+          if (!cancelled) setCount(0);
+        });
+    };
+
     sync();
-    window.addEventListener(PENDING_BANK_PAYMENTS_EVENT, sync);
-    window.addEventListener("storage", sync);
+    const timer = window.setInterval(sync, 60_000);
+    window.addEventListener(PENDING_PAYMENTS_REFRESH_EVENT, sync);
     return () => {
-      window.removeEventListener(PENDING_BANK_PAYMENTS_EVENT, sync);
-      window.removeEventListener("storage", sync);
+      cancelled = true;
+      window.clearInterval(timer);
+      window.removeEventListener(PENDING_PAYMENTS_REFRESH_EVENT, sync);
     };
   }, []);
 
   return count;
+}
+
+export function notifyPendingPaymentsRefresh() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(PENDING_PAYMENTS_REFRESH_EVENT));
+  }
 }

@@ -409,5 +409,6 @@
     "greeting_morning": "Akkam bultan",
     "greeting_afternoon": "Akkam oolte",
     "greeting_evening": "Akkam galgaltan",
-    "clear": "Haqi"
+    "clear": "Haqi",
+    "booking_expired_or_not_found": "Iyyannoon kun dabreera ykn haqameera. Iyyannoo haaraa uumi."
 }

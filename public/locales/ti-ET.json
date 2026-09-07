@@ -409,5 +409,6 @@
     "greeting_morning": "ደሓንዶ ሓዲርኩም",
     "greeting_afternoon": "ደሓንዶ ውዒልኩም",
     "greeting_evening": "ደሓንዶ ኣምሲኹም",
-    "clear": "ኣጽርይ"
+    "clear": "ኣጽርይ",
+    "booking_expired_or_not_found": "እዚ ምሕዛእ ኣኺሉ ወይ ተመሊሱ እዩ። ሓድሽ ምሕዛእ ፍጠር።"
 }

@@ -28,7 +28,7 @@ export default function AboutPage() {
           </p>
           <p className="font-semibold text-navy">{t("contact")}</p>
           <p>{t("location_public_bus")}</p>
-          <p>{t("tel")}: 9439</p>
+          <p>{t("tel")}: 8477</p>
           <a
             href="https://www.facebook.com/112600186927437/posts/addis-abeba-fm-bus-transport-office"
             target="_blank"

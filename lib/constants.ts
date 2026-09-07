@@ -29,6 +29,9 @@ export const ENDPOINTS = {
   updateBookingStatus: (id: number | string) => `/booking/update-status/${id}`,
   paymentData: (bookingId: number | string) =>
     `/booking/payment-data/${bookingId}`,
+  pendingBankPayments: "/booking/agent/pending-bank-payments",
+  confirmBankPayment: (bookingId: number | string) =>
+    `/booking/agent/${bookingId}/confirm-bank-payment`,
   refundRequest: "/refunds/request-cancellation",
   generateTickets: "/tickets/generate/agent",
   issueTicket: "/tickets/issue/agent",
@@ -61,13 +64,13 @@ export const STORAGE_KEYS = {
   recentHistories: "recentHistories",
   searchedBus: "searchedBus",
   bookingSession: "bookingSession",
-  pendingBankPayments: "pendingBankPayments",
   cancellationReasons: "cancellationReasons",
 } as const;
 
 export const BOOKING_HOLD_MS = 180_000;
 export const MAX_SEATS = 6;
 export const PENDING_BANK_PAYMENT_TTL_MS = 10 * 60_000;
+export const PENDING_PAYMENTS_REFRESH_EVENT = "pending-payments-refresh";
 
 export const LOCALES = [
   { id: "en-US", label: "English (US)", flag: "🇺🇸" },
