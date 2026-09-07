@@ -20,7 +20,7 @@ export default function HelpPage() {
               {t(step)}
             </p>
           ))}
-          <p className="pt-2 text-sm font-semibold text-primary">{t("call_us")}: 9439</p>
+          <p className="pt-2 text-sm font-semibold text-primary">{t("call_us")}: 8477</p>
         </Card>
       </div>
     </Protected>

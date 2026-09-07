@@ -58,7 +58,7 @@ export default function LoginPage() {
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-gold">
             <PhoneIcon />
-            {t("call_center_line")} 9439
+            {t("call_center_line")} 8477
           </span>
         </div>
 
