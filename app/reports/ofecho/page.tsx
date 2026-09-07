@@ -31,13 +31,15 @@ export default function OfechoPage() {
         {!loading && !rows.length ? <EmptyState title={t("no_content")} /> : null}
         <div className="space-y-3">
           {rows.map((row, index) => (
-            <Card key={`${row.name}-${index}`}>
-              <p className="font-bold text-navy">{row.name}</p>
-              <p className="text-sm text-slate-500">
-                {row.from} → {row.to} · {t("seat")} {row.seat}
-              </p>
-              <p className="text-sm text-slate-500">{row.bus}</p>
-              <p className="font-semibold text-primary">{formatMoney(row.price)}</p>
+            <Card key={`${row.name}-${index}`} className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate font-bold text-navy">{row.name}</p>
+                <p className="truncate text-sm text-slate-500">
+                  {row.from} → {row.to} · {t("seat")} {row.seat}
+                </p>
+                <p className="text-sm text-slate-400">{row.bus}</p>
+              </div>
+              <p className="shrink-0 text-lg font-bold text-primary">{formatMoney(row.price)}</p>
             </Card>
           ))}
         </div>

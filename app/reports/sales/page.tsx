@@ -1,7 +1,7 @@
 "use client";
 
 import { Protected } from "@/components/protected";
-import { Button, Card, EmptyState, PageHeader, Spinner } from "@/components/ui";
+import { Button, Card, EmptyState, PageHeader, SectionLabel, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
@@ -44,21 +44,27 @@ export default function SalesReportPage() {
         {loading ? <Spinner /> : null}
         {!loading && !rows.length ? <EmptyState title={t("no_sales_report")} /> : null}
         <div className="space-y-3">
-          {rows.map((day) => (
-            <Card key={day.date}>
-              <p className="mb-2 font-bold text-navy">{day.date}</p>
-              <div className="space-y-2 text-sm">
-                {day.routeSales?.map((sale) => (
-                  <div key={`${sale.from}-${sale.to}`} className="flex justify-between gap-3">
-                    <span>
-                      {sale.from} → {sale.to} ({sale.totalTickets})
-                    </span>
-                    <span className="font-semibold text-primary">{formatMoney(sale.ticketSales)}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          ))}
+          {rows.map((day) => {
+            const dayTotal = day.routeSales?.reduce((sum, sale) => sum + Number(sale.ticketSales || 0), 0);
+            return (
+              <Card key={day.date} className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <SectionLabel>{day.date}</SectionLabel>
+                  <p className="font-bold text-navy">{formatMoney(dayTotal)}</p>
+                </div>
+                <div className="divide-y divide-slate-100 text-sm">
+                  {day.routeSales?.map((sale) => (
+                    <div key={`${sale.from}-${sale.to}`} className="flex items-center justify-between gap-3 py-2">
+                      <span className="text-slate-600">
+                        {sale.from} → {sale.to} <span className="text-slate-400">({sale.totalTickets})</span>
+                      </span>
+                      <span className="font-semibold text-primary">{formatMoney(sale.ticketSales)}</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </Protected>

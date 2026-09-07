@@ -32,12 +32,14 @@ export default function PassengerListPage() {
         {!rows.length ? <EmptyState title={t("no_content")} /> : null}
         <div className="space-y-3">
           {rows.map((row, index) => (
-            <Card key={`${row.ticketNo}-${index}`}>
-              <p className="font-bold text-navy">{row.passenger}</p>
-              <p className="text-sm text-slate-500">
-                {row.ticketNo} · {t("seat")} {row.seat}
-              </p>
-              <p className="font-semibold text-primary">{formatMoney(row.price)}</p>
+            <Card key={`${row.ticketNo}-${index}`} className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate font-bold text-navy">{row.passenger}</p>
+                <p className="truncate text-sm text-slate-500">
+                  {row.ticketNo} · {t("seat")} {row.seat}
+                </p>
+              </div>
+              <p className="shrink-0 text-lg font-bold text-primary">{formatMoney(row.price)}</p>
             </Card>
           ))}
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, EmptyState, Input, Spinner } from "@/components/ui";
+import { Badge, Button, Card, EmptyState, Input, SectionLabel, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { getSearchedBus, setSearchedBus } from "@/lib/storage";
@@ -96,35 +96,42 @@ export default function FastTripPage() {
       {loading ? <Spinner /> : null}
       {!loading && !trips.length ? <EmptyState title={t("no_available")} /> : null}
 
-      {trips.map((trip) => (
-        <Card key={trip.id} className="space-y-3">
-          <button className="w-full text-left" onClick={() => setOpenId(openId === trip.id ? null : trip.id)}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-bold text-navy">
-                  {trip.from} → {trip.to}
-                </p>
-                <p className="text-sm text-slate-500">
-                  {trip.busAssociation} · {trip.sideNumber}
-                </p>
+      {trips.map((trip) => {
+        const lowSeats = typeof trip.seatsLeft === "number" && trip.seatsLeft <= 5;
+        return (
+          <Card key={trip.id} className="space-y-3">
+            <button className="w-full text-left" onClick={() => setOpenId(openId === trip.id ? null : trip.id)}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-bold text-navy">
+                    {trip.from} → {trip.to}
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    {trip.busAssociation} · {trip.sideNumber}
+                  </p>
+                </div>
+                <p className="text-lg font-bold text-primary">{formatMoney(trip.price)}</p>
               </div>
-              <p className="font-semibold text-primary">{formatMoney(trip.price)}</p>
-            </div>
-            <p className="mt-2 text-sm text-slate-500">
-              {t("dt")} {trip.departureTime} · {t("at")} {trip.arrivalTime} · {trip.seatsLeft} {t("seats")}
-            </p>
-          </button>
-          {openId === trip.id ? (
-            <div className="space-y-3 border-t border-slate-100 pt-3">
-              <Input placeholder={t("passenger_name")} value={name} onChange={(e) => setName(e.target.value)} />
-              <Input placeholder={t("passenger_phone")} value={phone} onChange={(e) => setPhone(e.target.value)} />
-              <Button className="w-full" loading={issuing} onClick={() => issue(trip)}>
-                {t("finish")}
-              </Button>
-            </div>
-          ) : null}
-        </Card>
-      ))}
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-500">
+                <span>{t("dt")} {trip.departureTime}</span>
+                <span>·</span>
+                <span>{t("at")} {trip.arrivalTime}</span>
+                <Badge tone={lowSeats ? "danger" : "info"}>{trip.seatsLeft} {t("seats")}</Badge>
+              </div>
+            </button>
+            {openId === trip.id ? (
+              <div className="space-y-3 border-t border-slate-100 pt-3">
+                <SectionLabel>{t("passanger_data")}</SectionLabel>
+                <Input placeholder={t("passenger_name")} value={name} onChange={(e) => setName(e.target.value)} />
+                <Input placeholder={t("passenger_phone")} value={phone} onChange={(e) => setPhone(e.target.value)} />
+                <Button className="w-full" loading={issuing} onClick={() => issue(trip)}>
+                  {t("finish")}
+                </Button>
+              </div>
+            ) : null}
+          </Card>
+        );
+      })}
     </div>
   );
 }
