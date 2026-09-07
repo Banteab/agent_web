@@ -70,6 +70,7 @@ export const STORAGE_KEYS = {
 export const BOOKING_HOLD_MS = 180_000;
 export const MAX_SEATS = 6;
 export const PENDING_BANK_PAYMENT_TTL_MS = 10 * 60_000;
+export const PENDING_PAYMENTS_REFRESH_EVENT = "pending-payments-refresh";
 
 export const LOCALES = [
   { id: "en-US", label: "English (US)", flag: "🇺🇸" },
