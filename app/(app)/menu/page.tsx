@@ -6,6 +6,7 @@ import Link from "next/link";
 
 const items = [
   { href: "/profile", key: "profile" },
+  { href: "/pending-payments", key: "pending_payments" },
   { href: "/reports/sales", key: "sales_report" },
   { href: "/booked", key: "booked" },
   { href: "/cancelled", key: "cancelled" },
