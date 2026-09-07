@@ -117,7 +117,12 @@ export default function SeatsPage() {
   }, [router, t, toast]);
 
   async function toggleSeat(seat: number) {
-    if (busy || booked.includes(seat)) return;
+    if (busy) return;
+    // Check the agent's own selection before the booked/reserved guard: once a
+    // seat they've picked shows up again in the live occupied-seats poll (which
+    // it will, since the backend now genuinely considers it held), it must stay
+    // deselectable — otherwise a seat becomes permanently stuck a few seconds
+    // after being selected.
     if (selected.includes(seat)) {
       if (!bookingId) return;
       setBusy(true);
@@ -135,6 +140,8 @@ export default function SeatsPage() {
       }
       return;
     }
+
+    if (booked.includes(seat)) return;
 
     if (selected.length >= MAX_SEATS) {
       toast.error(t("more_than_six"));
