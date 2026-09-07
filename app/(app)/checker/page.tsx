@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, DetailRow, EmptyState, Input, Spinner, StatusBadge } from "@/components/ui";
+import { Button, Card, DetailRow, EmptyState, Input, PageHeader, Spinner, StatusBadge } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
@@ -50,9 +50,9 @@ export default function CheckerPage() {
   const route = ticket?.booking?.parseSelectedRoute || parseSelectedRoute(ticket?.booking?.selectedRoute);
 
   return (
-    <div className="mx-auto max-w-xl space-y-4">
+    <div className="mx-auto max-w-xl">
+      <PageHeader title={t("checker")} subtitle={t("checker_subtitle")} />
       <Card className="space-y-4">
-        <h2 className="text-lg font-bold text-navy">{t("checker")}</h2>
         <Input placeholder={t("tikect_number")} value={ticketNo} onChange={(e) => setTicketNo(e.target.value)} />
         <Button className="w-full" loading={loading} onClick={search}>
           {t("search")}
@@ -61,7 +61,7 @@ export default function CheckerPage() {
 
       {loading ? <Spinner /> : null}
       {!loading && ticket ? (
-        <Card className="space-y-3">
+        <Card className="mt-4 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-navy">{t("journey_detail")}</h3>
             <StatusBadge status={ticket.status} />
@@ -78,7 +78,7 @@ export default function CheckerPage() {
           </Button>
         </Card>
       ) : null}
-      {!loading && ticketNo && !ticket ? <EmptyState title={t("no_ticket_data")} /> : null}
+      {!loading && ticketNo && !ticket ? <div className="mt-4"><EmptyState title={t("no_ticket_data")} /></div> : null}
     </div>
   );
 }

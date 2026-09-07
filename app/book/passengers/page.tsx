@@ -100,7 +100,7 @@ export default function PassengerPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader
           title={t("passanger_data")}
           backHref="/book/seats"
@@ -109,8 +109,8 @@ export default function PassengerPage() {
         <Card className="space-y-4">
           <SectionLabel>{t("passengers")}</SectionLabel>
           {session?.selectedSeats.map((seat, index) => (
-            <div key={seat} className="space-y-3 rounded-xl bg-slate-50 p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <div key={seat} className="space-y-3 rounded-xl bg-surface-muted p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
                 {t("seat_no")} {seat}
               </p>
               <Input

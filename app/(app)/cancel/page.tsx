@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Input } from "@/components/ui";
+import { Button, Card, Input, PageHeader } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
 import { useRouter } from "next/navigation";
@@ -21,16 +21,18 @@ export default function CancelTabPage() {
   }
 
   return (
-    <Card className="mx-auto max-w-xl space-y-4">
-      <h2 className="text-lg font-bold text-navy">{t("cancele_ticket")}</h2>
-      <Input
-        placeholder={t("tikect_number")}
-        value={ticketNo}
-        onChange={(e) => setTicketNo(e.target.value)}
-      />
-      <Button className="w-full" onClick={search}>
-        {t("search")}
-      </Button>
-    </Card>
+    <div className="mx-auto max-w-xl">
+      <PageHeader title={t("cancele_ticket")} subtitle={t("cancel_ticket_subtitle")} />
+      <Card className="space-y-4">
+        <Input
+          placeholder={t("tikect_number")}
+          value={ticketNo}
+          onChange={(e) => setTicketNo(e.target.value)}
+        />
+        <Button className="w-full" onClick={search}>
+          {t("search")}
+        </Button>
+      </Card>
+    </div>
   );
 }

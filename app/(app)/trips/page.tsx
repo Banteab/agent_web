@@ -79,14 +79,9 @@ export default function FastTripPage() {
   return (
     <div className="space-y-4">
       <Card className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <label className="flex-1 space-y-1">
-          <span className="text-sm font-semibold text-slate-500">{t("travel_date")}</span>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="min-h-11 w-full rounded-full bg-slate-100 px-4"
-          />
+        <label className="flex-1 space-y-1.5">
+          <span className="text-[13px] font-medium text-text-muted">{t("travel_date")}</span>
+          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </label>
         <Button onClick={() => load(date)} loading={loading} className="sm:w-40">
           {t("search")}
@@ -106,13 +101,13 @@ export default function FastTripPage() {
                   <p className="font-bold text-navy">
                     {trip.from} → {trip.to}
                   </p>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-text-muted">
                     {trip.busAssociation} · {trip.sideNumber}
                   </p>
                 </div>
                 <p className="text-lg font-bold text-primary">{formatMoney(trip.price)}</p>
               </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-500">
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-text-muted">
                 <span>{t("dt")} {trip.departureTime}</span>
                 <span>·</span>
                 <span>{t("at")} {trip.arrivalTime}</span>
@@ -120,7 +115,7 @@ export default function FastTripPage() {
               </div>
             </button>
             {openId === trip.id ? (
-              <div className="space-y-3 border-t border-slate-100 pt-3">
+              <div className="space-y-3 border-t border-border pt-3">
                 <SectionLabel>{t("passanger_data")}</SectionLabel>
                 <Input placeholder={t("passenger_name")} value={name} onChange={(e) => setName(e.target.value)} />
                 <Input placeholder={t("passenger_phone")} value={phone} onChange={(e) => setPhone(e.target.value)} />

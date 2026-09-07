@@ -51,7 +51,7 @@ function AvailableBuses() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={`${from} → ${to}`} backHref="/home" />
         {loading ? <Spinner /> : null}
         {!loading && !trips.length ? <EmptyState title={t("no_available")} /> : null}
@@ -63,20 +63,20 @@ function AvailableBuses() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-bold text-navy">{trip.busAssociation || t("bus")}</p>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-text-muted">
                       {t("bus_id")} {trip.sideNumber} · {trip.plateNumber}
                     </p>
                   </div>
                   <p className="text-lg font-bold text-primary">{formatMoney(trip.price)}</p>
                 </div>
-                <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm font-semibold text-navy">
+                <div className="flex items-center gap-2 rounded-xl bg-surface-muted px-3 py-2 text-sm font-semibold text-navy">
                   <span>{trip.departureTime}</span>
-                  <span className="flex-1 border-t border-dashed border-slate-300" />
+                  <span className="flex-1 border-t border-dashed border-border-strong" />
                   <BusIcon />
-                  <span className="flex-1 border-t border-dashed border-slate-300" />
+                  <span className="flex-1 border-t border-dashed border-border-strong" />
                   <span>{trip.arrivalTime}</span>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                <div className="flex flex-wrap items-center gap-2 text-sm text-text-muted">
                   <span>{trip.travelDate}</span>
                   <Badge tone={lowSeats ? "danger" : "info"}>
                     {trip.seatsLeft} {t("seats")}
@@ -118,7 +118,7 @@ function PolicyDetails({ trip }: { trip: SearchResult }) {
   }, [trip.cancellationPolicy]);
 
   return (
-    <div className="space-y-2 border-t border-slate-100 pt-3 text-sm text-slate-600">
+    <div className="space-y-2 border-t border-border pt-3 text-sm text-text-muted">
       <p className="font-semibold text-navy">{t("cancellation_policy")}</p>
       {policies.length ? (
         policies.map((policy) => (

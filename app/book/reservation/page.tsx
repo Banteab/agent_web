@@ -66,7 +66,7 @@ export default function ReservationPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("reservation_detail")} />
         <div className="space-y-4">
           {Array.from({ length: cards }, (_, index) => (
@@ -75,7 +75,7 @@ export default function ReservationPage() {
               className="space-y-3 overflow-hidden border-t-4 border-primary text-center"
             >
               <BrandLogo className="mx-auto" imgClassName="h-16" />
-              <p className="text-sm text-slate-500">Addis Ababa, Ethiopia</p>
+              <p className="text-sm text-text-muted">Addis Ababa, Ethiopia</p>
               <div className="space-y-1 text-left text-sm">
                 <DetailRow label={t("passenger")} value={passengers[index] || passengers.join(", ")} />
                 <DetailRow label={t("phone")} value={session?.phoneNumber || booking?.phoneNumber} />

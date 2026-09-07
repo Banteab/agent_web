@@ -91,7 +91,7 @@ export default function PaymentPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader
           title={t("how_to_pay")}
           backHref="/book/passengers"
@@ -110,13 +110,13 @@ export default function PaymentPage() {
                   onClick={() => setMethod(option)}
                   className={cn(
                     "flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition",
-                    active ? "border-primary bg-primary/10 text-primary" : "border-slate-200 text-slate-600 hover:bg-slate-50",
+                    active ? "border-primary bg-primary/10 text-primary" : "border-border text-text-muted hover:bg-surface-muted",
                   )}
                 >
                   <span
                     className={cn(
                       "h-4 w-4 shrink-0 rounded-full border-2",
-                      active ? "border-primary bg-primary" : "border-slate-300",
+                      active ? "border-primary bg-primary" : "border-border-strong",
                     )}
                   />
                   {label}
@@ -137,7 +137,7 @@ export default function PaymentPage() {
           <DetailRow label={t("pickup")} value={session?.pickup || booking?.pickup} />
           <DetailRow label={t("dropoff")} value={session?.dropoff || booking?.dropoff} />
           <DetailRow label={t("passengers")} value={passengers.join(", ")} />
-          <hr className="border-slate-100" />
+          <hr className="border-border" />
           <DetailRow label={t("price")} value={formatMoney(price)} strong={false} />
           <DetailRow label="Commission" value={formatMoney(commission)} strong={false} />
           <DetailRow label={t("total")} value={<span className="text-primary">{formatMoney(total)}</span>} />

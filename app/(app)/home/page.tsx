@@ -1,8 +1,7 @@
 "use client";
 
-import { BrandLogo } from "@/components/brand-logo";
 import { CityPicker } from "@/components/city-picker";
-import { Button, Card } from "@/components/ui";
+import { Button, Card, EmptyState, Input, PageHeader, SectionLabel } from "@/components/ui";
 import { api } from "@/lib/api";
 import { cityApiName, citiesFromApi, FALLBACK_CITIES, mergeCities, normalizeCity } from "@/lib/cities";
 import { useI18n } from "@/lib/i18n";
@@ -57,70 +56,82 @@ export default function HomeSearchPage() {
 
   return (
     <div>
-      <div className="-mx-3 -mt-4 mb-6 rounded-b-[2rem] bg-primary px-4 pb-16 pt-4 sm:-mx-4">
-        <BrandLogo onDark className="mx-auto" imgClassName="h-24 sm:h-28" />
-      </div>
+      <PageHeader title={t("new_booking")} subtitle={t("new_booking_subtitle")} />
 
-      <Card className="-mt-16 space-y-4">
-        <button
-          type="button"
-          onClick={() => setPicker("from")}
-          className="flex w-full items-center gap-3 rounded-xl px-1 py-2 text-left"
-        >
-          <span className="text-gold">➤</span>
-          <span className={from ? "font-semibold text-navy" : "text-slate-500"}>
-            {from ? from.sys : t("leaving_from")}
-          </span>
-        </button>
-        <hr className="border-slate-200" />
-        <button
-          type="button"
-          onClick={() => setPicker("to")}
-          className="flex w-full items-center gap-3 rounded-xl px-1 py-2 text-left"
-        >
-          <span className="text-gold">📍</span>
-          <span className={to ? "font-semibold text-navy" : "text-slate-500"}>
-            {to ? to.sys : t("going_to")}
-          </span>
-        </button>
-        <hr className="border-slate-200" />
-        <label className="block space-y-1">
-          <span className="text-sm font-semibold text-slate-500">{t("departure")}</span>
-          <input
-            type="date"
-            value={date}
-            min={formatDateISO(new Date())}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-xl bg-slate-50 px-3 py-2 text-navy outline-none"
-          />
-        </label>
-        <p className="text-sm text-slate-500">{formatDisplayDate(new Date(date))}</p>
-        <Button className="w-full" loading={loading} onClick={search}>
-          {t("search_bus")}
-        </Button>
-      </Card>
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,420px)_1fr]">
+        <Card className="space-y-4">
+          <SectionLabel>{t("journey_detail")}</SectionLabel>
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setPicker("from")}
+              className="flex w-full items-center gap-3 rounded-lg border border-border px-3.5 py-2.5 text-left transition hover:border-primary/50"
+            >
+              <LocationIcon />
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("leaving_from")}</p>
+                <p className={from ? "truncate font-semibold text-navy" : "truncate text-text-faint"}>
+                  {from ? from.sys : t("leaving_from")}
+                </p>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPicker("to")}
+              className="flex w-full items-center gap-3 rounded-lg border border-border px-3.5 py-2.5 text-left transition hover:border-primary/50"
+            >
+              <PinIcon />
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("going_to")}</p>
+                <p className={to ? "truncate font-semibold text-navy" : "truncate text-text-faint"}>
+                  {to ? to.sys : t("going_to")}
+                </p>
+              </div>
+            </button>
+          </div>
 
-      {recents.length ? (
-        <div className="mt-6">
-          <h2 className="mb-2 text-sm font-semibold text-slate-500">{t("recent_searches")}</h2>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {recents.slice(0, 6).map((item) => (
-              <button
-                key={`${item.from.sys}-${item.to.sys}`}
-                className="rounded-xl bg-white px-4 py-3 text-left text-sm shadow-sm ring-1 ring-slate-100"
-                onClick={() => {
-                  setFrom(normalizeCity(item.from));
-                  setTo(normalizeCity(item.to));
-                }}
-              >
-                <span className="font-semibold text-navy">{item.from.sys}</span>
-                <span className="mx-2 text-gold">→</span>
-                <span className="font-semibold text-navy">{item.to.sys}</span>
-              </button>
-            ))}
+          <label className="block space-y-1.5">
+            <span className="text-[13px] font-medium text-text-muted">{t("departure")}</span>
+            <Input
+              type="date"
+              value={date}
+              min={formatDateISO(new Date())}
+              onChange={(e) => setDate(e.target.value)}
+            />
+            <span className="block text-xs text-text-faint">{formatDisplayDate(new Date(date))}</span>
+          </label>
+
+          <Button className="w-full" loading={loading} onClick={search}>
+            {t("search_bus")}
+          </Button>
+        </Card>
+
+        <div>
+          <SectionLabel>{t("recent_searches")}</SectionLabel>
+          <div className="mt-2">
+            {recents.length ? (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {recents.slice(0, 6).map((item) => (
+                  <button
+                    key={`${item.from.sys}-${item.to.sys}`}
+                    className="rounded-lg border border-border bg-surface px-4 py-3 text-left text-sm transition hover:border-primary/50 hover:bg-surface-muted"
+                    onClick={() => {
+                      setFrom(normalizeCity(item.from));
+                      setTo(normalizeCity(item.to));
+                    }}
+                  >
+                    <span className="font-semibold text-navy">{item.from.sys}</span>
+                    <span className="mx-2 text-text-faint">→</span>
+                    <span className="font-semibold text-navy">{item.to.sys}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <EmptyState title={t("no_recent_searches")} hint={t("no_recent_searches_hint")} />
+            )}
           </div>
         </div>
-      ) : null}
+      </div>
 
       <CityPicker
         open={picker !== null}
@@ -135,5 +146,22 @@ export default function HomeSearchPage() {
         }}
       />
     </div>
+  );
+}
+
+function LocationIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-primary">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
+  );
+}
+function PinIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-gold">
+      <path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11Z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </svg>
   );
 }
