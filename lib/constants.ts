@@ -79,6 +79,11 @@ export const DEFAULT_LOCALE = "am-ET";
 
 export const BANKS = [
   { id: "CBE", name: "Commercial Bank of Ethiopia", logo: "/images/cbe.jpg" },
+  { id: "AWASH", name: "Awash Bank", logo: "/images/awash.png" },
   { id: "DASHEN", name: "Dashen Bank", logo: "/images/dashen.png" },
   { id: "COOP", name: "Cooperative Bank", logo: "/images/coop.png" },
 ] as const;
+
+// Banks offered at booking checkout for the BANK payment method. A small,
+// explicit subset of BANKS — CASH and REFERENCE are hidden there for now.
+export const CHECKOUT_BANKS = [BANKS[1], BANKS[0]];

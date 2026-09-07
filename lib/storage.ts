@@ -114,6 +114,8 @@ export type PendingBankPayment = {
   passengers?: string;
   price?: number;
   travelDate?: string;
+  /** Which bank the customer was told to pay into (e.g. "Awash Bank"). */
+  bank?: string;
 };
 
 function readPendingBankPayments(): PendingBankPayment[] {
