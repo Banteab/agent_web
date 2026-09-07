@@ -241,6 +241,10 @@ function bookingDateLabel(row: Row) {
   return row.entry.addedAt ? row.entry.addedAt.slice(0, 10) : "-";
 }
 
+function bankLabel(row: Row) {
+  return row.entry.bank || "-";
+}
+
 function PendingRow({
   row,
   onConfirm,
@@ -258,7 +262,10 @@ function PendingRow({
       <td className="px-4 py-3 text-text-muted">{row.entry.bookingId}</td>
       <td className="px-4 py-3">{passengerLabel(row)}</td>
       <td className="px-4 py-3 text-text-muted">{row.booking?.phoneNumber || row.entry.phoneNumber || "-"}</td>
-      <td className="px-4 py-3">{routeLabel(row)}</td>
+      <td className="px-4 py-3">
+        <p>{routeLabel(row)}</p>
+        {row.entry.bank ? <p className="text-xs text-text-faint">{bankLabel(row)}</p> : null}
+      </td>
       <td className="px-4 py-3 text-text-muted">{travelDateLabel(row)}</td>
       <td className="px-4 py-3 text-right font-semibold text-navy">{amountLabel(row)}</td>
       <td className="px-4 py-3 text-text-muted">{bookingDateLabel(row)}</td>
@@ -303,6 +310,12 @@ function PendingCard({
       <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-text-muted">
         <span>{t("from")}/{t("to")}</span>
         <span className="text-right font-semibold text-navy">{routeLabel(row)}</span>
+        {row.entry.bank ? (
+          <>
+            <span>{t("select_bank")}</span>
+            <span className="text-right font-semibold text-navy">{bankLabel(row)}</span>
+          </>
+        ) : null}
         <span>{t("travel_date")}</span>
         <span className="text-right font-semibold text-navy">{travelDateLabel(row)}</span>
         <span>{t("phone")}</span>
@@ -385,6 +398,7 @@ function ConfirmPaymentModal({
           <DetailRow label={t("reservation_no")} value={String(row.entry.bookingId)} />
           <DetailRow label={t("passenger")} value={passengerLabel(row)} />
           <DetailRow label={`${t("from")}/${t("to")}`} value={routeLabel(row)} />
+          {row.entry.bank ? <DetailRow label={t("select_bank")} value={bankLabel(row)} /> : null}
           <DetailRow label={t("travel_date")} value={travelDateLabel(row)} />
           <div className="my-1 border-t border-border" />
           <DetailRow label={t("amount")} value={<span className="text-base text-primary">{amountLabel(row)}</span>} />

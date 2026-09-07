@@ -189,17 +189,22 @@ export default function SeatsPage() {
           action={<Countdown endTime={endTime} onExpire={expire} />}
         />
         <Card className="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-4">
-          <Legend color="border border-border-strong bg-surface" label={t("available_seat")} />
-          <Legend color="bg-primary" label={t("selected_seat")} />
-          <Legend color="bg-surface-muted" label={t("booked_seat")} />
+          <Legend icon={<SeatIcon className="text-border-strong" />} label={t("available_seat")} />
+          <Legend icon={<SeatIcon className="text-primary" />} label={t("selected_seat")} />
+          <Legend icon={<SeatIcon className="text-text-faint" />} label={t("booked_seat")} />
           <p className="col-span-2 text-right font-semibold text-primary sm:col-span-1">
             {formatMoney((trip.price || 0) * selected.length)}
           </p>
         </Card>
 
         <Card>
-          <SectionLabel>{t("seat")}</SectionLabel>
-          <div className="mx-auto mt-3 grid max-w-sm grid-cols-5 gap-2">
+          <div className="mb-4 flex items-center justify-between">
+            <SectionLabel>{t("seat")}</SectionLabel>
+            <span className="flex items-center gap-1.5 text-xs text-text-faint">
+              <WheelIcon /> {t("driver")}
+            </span>
+          </div>
+          <div className="mx-auto grid max-w-sm grid-cols-5 gap-x-2 gap-y-3">
             {layout.map((cell, index) => {
               if (cell === "_") return <div key={`${cell}-${index}`} />;
               if (cell !== "p") return <div key={`${cell}-${index}`} />;
@@ -213,14 +218,29 @@ export default function SeatsPage() {
                   type="button"
                   disabled={isBooked && !isSelected}
                   onClick={() => toggleSeat(current)}
+                  aria-label={`${t("seat")} ${current}`}
+                  aria-pressed={isSelected}
                   className={cn(
-                    "flex aspect-square items-center justify-center rounded-lg border text-xs font-semibold transition",
-                    isSelected && "border-primary bg-primary text-white shadow-sm",
-                    isBooked && !isSelected && "border-border bg-surface-muted text-text-faint",
-                    !isBooked && !isSelected && "border-border-strong bg-surface text-text hover:border-primary",
+                    "group relative flex flex-col items-center transition disabled:cursor-not-allowed",
+                    !isBooked && !isSelected && "cursor-pointer",
                   )}
                 >
-                  {current}
+                  <SeatIcon
+                    className={cn(
+                      "h-10 w-9 drop-shadow-sm transition",
+                      isSelected && "text-primary",
+                      isBooked && !isSelected && "text-text-faint",
+                      !isBooked && !isSelected && "text-border-strong group-hover:text-primary/50",
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "pointer-events-none absolute top-4 text-[11px] font-bold",
+                      isSelected || (isBooked && !isSelected) ? "text-white" : "text-navy",
+                    )}
+                  >
+                    {current}
+                  </span>
                 </button>
               );
             })}
@@ -235,11 +255,31 @@ export default function SeatsPage() {
   );
 }
 
-function Legend({ color, label }: { color: string; label: string }) {
+function Legend({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <div className="flex items-center gap-2 text-text-muted">
-      <span className={cn("h-4 w-4 rounded", color)} />
+      <span className="flex h-5 w-5 items-center justify-center">{icon}</span>
       {label}
     </div>
+  );
+}
+
+function SeatIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 40 44" fill="currentColor" className={className}>
+      <rect x="11" y="1.5" width="18" height="13" rx="5" />
+      <rect x="4" y="13" width="32" height="27" rx="9" />
+      <rect x="0" y="19" width="5" height="16" rx="2.5" />
+      <rect x="35" y="19" width="5" height="16" rx="2.5" />
+    </svg>
+  );
+}
+
+function WheelIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="8" />
+      <path d="M12 4v4M12 16v4M4 12h4M16 12h4M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8" />
+    </svg>
   );
 }

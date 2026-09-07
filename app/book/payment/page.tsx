@@ -5,6 +5,7 @@ import { Protected } from "@/components/protected";
 import { Button, Card, DetailRow, Input, PageHeader, SectionLabel, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+import { CHECKOUT_BANKS } from "@/lib/constants";
 import { useI18n } from "@/lib/i18n";
 import {
   addPendingBankPayment,
@@ -19,6 +20,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const options = ["CASH", "REFERENCE", "BANK"] as const;
+// CASH and REFERENCE are hidden for now — bank transfer only at checkout.
+// Flip this back on to restore the full payment-method picker.
+const SHOW_ALL_PAYMENT_METHODS = false;
 
 export default function PaymentPage() {
   const { t } = useI18n();
@@ -26,8 +30,9 @@ export default function PaymentPage() {
   const router = useRouter();
   const { profile, refreshProfile } = useAuth();
   const [booking, setBooking] = useState<Booking | null>(null);
-  const [method, setMethod] = useState<(typeof options)[number]>("CASH");
+  const [method, setMethod] = useState<(typeof options)[number]>(SHOW_ALL_PAYMENT_METHODS ? "CASH" : "BANK");
   const [reference, setReference] = useState("");
+  const [bank, setBank] = useState<(typeof CHECKOUT_BANKS)[number]["id"] | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const session = getBookingSession();
@@ -56,6 +61,10 @@ export default function PaymentPage() {
       toast.error(t("ref_no"));
       return;
     }
+    if (method === "BANK" && !bank) {
+      toast.error(t("select_bank"));
+      return;
+    }
     setSaving(true);
     try {
       const res = await api.updatePayment(current.bookingId, method, reference.trim());
@@ -73,6 +82,7 @@ export default function PaymentPage() {
           passengers: current.passengers || booking?.passengers,
           price: total,
           travelDate: current.isoDate || booking?.trip?.travelDate,
+          bank: CHECKOUT_BANKS.find((item) => item.id === bank)?.name,
         });
         toast.success(res.message || t("booking_added"));
         clearBookingSession();
@@ -98,34 +108,72 @@ export default function PaymentPage() {
           action={<Countdown endTime={session?.endTime} />}
         />
         <Card className="mb-4 space-y-3">
-          <SectionLabel>{t("choose_option")}</SectionLabel>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {options.map((option) => {
-              const active = method === option;
-              const label = option === "CASH" ? t("cash") : option === "REFERENCE" ? t("ref") : t("bank");
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => setMethod(option)}
-                  className={cn(
-                    "flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition",
-                    active ? "border-primary bg-primary/10 text-primary" : "border-border text-text-muted hover:bg-surface-muted",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "h-4 w-4 shrink-0 rounded-full border-2",
-                      active ? "border-primary bg-primary" : "border-border-strong",
-                    )}
-                  />
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-          {method === "REFERENCE" ? (
-            <Input placeholder={t("ref_no")} value={reference} onChange={(e) => setReference(e.target.value)} />
+          {SHOW_ALL_PAYMENT_METHODS ? (
+            <>
+              <SectionLabel>{t("choose_option")}</SectionLabel>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {options.map((option) => {
+                  const active = method === option;
+                  const label = option === "CASH" ? t("cash") : option === "REFERENCE" ? t("ref") : t("bank");
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setMethod(option)}
+                      className={cn(
+                        "flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition",
+                        active ? "border-primary bg-primary/10 text-primary" : "border-border text-text-muted hover:bg-surface-muted",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "h-4 w-4 shrink-0 rounded-full border-2",
+                          active ? "border-primary bg-primary" : "border-border-strong",
+                        )}
+                      />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              {method === "REFERENCE" ? (
+                <Input placeholder={t("ref_no")} value={reference} onChange={(e) => setReference(e.target.value)} />
+              ) : null}
+            </>
+          ) : null}
+
+          {method === "BANK" ? (
+            <>
+              <SectionLabel>{t("select_bank")}</SectionLabel>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {CHECKOUT_BANKS.map((item) => {
+                  const active = bank === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setBank(item.id)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition",
+                        active ? "border-primary bg-primary/10" : "border-border hover:bg-surface-muted",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                          active ? "bg-primary text-white" : "bg-surface-muted text-text-muted",
+                        )}
+                      >
+                        <BankIcon />
+                      </span>
+                      <span className={cn("text-sm font-semibold", active ? "text-primary" : "text-navy")}>
+                        {item.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
           ) : null}
         </Card>
 
@@ -148,5 +196,15 @@ export default function PaymentPage() {
         </Button>
       </div>
     </Protected>
+  );
+}
+
+function BankIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 10 12 4l9 6" />
+      <path d="M5 10v9M10 10v9M14 10v9M19 10v9" />
+      <path d="M3 19h18" />
+    </svg>
   );
 }
