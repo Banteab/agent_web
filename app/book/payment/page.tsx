@@ -6,7 +6,12 @@ import { Button, Card, Input, PageHeader, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
-import { clearBookingSession, getBookingSession, setBookingSession } from "@/lib/storage";
+import {
+  addPendingBankPayment,
+  clearBookingSession,
+  getBookingSession,
+  setBookingSession,
+} from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { Booking } from "@/lib/types";
 import { formatMoney, parsePassengerNames } from "@/lib/utils";
@@ -60,6 +65,15 @@ export default function PaymentPage() {
       }
       setBookingSession(current);
       if (method === "BANK") {
+        addPendingBankPayment({
+          bookingId: current.bookingId,
+          fromCity: current.fromCity,
+          toCity: current.toCity,
+          phoneNumber: current.phoneNumber || booking?.phoneNumber,
+          passengers: current.passengers || booking?.passengers,
+          price: total,
+          travelDate: current.isoDate || booking?.trip?.travelDate,
+        });
         toast.success(res.message || t("booking_added"));
         clearBookingSession();
         router.replace("/home");
