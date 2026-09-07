@@ -1,7 +1,7 @@
 "use client";
 
 import { BrandLogo } from "@/components/brand-logo";
-import { Button, Input } from "@/components/ui";
+import { Button, Field, Input } from "@/components/ui";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
@@ -40,34 +40,63 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-white">
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-10">
-        <BrandLogo className="mx-auto mb-4" imgClassName="h-40 sm:h-48" />
-        <p className="mb-2 text-center text-3xl font-black italic tracking-wide">
-          <span className="text-[#002366]">BIFTU</span>{" "}
-          <span className="text-[#f2b31a]">BUS</span>
-        </p>
-        <h1 className="mb-10 text-center text-lg font-semibold text-slate-600">{t("log_in")}</h1>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <Input
-            inputMode="numeric"
-            placeholder={t("phone_no")}
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder={t("pass_word")}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <div className="pt-8">
-            <Button type="submit" loading={loading} className="w-full">
+    <div className="flex min-h-dvh bg-surface">
+      <div className="relative hidden w-[42%] flex-col justify-between overflow-hidden bg-navy px-12 py-12 text-white lg:flex">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+            backgroundSize: "28px 28px",
+          }}
+        />
+        <div className="relative flex items-center gap-2.5">
+          <BrandLogo compact imgClassName="h-9 w-9" />
+          <span className="text-base font-semibold tracking-tight">Biftu Bus</span>
+        </div>
+        <div className="relative max-w-sm">
+          <p className="text-2xl font-semibold leading-snug tracking-tight">
+            {t("login_hero_title")}
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-white/70">{t("login_hero_subtitle")}</p>
+        </div>
+        <p className="relative text-xs text-white/50">© {new Date().getFullYear()} Biftu Bus. {t("login_footer")}</p>
+      </div>
+
+      <div className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-10 lg:px-16">
+        <div className="mx-auto w-full max-w-sm">
+          <div className="mb-8 flex items-center gap-2.5 lg:hidden">
+            <BrandLogo compact imgClassName="h-9 w-9" />
+            <span className="text-base font-semibold tracking-tight text-navy">Biftu Bus</span>
+          </div>
+
+          <h1 className="text-2xl font-semibold tracking-tight text-navy">{t("log_in")}</h1>
+          <p className="mt-1.5 text-sm text-text-muted">{t("login_prompt")}</p>
+
+          <form onSubmit={onSubmit} className="mt-8 space-y-4">
+            <Field label={t("phone_no")}>
+              <Input
+                inputMode="numeric"
+                placeholder={t("phone_no")}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </Field>
+            <Field label={t("pass_word")}>
+              <Input
+                type="password"
+                placeholder={t("pass_word")}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Field>
+            <Button type="submit" loading={loading} className="mt-2 w-full">
               {t("log_in")}
             </Button>
-          </div>
-        </form>
-        <p className="mt-8 text-center text-sm text-slate-500">{t("acount")}</p>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-text-muted">{t("acount")}</p>
+        </div>
       </div>
     </div>
   );
