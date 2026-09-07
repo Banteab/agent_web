@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from "./constants";
+import { PENDING_BANK_PAYMENT_TTL_MS, STORAGE_KEYS } from "./constants";
 import type { BookingSession, SearchResult } from "./types";
 
 const browser = () => typeof window !== "undefined";
@@ -117,6 +117,15 @@ export type PendingBankPayment = {
   /** Which bank the customer was told to pay into (e.g. "Awash Bank"). */
   bank?: string;
 };
+
+/** Bank payments are only confirmable for PENDING_BANK_PAYMENT_TTL_MS after being added. */
+export function pendingBankPaymentExpiresAt(entry: Pick<PendingBankPayment, "addedAt">) {
+  return new Date(entry.addedAt).getTime() + PENDING_BANK_PAYMENT_TTL_MS;
+}
+
+export function isPendingBankPaymentExpired(entry: Pick<PendingBankPayment, "addedAt">, now = Date.now()) {
+  return now >= pendingBankPaymentExpiresAt(entry);
+}
 
 function readPendingBankPayments(): PendingBankPayment[] {
   try {

@@ -377,5 +377,8 @@
     "information": "Odeeffannoo",
     "cancellation_reason": "Sababa Haqamuu",
     "cancellation_reason_placeholder": "Tikeetni kun maaliif akka haqamu ibsi",
-    "cancellation_reason_required": "Maaloo sababa haqamuu galchi"
+    "cancellation_reason_required": "Maaloo sababa haqamuu galchi",
+    "expires_in": "Yeroon itti dhumu",
+    "expired": "Yeroon dabreera",
+    "payment_window_expired_hint": "Yeroon kaffaltii kanaa dabreera; siʼachi mirkaneessuun hin danda'amu."
 }

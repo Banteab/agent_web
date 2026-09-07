@@ -391,5 +391,8 @@
     "journey_details": "Journey Details",
     "cancellation_reason": "Cancellation Reason",
     "cancellation_reason_placeholder": "Explain why this ticket is being cancelled",
-    "cancellation_reason_required": "Please enter a reason for the cancellation"
+    "cancellation_reason_required": "Please enter a reason for the cancellation",
+    "expires_in": "Expires in",
+    "expired": "Expired",
+    "payment_window_expired_hint": "This payment window has expired and can no longer be confirmed."
 }

@@ -377,5 +377,8 @@
     "information": "መረጃ",
     "cancellation_reason": "የስረዛ ምክንያት",
     "cancellation_reason_placeholder": "ይህ ትኬት ለምን እንደሚሰረዝ ያብራሩ",
-    "cancellation_reason_required": "እባክዎ የስረዛ ምክንያት ያስገቡ"
+    "cancellation_reason_required": "እባክዎ የስረዛ ምክንያት ያስገቡ",
+    "expires_in": "የሚያበቃበት ጊዜ",
+    "expired": "ጊዜው አልፏል",
+    "payment_window_expired_hint": "የክፍያ ጊዜው አልፏል፤ ከዚህ በኋላ ማረጋገጥ አይቻልም።"
 }

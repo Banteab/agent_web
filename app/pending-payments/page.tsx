@@ -1,10 +1,17 @@
 "use client";
 
 import { Badge, Button, Card, DetailRow, EmptyState, Input, Modal, PageHeader, Spinner, TableFrame } from "@/components/ui";
+import { Countdown } from "@/components/countdown";
 import { Protected } from "@/components/protected";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
-import { getPendingBankPayments, removePendingBankPayment, type PendingBankPayment } from "@/lib/storage";
+import {
+  getPendingBankPayments,
+  isPendingBankPaymentExpired,
+  pendingBankPaymentExpiresAt,
+  removePendingBankPayment,
+  type PendingBankPayment,
+} from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { Booking } from "@/lib/types";
 import { formatMoney, parsePassengerNames } from "@/lib/utils";
@@ -178,6 +185,7 @@ export default function PendingPaymentsPage() {
                     <th className="px-4 py-3">{t("travel_date")}</th>
                     <th className="px-4 py-3 text-right">{t("amount")}</th>
                     <th className="px-4 py-3">{t("booking_date")}</th>
+                    <th className="px-4 py-3">{t("expires_in")}</th>
                     <th className="px-4 py-3">{t("status")}</th>
                     <th className="px-4 py-3" />
                   </tr>
@@ -256,6 +264,10 @@ function PendingRow({
   onRemoveStale: (bookingId: number) => void;
   t: (key: string) => string;
 }) {
+  const expiresAt = pendingBankPaymentExpiresAt(row.entry);
+  const [expired, setExpired] = useState(() => isPendingBankPaymentExpired(row.entry));
+  const blocked = row.loadError || expired;
+
   return (
     <tr className="align-middle text-text transition hover:bg-surface-muted/60">
       <td className="px-4 py-3 font-semibold text-navy">{row.booking?.refNumber || "-"}</td>
@@ -270,10 +282,23 @@ function PendingRow({
       <td className="px-4 py-3 text-right font-semibold text-navy">{amountLabel(row)}</td>
       <td className="px-4 py-3 text-text-muted">{bookingDateLabel(row)}</td>
       <td className="px-4 py-3">
-        {row.loadError ? <Badge tone="danger">{t("error_occured")}</Badge> : <Badge tone="pending">{t("pending_payment")}</Badge>}
+        {row.loadError || expired ? (
+          <span className="text-text-faint">—</span>
+        ) : (
+          <Countdown endTime={expiresAt} onExpire={() => setExpired(true)} />
+        )}
+      </td>
+      <td className="px-4 py-3">
+        {row.loadError ? (
+          <Badge tone="danger">{t("error_occured")}</Badge>
+        ) : expired ? (
+          <Badge tone="danger">{t("expired")}</Badge>
+        ) : (
+          <Badge tone="pending">{t("pending_payment")}</Badge>
+        )}
       </td>
       <td className="px-4 py-3 text-right">
-        {row.loadError ? (
+        {blocked ? (
           <Button variant="ghost" size="sm" onClick={() => onRemoveStale(row.entry.bookingId)}>
             {t("cancel_button")}
           </Button>
@@ -298,6 +323,10 @@ function PendingCard({
   onRemoveStale: (bookingId: number) => void;
   t: (key: string) => string;
 }) {
+  const expiresAt = pendingBankPaymentExpiresAt(row.entry);
+  const [expired, setExpired] = useState(() => isPendingBankPaymentExpired(row.entry));
+  const blocked = row.loadError || expired;
+
   return (
     <Card className="space-y-2 text-sm">
       <div className="flex items-start justify-between gap-2">
@@ -305,7 +334,13 @@ function PendingCard({
           <p className="font-bold text-navy">{row.booking?.refNumber || `#${row.entry.bookingId}`}</p>
           <p className="text-text-muted">{passengerLabel(row)}</p>
         </div>
-        {row.loadError ? <Badge tone="danger">{t("error_occured")}</Badge> : <Badge tone="pending">{t("pending_payment")}</Badge>}
+        {row.loadError ? (
+          <Badge tone="danger">{t("error_occured")}</Badge>
+        ) : expired ? (
+          <Badge tone="danger">{t("expired")}</Badge>
+        ) : (
+          <Badge tone="pending">{t("pending_payment")}</Badge>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-text-muted">
         <span>{t("from")}/{t("to")}</span>
@@ -324,8 +359,16 @@ function PendingCard({
         <span className="text-right font-semibold text-navy">{amountLabel(row)}</span>
         <span>{t("booking_date")}</span>
         <span className="text-right font-semibold text-navy">{bookingDateLabel(row)}</span>
+        {!row.loadError && !expired ? (
+          <>
+            <span>{t("expires_in")}</span>
+            <span className="text-right">
+              <Countdown endTime={expiresAt} onExpire={() => setExpired(true)} />
+            </span>
+          </>
+        ) : null}
       </div>
-      {row.loadError ? (
+      {blocked ? (
         <Button variant="ghost" className="w-full" onClick={() => onRemoveStale(row.entry.bookingId)}>
           {t("cancel_button")}
         </Button>
@@ -351,11 +394,14 @@ function ConfirmPaymentModal({
 }) {
   const [transactionNumber, setTransactionNumber] = useState("");
   const [saving, setSaving] = useState(false);
+  const [expired, setExpired] = useState(() => (row ? isPendingBankPaymentExpired(row.entry) : false));
 
   if (!row) return null;
 
+  const expiresAt = pendingBankPaymentExpiresAt(row.entry);
+
   async function submit() {
-    if (!row || !transactionNumber.trim()) return;
+    if (!row || !transactionNumber.trim() || expired) return;
     setSaving(true);
     try {
       await onConfirm(row.entry.bookingId, transactionNumber);
@@ -378,7 +424,7 @@ function ConfirmPaymentModal({
           <Button
             className="flex-1"
             loading={saving}
-            disabled={!transactionNumber.trim()}
+            disabled={!transactionNumber.trim() || expired}
             onClick={submit}
           >
             {t("confirm_payment")}
@@ -387,12 +433,20 @@ function ConfirmPaymentModal({
       }
     >
       <div className="space-y-4 text-sm">
-        <div className="flex items-center justify-between rounded-lg bg-warning-soft px-3.5 py-2.5">
-          <span className="text-xs font-semibold uppercase tracking-wide text-warning">{t("pending_payment")}</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-warning">
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </div>
+        {expired ? (
+          <div className="flex items-center justify-between rounded-lg bg-danger-soft px-3.5 py-2.5">
+            <span className="text-xs font-semibold uppercase tracking-wide text-danger">{t("expired")}</span>
+            <span className="text-xs text-danger">{t("payment_window_expired_hint")}</span>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between rounded-lg bg-warning-soft px-3.5 py-2.5">
+            <span className="text-xs font-semibold uppercase tracking-wide text-warning">{t("pending_payment")}</span>
+            <span className="flex items-center gap-2">
+              <span className="text-xs text-warning">{t("expires_in")}</span>
+              <Countdown endTime={expiresAt} onExpire={() => setExpired(true)} />
+            </span>
+          </div>
+        )}
 
         <div className="space-y-1 rounded-lg border border-border p-3.5">
           <DetailRow label={t("reservation_no")} value={String(row.entry.bookingId)} />
@@ -413,6 +467,7 @@ function ConfirmPaymentModal({
               value={transactionNumber}
               onChange={(e) => setTransactionNumber(e.target.value)}
               placeholder={t("bank_transaction_number_placeholder")}
+              disabled={expired}
               autoFocus
             />
           </label>
