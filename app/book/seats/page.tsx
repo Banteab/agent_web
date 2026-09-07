@@ -12,6 +12,30 @@ import { asNumberList, cn, formatMoney, selectedRoutePayload } from "@/lib/utils
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+/**
+ * Splits a bus's seat-map string into rows of seat/aisle cells ("p"/"_").
+ *
+ * Two conventions occur in the wild: one comma-separated token per row
+ * (e.g. "pp_pp,pp_pp,ppppp" — a 5-across last row with no aisle needs this
+ * to render correctly), or one token per character (e.g. "p,p,_,p,p,p,p,_,p,p"),
+ * which carries no row-boundary info and is regrouped into rows of 5 as
+ * before. Seats are still numbered in the same left-to-right, top-to-bottom
+ * order either way, so seat numbers sent to the API are unaffected.
+ */
+function parseBusRows(busStructureName?: string): string[][] {
+  const tokens = (busStructureName || "")
+    .split(",")
+    .map((token) => token.trim())
+    .filter(Boolean);
+  if (tokens.some((token) => token.length > 1)) {
+    return tokens.map((row) => row.split(""));
+  }
+  const flat = tokens.join("").split("");
+  const rows: string[][] = [];
+  for (let i = 0; i < flat.length; i += 5) rows.push(flat.slice(i, i + 5));
+  return rows;
+}
+
 export default function SeatsPage() {
   const { t } = useI18n();
   const toast = useToast();
@@ -28,10 +52,7 @@ export default function SeatsPage() {
   const booked = Array.from(
     new Set([...asNumberList(trip?.bookedSeats), ...asNumberList(trip?.blockedSeats), ...liveBooked]),
   );
-  const layout = useMemo(
-    () => (trip?.busStructureName || "").replaceAll(",", "").split(""),
-    [trip],
-  );
+  const rows = useMemo(() => parseBusRows(trip?.busStructureName), [trip]);
 
   useEffect(() => {
     const current = getBookingSession();
@@ -198,52 +219,60 @@ export default function SeatsPage() {
         </Card>
 
         <Card>
-          <div className="mb-4 flex items-center justify-between">
-            <SectionLabel>{t("seat")}</SectionLabel>
-            <span className="flex items-center gap-1.5 text-xs text-text-faint">
-              <WheelIcon /> {t("driver")}
-            </span>
-          </div>
-          <div className="mx-auto grid max-w-sm grid-cols-5 gap-x-2 gap-y-3">
-            {layout.map((cell, index) => {
-              if (cell === "_") return <div key={`${cell}-${index}`} />;
-              if (cell !== "p") return <div key={`${cell}-${index}`} />;
-              seatNo += 1;
-              const current = seatNo;
-              const isBooked = booked.includes(current);
-              const isSelected = selected.includes(current);
-              return (
-                <button
-                  key={current}
-                  type="button"
-                  disabled={isBooked && !isSelected}
-                  onClick={() => toggleSeat(current)}
-                  aria-label={`${t("seat")} ${current}`}
-                  aria-pressed={isSelected}
-                  className={cn(
-                    "group relative flex flex-col items-center transition disabled:cursor-not-allowed",
-                    !isBooked && !isSelected && "cursor-pointer",
-                  )}
-                >
-                  <SeatIcon
-                    className={cn(
-                      "h-10 w-9 drop-shadow-sm transition",
-                      isSelected && "text-primary",
-                      isBooked && !isSelected && "text-text-faint",
-                      !isBooked && !isSelected && "text-border-strong group-hover:text-primary/50",
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "pointer-events-none absolute top-4 text-[11px] font-bold",
-                      isSelected || (isBooked && !isSelected) ? "text-white" : "text-navy",
-                    )}
-                  >
-                    {current}
-                  </span>
-                </button>
-              );
-            })}
+          <SectionLabel>{t("seat")}</SectionLabel>
+          <div className="mx-auto mt-3 max-w-sm overflow-hidden rounded-[28px] border-2 border-border bg-surface-muted/40">
+            <div className="flex items-center justify-between border-b border-border bg-surface px-5 py-2.5">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-text-faint">
+                <WheelIcon /> {t("driver")}
+              </span>
+              <span className="h-1.5 w-10 rounded-full bg-border-strong" aria-hidden />
+            </div>
+            <div className="space-y-2.5 px-4 py-5 sm:px-6">
+              {rows.map((row, rowIndex) => (
+                <div key={rowIndex} className="flex justify-center gap-1.5">
+                  {row.map((cell, cellIndex) => {
+                    if (cell !== "p") {
+                      return <div key={`gap-${rowIndex}-${cellIndex}`} className="w-4 shrink-0" aria-hidden />;
+                    }
+                    seatNo += 1;
+                    const current = seatNo;
+                    const isBooked = booked.includes(current);
+                    const isSelected = selected.includes(current);
+                    return (
+                      <button
+                        key={`seat-${current}`}
+                        type="button"
+                        disabled={isBooked && !isSelected}
+                        onClick={() => toggleSeat(current)}
+                        aria-label={`${t("seat")} ${current}`}
+                        aria-pressed={isSelected}
+                        className={cn(
+                          "group relative flex shrink-0 flex-col items-center transition disabled:cursor-not-allowed",
+                          !isBooked && !isSelected && "cursor-pointer",
+                        )}
+                      >
+                        <SeatIcon
+                          className={cn(
+                            "h-10 w-9 drop-shadow-sm transition",
+                            isSelected && "text-primary",
+                            isBooked && !isSelected && "text-text-faint",
+                            !isBooked && !isSelected && "text-border-strong group-hover:text-primary/50",
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            "pointer-events-none absolute top-4 text-[11px] font-bold",
+                            isSelected || (isBooked && !isSelected) ? "text-white" : "text-navy",
+                          )}
+                        >
+                          {current}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
         </Card>
 
