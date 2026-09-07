@@ -1,4 +1,5 @@
 import { formatEthiopianDate } from "./ethiopian-calendar";
+import type { ReportPassenger } from "./types";
 
 export function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -98,4 +99,27 @@ export function capitalize(value?: string) {
 
 export function qrSrc(data: string) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(data)}`;
+}
+
+/**
+ * Report endpoints label the same per-ticket fields slightly differently
+ * (e.g. "ticketNo" vs "ticket_no", "reference" vs "bankReferenceNumber"),
+ * so read every known alias rather than assuming one exact shape.
+ */
+export function reportPassengerFields(row: ReportPassenger) {
+  return {
+    name: row.passenger || row.name || "",
+    seat: row.seat || "",
+    ticketNo: row.ticketNo || row.ticket_no || "",
+    price: row.price ?? row.amount,
+    phone: row.phoneNumber || row.phone || "",
+    bank: row.bank || row.paymentMethod || "",
+    transactionNumber:
+      row.bankReferenceNumber ||
+      row.transactionNumber ||
+      row.reference ||
+      row.refNumber ||
+      row.referenceNumber ||
+      "",
+  };
 }
