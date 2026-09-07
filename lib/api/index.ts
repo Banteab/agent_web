@@ -158,6 +158,24 @@ export const api = {
     });
   },
 
+  // Agent bank confirm — saves txn, marks BOOKED, issues tickets (no bank API)
+  confirmBankPayment(
+    bookingId: number,
+    bankTransactionNumber: string,
+    bank?: string,
+  ) {
+    return apiRequest<GenerateTicketsResponse>(
+      ENDPOINTS.confirmBankPayment(bookingId),
+      {
+        method: "POST",
+        json: {
+          bankTransactionNumber,
+          ...(bank ? { bank } : {}),
+        },
+      },
+    );
+  },
+
   // BookingService.deleteBooking  DELETE /booking/:id
   deleteBooking(id: number) {
     return apiRequest<ApiMessage>(ENDPOINTS.booking(id), { method: "DELETE" });

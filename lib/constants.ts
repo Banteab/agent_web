@@ -29,6 +29,8 @@ export const ENDPOINTS = {
   updateBookingStatus: (id: number | string) => `/booking/update-status/${id}`,
   paymentData: (bookingId: number | string) =>
     `/booking/payment-data/${bookingId}`,
+  confirmBankPayment: (bookingId: number | string) =>
+    `/booking/agent/${bookingId}/confirm-bank-payment`,
   refundRequest: "/refunds/request-cancellation",
   generateTickets: "/tickets/generate/agent",
   issueTicket: "/tickets/issue/agent",

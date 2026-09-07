@@ -85,23 +85,15 @@ export default function PendingPaymentsPage() {
       toast.error(t("bank_transaction_number_required"));
       return;
     }
+    const row = rows.find((item) => item.entry.bookingId === bookingId);
     try {
-      const res = await api.updatePayment(bookingId, "BANK", trimmed);
+      const res = await api.confirmBankPayment(
+        bookingId,
+        trimmed,
+        row?.entry.bank,
+      );
       if (res.success === false) {
         toast.error(res.message || t("error_occured"));
-        return;
-      }
-      try {
-        await api.generateTickets(bookingId);
-      } catch (ticketErr) {
-        toast.error(
-          ticketErr instanceof Error
-            ? `${t("payment_confirmed")}. ${ticketErr.message}`
-            : t("could_not_ptint"),
-        );
-        removePendingBankPayment(bookingId);
-        setRows((prev) => prev.filter((row) => row.entry.bookingId !== bookingId));
-        setConfirmRow(null);
         return;
       }
       toast.success(res.message || t("payment_confirmed"));
