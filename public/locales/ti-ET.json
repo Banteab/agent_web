@@ -405,5 +405,8 @@
     "step_passengers": "ዝርዝር",
     "step_payment": "ክፍሊት",
     "step_done": "ተወዲኡ",
-    "support": "ደገፍ"
+    "support": "ደገፍ",
+    "greeting_morning": "ደሓንዶ ሓዲርኩም",
+    "greeting_afternoon": "ደሓንዶ ውዒልኩም",
+    "greeting_evening": "ደሓንዶ ኣምሲኹም"
 }

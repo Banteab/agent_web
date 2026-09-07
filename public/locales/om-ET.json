@@ -405,5 +405,8 @@
     "step_passengers": "Ibsa",
     "step_payment": "Kaffaltii",
     "step_done": "Xumurame",
-    "support": "Deggersa"
+    "support": "Deggersa",
+    "greeting_morning": "Akkam bultan",
+    "greeting_afternoon": "Akkam oolte",
+    "greeting_evening": "Akkam galgaltan"
 }

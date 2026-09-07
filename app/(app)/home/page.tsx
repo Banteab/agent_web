@@ -4,20 +4,31 @@ import { CityPicker } from "@/components/city-picker";
 import { SupportIllustration } from "@/components/support-illustration";
 import { Button, EmptyState, SectionLabel } from "@/components/ui";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { cityApiName, citiesFromApi, FALLBACK_CITIES, mergeCities, normalizeCity } from "@/lib/cities";
 import { useI18n } from "@/lib/i18n";
 import { formatEthiopianDate } from "@/lib/ethiopian-calendar";
 import { addRecentHistory, parseRecentHistory, setBookingSession } from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { City } from "@/lib/types";
+import { usePendingBankPaymentsCount } from "@/lib/use-pending-bank-payments-count";
 import { formatDateISO, formatDisplayDate } from "@/lib/utils";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
+function greetingKey(hour: number) {
+  if (hour < 12) return "greeting_morning";
+  if (hour < 17) return "greeting_afternoon";
+  return "greeting_evening";
+}
 
 export default function HomeSearchPage() {
   const { t, locale } = useI18n();
   const toast = useToast();
   const router = useRouter();
+  const { profile } = useAuth();
+  const pendingCount = usePendingBankPaymentsCount();
   const [from, setFrom] = useState<City | null>(null);
   const [to, setTo] = useState<City | null>(null);
   const [date, setDate] = useState(formatDateISO(new Date()));
@@ -85,9 +96,35 @@ export default function HomeSearchPage() {
           className="pointer-events-none absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-gold/10 blur-3xl"
           aria-hidden
         />
+        {/* Decorative route line — a small bus travels across the hero */}
+        <div className="pointer-events-none absolute inset-x-10 bottom-16 hidden sm:block" aria-hidden>
+          <div className="relative h-px border-t border-dashed border-white/15">
+            <span className="absolute -top-[9px] left-0 -translate-x-1/2 text-gold/70 animate-[driveAcross_10s_linear_infinite]">
+              <BusGlyphIcon />
+            </span>
+          </div>
+        </div>
         <div className="relative flex items-center justify-between gap-6">
           <div className="max-w-xl animate-[riseIn_450ms_ease-out]">
-            <p className="text-2xl font-semibold leading-snug tracking-tight text-white sm:text-3xl">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gold">
+                {t(greetingKey(new Date().getHours()))}
+                {profile?.firstName ? `, ${profile.firstName}` : ""}
+              </p>
+              {pendingCount > 0 ? (
+                <Link
+                  href="/pending-payments"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-semibold text-gold transition hover:bg-gold/25"
+                >
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+                  </span>
+                  {pendingCount} {t("pending_payments")}
+                </Link>
+              ) : null}
+            </div>
+            <p className="mt-2 text-3xl font-bold leading-snug tracking-tight text-white sm:text-4xl">
               {t("new_booking_hero_title")}
             </p>
             <p className="mt-2 text-sm text-white/70 sm:text-base">{t("new_booking_hero_subtitle")}</p>
@@ -279,6 +316,17 @@ function RouteIcon() {
       <circle cx="6" cy="6" r="2.5" />
       <circle cx="18" cy="18" r="2.5" />
       <path d="M8 7c3 0 2 6 5 6M13 13c1.5 0 2-1 3.5-1" />
+    </svg>
+  );
+}
+function BusGlyphIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="3" y="5" width="18" height="11" rx="3" />
+      <rect x="5.5" y="7.5" width="5" height="4" rx="0.75" fill="#0a1730" />
+      <rect x="13.5" y="7.5" width="5" height="4" rx="0.75" fill="#0a1730" />
+      <circle cx="7.5" cy="17.5" r="1.8" />
+      <circle cx="16.5" cy="17.5" r="1.8" />
     </svg>
   );
 }

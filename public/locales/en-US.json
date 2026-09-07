@@ -405,5 +405,8 @@
     "step_passengers": "Details",
     "step_payment": "Payment",
     "step_done": "Done",
-    "support": "Support"
+    "support": "Support",
+    "greeting_morning": "Good morning",
+    "greeting_afternoon": "Good afternoon",
+    "greeting_evening": "Good evening"
 }
