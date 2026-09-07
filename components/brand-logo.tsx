@@ -40,7 +40,7 @@ export function BrandLogo({ className, imgClassName, onDark = false, compact = f
         priority
       />
       <span className="text-xl font-black italic tracking-wide">
-        <span className="text-navy">BIFTU</span> <span className="text-gold">BUS</span>
+        <span className="text-navy">BIFTU</span> <span className="text-gold-ink">BUS</span>
       </span>
     </span>
   );

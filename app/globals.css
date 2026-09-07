@@ -7,9 +7,13 @@
   --primary: #0a5fa0;
   --primary-dark: #084b80;
   --primary-soft: #eaf3fb;
-  --gold: #c8901f;
-  --navy: #0c1a35;
+  --gold: #eab308;
+  --gold-soft: #fef9e6;
+  --gold-ink: #92670a;
+  --navy: #0a1730;
   --azure: #eaf1f6;
+  --accent-red: #dc2626;
+  --accent-red-soft: #fdecec;
 
   /* Neutral surface scale */
   --surface: #ffffff;
@@ -23,10 +27,10 @@
   /* Semantic status */
   --success: #157a45;
   --success-soft: #e7f6ee;
-  --warning: #b5680a;
-  --warning-soft: #fdf1e0;
-  --danger: #b3261e;
-  --danger-soft: #fbebe9;
+  --warning: #92610a;
+  --warning-soft: #fef3c7;
+  --danger: #dc2626;
+  --danger-soft: #fdecec;
   --info: #0a5fa0;
   --info-soft: #eaf3fb;
 }
@@ -38,9 +42,13 @@
   --color-primary-dark: var(--primary-dark);
   --color-primary-soft: var(--primary-soft);
   --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-ink: var(--gold-ink);
   --color-navy: var(--navy);
   --color-azure: var(--azure);
   --color-page: var(--background);
+  --color-accent-red: var(--accent-red);
+  --color-accent-red-soft: var(--accent-red-soft);
 
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
