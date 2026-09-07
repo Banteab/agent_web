@@ -380,5 +380,6 @@
     "cancellation_reason_required": "Maaloo sababa haqamuu galchi",
     "expires_in": "Yeroon itti dhumu",
     "expired": "Yeroon dabreera",
-    "payment_window_expired_hint": "Yeroon kaffaltii kanaa dabreera; siʼachi mirkaneessuun hin danda'amu."
+    "payment_window_expired_hint": "Yeroon kaffaltii kanaa dabreera; siʼachi mirkaneessuun hin danda'amu.",
+    "reserved_seat": "Teessoo yeroof qabame"
 }

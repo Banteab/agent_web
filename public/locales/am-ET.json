@@ -380,5 +380,6 @@
     "cancellation_reason_required": "እባክዎ የስረዛ ምክንያት ያስገቡ",
     "expires_in": "የሚያበቃበት ጊዜ",
     "expired": "ጊዜው አልፏል",
-    "payment_window_expired_hint": "የክፍያ ጊዜው አልፏል፤ ከዚህ በኋላ ማረጋገጥ አይቻልም።"
+    "payment_window_expired_hint": "የክፍያ ጊዜው አልፏል፤ ከዚህ በኋላ ማረጋገጥ አይቻልም።",
+    "reserved_seat": "በመጠባበቅ ላይ ያለ ወንበር"
 }

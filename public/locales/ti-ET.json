@@ -380,5 +380,6 @@
     "cancellation_reason_required": "በጃኹም ምኽንያት ስርዛት የእትዉ",
     "expires_in": "ዝውዳእሉ ግዜ",
     "expired": "ግዜኡ ኣኺሉ",
-    "payment_window_expired_hint": "ግዜ እዚ ክፍሊት ኣኺሉ እዩ፤ ደጊምካ ምርግጋጽ ኣይክኣልን እዩ።"
+    "payment_window_expired_hint": "ግዜ እዚ ክፍሊት ኣኺሉ እዩ፤ ደጊምካ ምርግጋጽ ኣይክኣልን እዩ።",
+    "reserved_seat": "ኣብ ምጽባይ ዘሎ ቦታ"
 }

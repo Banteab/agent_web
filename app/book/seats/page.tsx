@@ -49,9 +49,14 @@ export default function SeatsPage() {
   const [liveBooked, setLiveBooked] = useState<number[]>([]);
   const session = useMemo(() => getBookingSession(), [ready, selected, bookingId]);
   const trip = session?.trip;
-  const booked = Array.from(
-    new Set([...asNumberList(trip?.bookedSeats), ...asNumberList(trip?.blockedSeats), ...liveBooked]),
+  // "Booked" seats are confirmed tickets (red); "reserved" seats are only
+  // temporarily held — another agent's in-progress hold, from either the
+  // trip snapshot's blockedSeats or the live polling endpoint (yellow).
+  const bookedSet = new Set(asNumberList(trip?.bookedSeats));
+  const reservedSet = new Set(
+    [...asNumberList(trip?.blockedSeats), ...liveBooked].filter((seat) => !bookedSet.has(seat)),
   );
+  const booked = Array.from(new Set([...bookedSet, ...reservedSet]));
   const rows = useMemo(() => parseBusRows(trip?.busStructureName), [trip]);
 
   useEffect(() => {
@@ -209,10 +214,11 @@ export default function SeatsPage() {
           backHref="/home"
           action={<Countdown endTime={endTime} onExpire={expire} />}
         />
-        <Card className="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-4">
-          <Legend icon={<SeatIcon className="text-border-strong" />} label={t("available_seat")} />
-          <Legend icon={<SeatIcon className="text-primary" />} label={t("selected_seat")} />
-          <Legend icon={<SeatIcon className="text-text-faint" />} label={t("booked_seat")} />
+        <Card className="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-5">
+          <Legend icon={<SeatIcon className="text-white" />} label={t("available_seat")} />
+          <Legend icon={<SeatIcon className="text-success" />} label={t("selected_seat")} />
+          <Legend icon={<SeatIcon className="text-gold" />} label={t("reserved_seat")} />
+          <Legend icon={<SeatIcon className="text-danger" />} label={t("booked_seat")} />
           <p className="col-span-2 text-right font-semibold text-primary sm:col-span-1">
             {formatMoney((trip.price || 0) * selected.length)}
           </p>
@@ -236,33 +242,36 @@ export default function SeatsPage() {
                     }
                     seatNo += 1;
                     const current = seatNo;
-                    const isBooked = booked.includes(current);
                     const isSelected = selected.includes(current);
+                    const isBooked = bookedSet.has(current);
+                    const isReserved = reservedSet.has(current);
+                    const isBlocked = (isBooked || isReserved) && !isSelected;
                     return (
                       <button
                         key={`seat-${current}`}
                         type="button"
-                        disabled={isBooked && !isSelected}
+                        disabled={isBlocked}
                         onClick={() => toggleSeat(current)}
                         aria-label={`${t("seat")} ${current}`}
                         aria-pressed={isSelected}
                         className={cn(
                           "group relative flex shrink-0 flex-col items-center transition disabled:cursor-not-allowed",
-                          !isBooked && !isSelected && "cursor-pointer",
+                          !isBlocked && "cursor-pointer",
                         )}
                       >
                         <SeatIcon
                           className={cn(
                             "h-10 w-9 drop-shadow-sm transition",
-                            isSelected && "text-primary",
-                            isBooked && !isSelected && "text-text-faint",
-                            !isBooked && !isSelected && "text-border-strong group-hover:text-primary/50",
+                            isSelected && "text-success",
+                            !isSelected && isBooked && "text-danger",
+                            !isSelected && isReserved && "text-gold",
+                            !isSelected && !isBooked && !isReserved && "text-white group-hover:text-success/20",
                           )}
                         />
                         <span
                           className={cn(
                             "pointer-events-none absolute top-4 text-[11px] font-bold",
-                            isSelected || (isBooked && !isSelected) ? "text-white" : "text-navy",
+                            isSelected || isBooked ? "text-white" : "text-navy",
                           )}
                         >
                           {current}
@@ -295,7 +304,7 @@ function Legend({ icon, label }: { icon: React.ReactNode; label: string }) {
 
 function SeatIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 40 44" fill="currentColor" className={className}>
+    <svg viewBox="0 0 40 44" fill="currentColor" stroke="rgba(15,23,42,0.18)" strokeWidth="1" className={className}>
       <rect x="11" y="1.5" width="18" height="13" rx="5" />
       <rect x="4" y="13" width="32" height="27" rx="9" />
       <rect x="0" y="19" width="5" height="16" rx="2.5" />
