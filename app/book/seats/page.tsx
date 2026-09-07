@@ -2,7 +2,7 @@
 
 import { Countdown } from "@/components/countdown";
 import { Protected } from "@/components/protected";
-import { Button, Card, PageHeader, Spinner } from "@/components/ui";
+import { Button, Card, PageHeader, SectionLabel, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
 import { BOOKING_HOLD_MS, MAX_SEATS } from "@/lib/constants";
 import { useI18n } from "@/lib/i18n";
@@ -192,13 +192,14 @@ export default function SeatsPage() {
           <Legend color="bg-white ring-1 ring-slate-300" label={t("available_seat")} />
           <Legend color="bg-emerald-300" label={t("selected_seat")} />
           <Legend color="bg-rose-400" label={t("booked_seat")} />
-          <p className="col-span-2 text-right font-semibold text-navy sm:col-span-1">
+          <p className="col-span-2 text-right font-semibold text-primary sm:col-span-1">
             {formatMoney((trip.price || 0) * selected.length)}
           </p>
         </Card>
 
         <Card>
-          <div className="mx-auto grid max-w-sm grid-cols-5 gap-2">
+          <SectionLabel>{t("seat")}</SectionLabel>
+          <div className="mx-auto mt-3 grid max-w-sm grid-cols-5 gap-2">
             {layout.map((cell, index) => {
               if (cell === "_") return <div key={`${cell}-${index}`} />;
               if (cell !== "p") return <div key={`${cell}-${index}`} />;
@@ -213,10 +214,10 @@ export default function SeatsPage() {
                   disabled={isBooked && !isSelected}
                   onClick={() => toggleSeat(current)}
                   className={cn(
-                    "flex aspect-square items-center justify-center rounded-lg text-xs font-bold",
-                    isSelected && "bg-emerald-300 text-navy",
+                    "flex aspect-square items-center justify-center rounded-lg text-xs font-bold transition",
+                    isSelected && "bg-emerald-300 text-navy shadow-sm",
                     isBooked && !isSelected && "bg-rose-400 text-white",
-                    !isBooked && !isSelected && "bg-white text-navy ring-1 ring-slate-300",
+                    !isBooked && !isSelected && "bg-white text-navy ring-1 ring-slate-300 hover:ring-primary/40",
                   )}
                 >
                   {current}
