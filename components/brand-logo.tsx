@@ -3,7 +3,7 @@
 import { BRAND_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import biftuLogo from "@/app/assets/biftu-bus.jpg";
+import biftuLogo from "@/app/assets/biftu-bus.png";
 
 type BrandLogoProps = {
   className?: string;

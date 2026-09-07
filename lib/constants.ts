@@ -46,7 +46,7 @@ export const ENDPOINTS = {
   associationLogo: (imageUrl: string) => `/bus-association/logo/${imageUrl}`,
 } as const;
 
-export const BRAND_LOGO = "/images/biftu-bus.jpg";
+export const BRAND_LOGO = "/images/biftu-bus.png";
 export const BRAND_NAME = "Biftu Bus";
 
 export const logoUrl = (imageUrl?: string | null) =>

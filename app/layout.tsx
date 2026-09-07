@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Biftu Bus Agent",
   description: "Web agent portal for Biftu Bus ticket booking, cancellation, and reports.",
-  icons: { icon: "/images/biftu-bus.jpg" },
+  icons: { icon: "/images/biftu-bus.png" },
   applicationName: "Biftu Bus",
 };
 
