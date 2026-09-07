@@ -197,6 +197,50 @@ export function StatCard({
   );
 }
 
+export function DetailRow({
+  label,
+  value,
+  strong = true,
+}: {
+  label: string;
+  value?: React.ReactNode;
+  strong?: boolean;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 text-sm">
+      <span className="text-slate-500">{label}</span>
+      <span className={cn("text-right", strong ? "font-semibold text-navy" : "text-slate-700")}>
+        {value || value === 0 ? value : "-"}
+      </span>
+    </div>
+  );
+}
+
+export function SectionLabel({ children }: { children: React.ReactNode }) {
+  return <h2 className="text-xs font-bold uppercase tracking-wide text-slate-400">{children}</h2>;
+}
+
+const STATUS_TONE: Record<string, keyof typeof badgeTones> = {
+  ACTIVE: "success",
+  BOOKED: "success",
+  PAID: "success",
+  CONFIRMED: "success",
+  SEAT_ADDED: "info",
+  PENDING: "pending",
+  PENDING_PAYMENT: "pending",
+  CANCELLED: "danger",
+  CANCELED: "danger",
+  REJECTED: "danger",
+  EXPIRED: "danger",
+};
+
+export function StatusBadge({ status }: { status?: string | null }) {
+  if (!status) return <Badge tone="neutral">-</Badge>;
+  const key = status.trim().toUpperCase().replace(/\s+/g, "_");
+  const tone = STATUS_TONE[key] || "neutral";
+  return <Badge tone={tone}>{status.replaceAll("_", " ")}</Badge>;
+}
+
 export function TableFrame({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={cn("overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100", className)}>
