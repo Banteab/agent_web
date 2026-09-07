@@ -61,6 +61,11 @@ export default function HomeSearchPage() {
     setTo(normalizeCity(routeTo));
   }
 
+  function swap() {
+    setFrom(to);
+    setTo(from);
+  }
+
   return (
     <div>
       {/* Hero */}
@@ -76,33 +81,53 @@ export default function HomeSearchPage() {
           className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl"
           aria-hidden
         />
+        <div
+          className="pointer-events-none absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-gold/10 blur-3xl"
+          aria-hidden
+        />
         <div className="relative flex items-center justify-between gap-6">
-          <div className="max-w-xl">
+          <div className="max-w-xl animate-[riseIn_450ms_ease-out]">
             <p className="text-2xl font-semibold leading-snug tracking-tight text-white sm:text-3xl">
               {t("new_booking_hero_title")}
             </p>
             <p className="mt-2 text-sm text-white/70 sm:text-base">{t("new_booking_hero_subtitle")}</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <TrustBadge icon={<SeatMapIcon />} label={t("feature_live_seats")} />
+              <TrustBadge icon={<ShieldIcon />} label={t("feature_secure_payments")} />
+              <TrustBadge icon={<BoltIcon />} label={t("feature_instant_tickets")} />
+            </div>
           </div>
-          <SupportIllustration className="hidden h-40 w-40 shrink-0 xl:block" />
+          <SupportIllustration className="hidden h-40 w-40 shrink-0 animate-[floatY_6s_ease-in-out_infinite] xl:block" />
         </div>
       </div>
 
       {/* Elevated search widget */}
-      <div className="relative z-10 -mt-8 rounded-2xl border border-border bg-surface p-3 shadow-lg shadow-navy/5 sm:-mt-9 sm:p-4">
+      <div className="relative z-10 -mt-8 animate-[riseIn_500ms_ease-out] rounded-2xl border border-border bg-surface p-3 shadow-lg shadow-navy/5 sm:-mt-9 sm:p-4">
         <div className="flex flex-col divide-y divide-border lg:flex-row lg:divide-x lg:divide-y-0">
-          <button
-            type="button"
-            onClick={() => setPicker("from")}
-            className="flex flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left transition hover:bg-surface-muted"
-          >
-            <LocationIcon />
-            <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("leaving_from")}</p>
-              <p className={from ? "truncate font-semibold text-navy" : "truncate text-text-faint"}>
-                {from ? from.sys : t("leaving_from")}
-              </p>
-            </div>
-          </button>
+          <div className="relative flex flex-1 items-stretch">
+            <button
+              type="button"
+              onClick={() => setPicker("from")}
+              className="flex flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left transition hover:bg-surface-muted"
+            >
+              <LocationIcon />
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("leaving_from")}</p>
+                <p className={from ? "truncate font-semibold text-navy" : "truncate text-text-faint"}>
+                  {from ? from.sys : t("leaving_from")}
+                </p>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={swap}
+              aria-label={t("swap_route")}
+              title={t("swap_route")}
+              className="absolute right-0 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-border bg-surface text-text-muted shadow-sm transition hover:border-primary/40 hover:text-primary lg:flex"
+            >
+              <SwapIcon />
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => setPicker("to")}
@@ -133,7 +158,8 @@ export default function HomeSearchPage() {
             </div>
           </label>
           <div className="flex items-center p-1.5 lg:pl-3">
-            <Button className="w-full lg:w-auto" loading={loading} onClick={search}>
+            <Button className="w-full shadow-md shadow-primary/20 lg:w-auto" loading={loading} onClick={search}>
+              <SearchIcon />
               {t("search_bus")}
             </Button>
           </div>
@@ -150,15 +176,16 @@ export default function HomeSearchPage() {
                 <button
                   key={`${item.from.sys}-${item.to.sys}`}
                   onClick={() => searchRoute(item.from, item.to)}
-                  className="group flex items-center gap-3 rounded-xl border border-border bg-surface p-4 text-left transition hover:border-primary/40 hover:bg-surface-muted"
+                  className="group flex items-center gap-3 rounded-xl border border-border bg-surface p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary transition group-hover:bg-primary group-hover:text-white">
                     <RouteIcon />
                   </span>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-navy">{item.from.sys}</p>
                     <p className="truncate text-xs text-text-faint">→ {item.to.sys}</p>
                   </div>
+                  <ChevronIcon className="shrink-0 text-text-faint transition group-hover:translate-x-0.5 group-hover:text-primary" />
                 </button>
               ))}
             </div>
@@ -166,6 +193,21 @@ export default function HomeSearchPage() {
             <EmptyState title={t("no_recent_searches")} hint={t("no_recent_searches_hint")} />
           )}
         </div>
+      </div>
+
+      {/* Why agents choose this platform */}
+      <div className="mt-8 grid gap-3 sm:grid-cols-3">
+        <FeatureCard icon={<SeatMapIcon />} title={t("feature_live_seats")} caption={t("feature_live_seats_caption")} />
+        <FeatureCard
+          icon={<ShieldIcon />}
+          title={t("feature_secure_payments")}
+          caption={t("feature_secure_payments_caption")}
+        />
+        <FeatureCard
+          icon={<BoltIcon />}
+          title={t("feature_instant_tickets")}
+          caption={t("feature_instant_tickets_caption")}
+        />
       </div>
 
       <CityPicker
@@ -180,6 +222,29 @@ export default function HomeSearchPage() {
           setPicker(null);
         }}
       />
+    </div>
+  );
+}
+
+function TrustBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/85 backdrop-blur-sm">
+      <span className="text-gold">{icon}</span>
+      {label}
+    </span>
+  );
+}
+
+function FeatureCard({ icon, title, caption }: { icon: React.ReactNode; title: string; caption: string }) {
+  return (
+    <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:shadow-md">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gold-soft text-gold-ink">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-navy">{title}</p>
+        <p className="mt-0.5 text-xs text-text-faint">{caption}</p>
+      </div>
     </div>
   );
 }
@@ -214,6 +279,54 @@ function RouteIcon() {
       <circle cx="6" cy="6" r="2.5" />
       <circle cx="18" cy="18" r="2.5" />
       <path d="M8 7c3 0 2 6 5 6M13 13c1.5 0 2-1 3.5-1" />
+    </svg>
+  );
+}
+function SwapIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="M7 4v13M7 17 3.5 13.5M7 17l3.5-3.5" />
+      <path d="M17 20V7M17 7l3.5 3.5M17 7l-3.5 3.5" />
+    </svg>
+  );
+}
+function SearchIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+function ChevronIcon({ className }: { className?: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+      <path d="m9 6 6 6-6 6" />
+    </svg>
+  );
+}
+function SeatMapIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="4" width="7" height="7" rx="1.5" />
+      <rect x="14" y="4" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
+function ShieldIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+function BoltIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" />
     </svg>
   );
 }
