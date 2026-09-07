@@ -1,5 +1,6 @@
 "use client";
 
+import { BookingStepper } from "@/components/booking-stepper";
 import { Countdown } from "@/components/countdown";
 import { Protected } from "@/components/protected";
 import { Button, Card, Input, PageHeader, SectionLabel, Select, Spinner } from "@/components/ui";
@@ -101,6 +102,7 @@ export default function PassengerPage() {
   return (
     <Protected>
       <div className="mx-auto max-w-3xl">
+        <BookingStepper current="passengers" t={t} />
         <PageHeader
           title={t("passanger_data")}
           backHref="/book/seats"
@@ -109,10 +111,15 @@ export default function PassengerPage() {
         <Card className="space-y-4">
           <SectionLabel>{t("passengers")}</SectionLabel>
           {session?.selectedSeats.map((seat, index) => (
-            <div key={seat} className="space-y-3 rounded-xl bg-surface-muted p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
-                {t("seat_no")} {seat}
-              </p>
+            <div key={seat} className="space-y-3 rounded-xl border border-border bg-surface-muted p-3.5">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
+                  {index + 1}
+                </span>
+                <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+                  {t("seat_no")} {seat}
+                </p>
+              </div>
               <Input
                 placeholder={`${t("passenger")} ${index + 1}`}
                 value={names[index] || ""}

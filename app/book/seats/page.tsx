@@ -1,5 +1,6 @@
 "use client";
 
+import { BookingStepper } from "@/components/booking-stepper";
 import { Countdown } from "@/components/countdown";
 import { Protected } from "@/components/protected";
 import { Button, Card, PageHeader, SectionLabel, Spinner } from "@/components/ui";
@@ -216,6 +217,7 @@ export default function SeatsPage() {
   return (
     <Protected>
       <div className="mx-auto max-w-3xl">
+        <BookingStepper current="seats" t={t} />
         <PageHeader
           title={`${session?.fromCity} → ${session?.toCity}`}
           backHref="/home"

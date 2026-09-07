@@ -1,5 +1,6 @@
 "use client";
 
+import { BookingStepper } from "@/components/booking-stepper";
 import { BrandLogo } from "@/components/brand-logo";
 import { Protected } from "@/components/protected";
 import { Button, Card, DetailRow, PageHeader, Spinner } from "@/components/ui";
@@ -8,7 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
 import { clearBookingSession, getBookingSession } from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
-import type { Booking } from "@/lib/types";
+import type { Booking, BookingCompleteSummary } from "@/lib/types";
 import { formatMoney, parsePassengerNames, parseSeats } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -52,9 +53,20 @@ export default function ReservationPage() {
         toast.error(res.message || t("could_not_ptint"));
         return;
       }
-      toast.success(res.message || t("booking_added"));
+      const summary: BookingCompleteSummary = {
+        kind: "ticket_issued",
+        reservationNo: booking?.refNumber || String(current.bookingId),
+        fromCity: current.fromCity || booking?.trip?.from,
+        toCity: current.toCity || booking?.trip?.to,
+        travelDate: current.isoDate || booking?.trip?.travelDate,
+        passengers,
+        seats,
+        amount: booking?.price || current.trip?.price,
+        ticketNumbers: Array.isArray(res.data) ? res.data : [],
+      };
+      sessionStorage.setItem("bookingComplete", JSON.stringify(summary));
       clearBookingSession();
-      router.replace("/home");
+      router.replace("/book/complete");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("could_not_ptint"));
     } finally {
@@ -67,6 +79,7 @@ export default function ReservationPage() {
   return (
     <Protected>
       <div className="mx-auto max-w-3xl">
+        <BookingStepper current="payment" t={t} />
         <PageHeader title={t("reservation_detail")} />
         <div className="space-y-4">
           {Array.from({ length: cards }, (_, index) => (
@@ -94,8 +107,8 @@ export default function ReservationPage() {
             </Card>
           ))}
         </div>
-        <Button className="mt-4 w-full" loading={issuing} onClick={finish}>
-          {t("finish")}
+        <Button className="mt-4 h-12 w-full text-[15px] shadow-md shadow-primary/25" loading={issuing} onClick={finish}>
+          {t("complete_booking")}
         </Button>
       </div>
     </Protected>
