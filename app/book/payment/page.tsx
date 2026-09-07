@@ -2,14 +2,19 @@
 
 import { Countdown } from "@/components/countdown";
 import { Protected } from "@/components/protected";
-import { Button, Card, Input, PageHeader, Spinner } from "@/components/ui";
+import { Button, Card, DetailRow, Input, PageHeader, SectionLabel, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
-import { clearBookingSession, getBookingSession, setBookingSession } from "@/lib/storage";
+import {
+  addPendingBankPayment,
+  clearBookingSession,
+  getBookingSession,
+  setBookingSession,
+} from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { Booking } from "@/lib/types";
-import { formatMoney, parsePassengerNames } from "@/lib/utils";
+import { cn, formatMoney, parsePassengerNames } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -60,6 +65,15 @@ export default function PaymentPage() {
       }
       setBookingSession(current);
       if (method === "BANK") {
+        addPendingBankPayment({
+          bookingId: current.bookingId,
+          fromCity: current.fromCity,
+          toCity: current.toCity,
+          phoneNumber: current.phoneNumber || booking?.phoneNumber,
+          passengers: current.passengers || booking?.passengers,
+          price: total,
+          travelDate: current.isoDate || booking?.trip?.travelDate,
+        });
         toast.success(res.message || t("booking_added"));
         clearBookingSession();
         router.replace("/home");
@@ -77,40 +91,56 @@ export default function PaymentPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader
           title={t("how_to_pay")}
           backHref="/book/passengers"
           action={<Countdown endTime={session?.endTime} />}
         />
         <Card className="mb-4 space-y-3">
-          {options.map((option) => (
-            <label key={option} className="flex items-center gap-3 text-sm font-semibold text-navy">
-              <input
-                type="radio"
-                name="pay"
-                checked={method === option}
-                onChange={() => setMethod(option)}
-              />
-              {option === "CASH" ? t("cash") : option === "REFERENCE" ? t("ref") : t("bank")}
-            </label>
-          ))}
+          <SectionLabel>{t("choose_option")}</SectionLabel>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {options.map((option) => {
+              const active = method === option;
+              const label = option === "CASH" ? t("cash") : option === "REFERENCE" ? t("ref") : t("bank");
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setMethod(option)}
+                  className={cn(
+                    "flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition",
+                    active ? "border-primary bg-primary/10 text-primary" : "border-border text-text-muted hover:bg-surface-muted",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "h-4 w-4 shrink-0 rounded-full border-2",
+                      active ? "border-primary bg-primary" : "border-border-strong",
+                    )}
+                  />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
           {method === "REFERENCE" ? (
             <Input placeholder={t("ref_no")} value={reference} onChange={(e) => setReference(e.target.value)} />
           ) : null}
         </Card>
 
-        <Card className="space-y-2 text-sm">
-          <h2 className="font-bold text-navy">{t("travel_summery")}</h2>
-          <Row label={t("from")} value={session?.fromCity} />
-          <Row label={t("to")} value={session?.toCity} />
-          <Row label={t("phone")} value={session?.phoneNumber || booking?.phoneNumber} />
-          <Row label={t("pickup")} value={session?.pickup || booking?.pickup} />
-          <Row label={t("dropoff")} value={session?.dropoff || booking?.dropoff} />
-          <Row label={t("passengers")} value={passengers.join(", ")} />
-          <Row label={t("price")} value={formatMoney(price)} />
-          <Row label="Commission" value={formatMoney(commission)} />
-          <Row label={t("total")} value={formatMoney(total)} />
+        <Card className="space-y-2">
+          <SectionLabel>{t("travel_summery")}</SectionLabel>
+          <DetailRow label={t("from")} value={session?.fromCity} />
+          <DetailRow label={t("to")} value={session?.toCity} />
+          <DetailRow label={t("phone")} value={session?.phoneNumber || booking?.phoneNumber} />
+          <DetailRow label={t("pickup")} value={session?.pickup || booking?.pickup} />
+          <DetailRow label={t("dropoff")} value={session?.dropoff || booking?.dropoff} />
+          <DetailRow label={t("passengers")} value={passengers.join(", ")} />
+          <hr className="border-border" />
+          <DetailRow label={t("price")} value={formatMoney(price)} strong={false} />
+          <DetailRow label="Commission" value={formatMoney(commission)} strong={false} />
+          <DetailRow label={t("total")} value={<span className="text-primary">{formatMoney(total)}</span>} />
         </Card>
 
         <Button className="mt-4 w-full" loading={saving} onClick={submit}>
@@ -118,14 +148,5 @@ export default function PaymentPage() {
         </Button>
       </div>
     </Protected>
-  );
-}
-
-function Row({ label, value }: { label: string; value?: string | null }) {
-  return (
-    <div className="flex justify-between gap-4">
-      <span className="text-slate-500">{label}</span>
-      <span className="text-right font-semibold text-navy">{value || "-"}</span>
-    </div>
   );
 }

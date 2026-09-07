@@ -1,7 +1,7 @@
 "use client";
 
 import { Protected } from "@/components/protected";
-import { Button, Card, PageHeader, Spinner } from "@/components/ui";
+import { Button, Card, DetailRow, PageHeader, Spinner, StatCard } from "@/components/ui";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
 import { formatMoney } from "@/lib/utils";
@@ -18,7 +18,7 @@ export default function ProfilePage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("profile")} backHref="/menu" />
         {!profile ? <Spinner /> : (
           <Card className="space-y-4">
@@ -28,19 +28,19 @@ export default function ProfilePage() {
                 <p className="text-xl font-bold text-navy">
                   {profile.firstName} {profile.lastName}
                 </p>
-                <p className="text-sm text-slate-500">{profile.phoneNo}</p>
+                <p className="text-sm text-text-muted">{profile.phoneNo}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <Stat label={t("birr")} value={formatMoney(profile.balance)} />
-              <Stat label="Commission" value={formatMoney(profile.commision)} />
-              <Stat label={t("booked")} value={profile.booked} />
-              <Stat label={t("cancelled")} value={profile.cancelled} />
-              <Stat label={t("total")} value={profile.total} />
-              <Stat label={t("total")} value={formatMoney(profile.totalMade)} />
+              <StatCard label={t("birr")} value={formatMoney(profile.balance)} tone="primary" />
+              <StatCard label="Commission" value={formatMoney(profile.commision)} tone="gold" />
+              <StatCard label={t("booked")} value={profile.booked ?? 0} />
+              <StatCard label={t("cancelled")} value={profile.cancelled ?? 0} />
+              <StatCard label={t("total")} value={profile.total ?? 0} />
+              <StatCard label={t("total")} value={formatMoney(profile.totalMade)} tone="primary" />
             </div>
-            <Row label={t("email")} value={profile.email} />
-            <Row label={t("address_detail")} value={profile.address} />
+            <DetailRow label={t("email")} value={profile.email} />
+            <DetailRow label={t("address_detail")} value={profile.address} />
             <div className="flex flex-col gap-2 sm:flex-row">
               <Link href="/profile/password" className="flex-1">
                 <Button className="w-full">{t("change_password")}</Button>
@@ -56,23 +56,5 @@ export default function ProfilePage() {
         )}
       </div>
     </Protected>
-  );
-}
-
-function Stat({ label, value }: { label: string; value?: string | number | null }) {
-  return (
-    <div className="rounded-xl bg-azure/60 p-3">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="font-bold text-navy">{value ?? 0}</p>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value?: string | null }) {
-  return (
-    <div className="text-sm">
-      <p className="text-slate-500">{label}</p>
-      <p className="font-semibold text-navy">{value || "-"}</p>
-    </div>
   );
 }

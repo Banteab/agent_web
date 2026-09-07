@@ -10,10 +10,10 @@ export default function AboutPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("about_liubus")} backHref="/menu" />
         <BrandLogo className="mx-auto mb-4 block" imgClassName="h-32" />
-        <Card className="space-y-4 text-sm leading-6 text-slate-600">
+        <Card className="space-y-4 text-sm leading-6 text-text-muted">
           <p className="font-semibold text-navy">{t("about_us")}</p>
           <p>
             Engida Travel Technology is building Africa’s next-generation travel infrastructure —

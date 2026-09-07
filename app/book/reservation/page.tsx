@@ -2,7 +2,7 @@
 
 import { BrandLogo } from "@/components/brand-logo";
 import { Protected } from "@/components/protected";
-import { Button, Card, PageHeader, Spinner } from "@/components/ui";
+import { Button, Card, DetailRow, PageHeader, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
@@ -66,27 +66,30 @@ export default function ReservationPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("reservation_detail")} />
         <div className="space-y-4">
           {Array.from({ length: cards }, (_, index) => (
-            <Card key={`${passengers[index] || "passenger"}-${index}`} className="space-y-3 text-center">
+            <Card
+              key={`${passengers[index] || "passenger"}-${index}`}
+              className="space-y-3 overflow-hidden border-t-4 border-primary text-center"
+            >
               <BrandLogo className="mx-auto" imgClassName="h-16" />
-              <p className="text-sm text-slate-500">Addis Ababa, Ethiopia</p>
+              <p className="text-sm text-text-muted">Addis Ababa, Ethiopia</p>
               <div className="space-y-1 text-left text-sm">
-                <Row label={t("passenger")} value={passengers[index] || passengers.join(", ")} />
-                <Row label={t("phone")} value={session?.phoneNumber || booking?.phoneNumber} />
-                <Row label={t("from")} value={session?.fromCity || booking?.trip?.from} />
-                <Row label={t("to")} value={session?.toCity || booking?.trip?.to} />
-                <Row label={t("pickup")} value={session?.pickup || booking?.pickup} />
-                <Row label={t("dropoff")} value={session?.dropoff || booking?.dropoff} />
-                <Row label={t("seat_no")} value={seats[index] || seats.join(", ")} />
-                <Row label={t("price")} value={formatMoney(booking?.price || session?.trip?.price)} />
-                <Row
+                <DetailRow label={t("passenger")} value={passengers[index] || passengers.join(", ")} />
+                <DetailRow label={t("phone")} value={session?.phoneNumber || booking?.phoneNumber} />
+                <DetailRow label={t("from")} value={session?.fromCity || booking?.trip?.from} />
+                <DetailRow label={t("to")} value={session?.toCity || booking?.trip?.to} />
+                <DetailRow label={t("pickup")} value={session?.pickup || booking?.pickup} />
+                <DetailRow label={t("dropoff")} value={session?.dropoff || booking?.dropoff} />
+                <DetailRow label={t("seat_no")} value={seats[index] || seats.join(", ")} />
+                <DetailRow label={t("price")} value={formatMoney(booking?.price || session?.trip?.price)} />
+                <DetailRow
                   label={t("ticketer_name")}
                   value={`${booking?.agent?.firstName || profile?.firstName || ""} ${booking?.agent?.lastName || profile?.lastName || ""}`.trim()}
                 />
-                <Row label={t("ticketer_phone")} value={booking?.agent?.phoneNo || profile?.phoneNo} />
+                <DetailRow label={t("ticketer_phone")} value={booking?.agent?.phoneNo || profile?.phoneNo} />
               </div>
             </Card>
           ))}
@@ -96,14 +99,5 @@ export default function ReservationPage() {
         </Button>
       </div>
     </Protected>
-  );
-}
-
-function Row({ label, value }: { label: string; value?: string | number | null }) {
-  return (
-    <div className="flex justify-between gap-3">
-      <span className="text-slate-500">{label}</span>
-      <span className="font-semibold text-navy">{value || "-"}</span>
-    </div>
   );
 }

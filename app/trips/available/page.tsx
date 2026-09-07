@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, EmptyState, PageHeader, Spinner } from "@/components/ui";
+import { Badge, Button, Card, EmptyState, PageHeader, Spinner } from "@/components/ui";
 import { Protected } from "@/components/protected";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
@@ -51,41 +51,51 @@ function AvailableBuses() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={`${from} → ${to}`} backHref="/home" />
         {loading ? <Spinner /> : null}
         {!loading && !trips.length ? <EmptyState title={t("no_available")} /> : null}
         <div className="space-y-3">
-          {trips.map((trip) => (
-            <Card key={trip.id} className="space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-bold text-navy">{trip.busAssociation || t("bus")}</p>
-                  <p className="text-sm text-slate-500">
-                    {t("bus_id")} {trip.sideNumber} · {trip.plateNumber}
-                  </p>
+          {trips.map((trip) => {
+            const lowSeats = typeof trip.seatsLeft === "number" && trip.seatsLeft <= 5;
+            return (
+              <Card key={trip.id} className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-bold text-navy">{trip.busAssociation || t("bus")}</p>
+                    <p className="text-sm text-text-muted">
+                      {t("bus_id")} {trip.sideNumber} · {trip.plateNumber}
+                    </p>
+                  </div>
+                  <p className="text-lg font-bold text-primary">{formatMoney(trip.price)}</p>
                 </div>
-                <p className="font-bold text-primary">{formatMoney(trip.price)}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-sm text-slate-600 sm:grid-cols-4">
-                <span>{t("dt")}: {trip.departureTime}</span>
-                <span>{t("at")}: {trip.arrivalTime}</span>
-                <span>{t("seats")}: {trip.seatsLeft}</span>
-                <span>{trip.travelDate}</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button className="flex-1" onClick={() => selectTrip(trip)}>
-                  {t("seat")}
-                </Button>
-                <Button variant="ghost" onClick={() => setOpen(open === trip.id ? null : trip.id)}>
-                  {t("more")}
-                </Button>
-              </div>
-              {open === trip.id ? (
-                <PolicyDetails trip={trip} />
-              ) : null}
-            </Card>
-          ))}
+                <div className="flex items-center gap-2 rounded-xl bg-surface-muted px-3 py-2 text-sm font-semibold text-navy">
+                  <span>{trip.departureTime}</span>
+                  <span className="flex-1 border-t border-dashed border-border-strong" />
+                  <BusIcon />
+                  <span className="flex-1 border-t border-dashed border-border-strong" />
+                  <span>{trip.arrivalTime}</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-sm text-text-muted">
+                  <span>{trip.travelDate}</span>
+                  <Badge tone={lowSeats ? "danger" : "info"}>
+                    {trip.seatsLeft} {t("seats")}
+                  </Badge>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button className="flex-1" onClick={() => selectTrip(trip)}>
+                    {t("seat")}
+                  </Button>
+                  <Button variant="ghost" onClick={() => setOpen(open === trip.id ? null : trip.id)}>
+                    {t("more")}
+                  </Button>
+                </div>
+                {open === trip.id ? (
+                  <PolicyDetails trip={trip} />
+                ) : null}
+              </Card>
+            );
+          })}
         </div>
       </div>
     </Protected>
@@ -108,7 +118,7 @@ function PolicyDetails({ trip }: { trip: SearchResult }) {
   }, [trip.cancellationPolicy]);
 
   return (
-    <div className="space-y-2 border-t border-slate-100 pt-3 text-sm text-slate-600">
+    <div className="space-y-2 border-t border-border pt-3 text-sm text-text-muted">
       <p className="font-semibold text-navy">{t("cancellation_policy")}</p>
       {policies.length ? (
         policies.map((policy) => (
@@ -120,6 +130,15 @@ function PolicyDetails({ trip }: { trip: SearchResult }) {
         <p>{t("no_content")}</p>
       )}
     </div>
+  );
+}
+
+function BusIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-primary">
+      <rect x="4" y="3" width="16" height="14" rx="2" />
+      <path d="M6 17v2M18 17v2M4 11h16" />
+    </svg>
   );
 }
 

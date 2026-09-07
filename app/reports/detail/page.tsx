@@ -1,7 +1,7 @@
 "use client";
 
 import { Protected } from "@/components/protected";
-import { Button, Card, EmptyState, PageHeader, Spinner } from "@/components/ui";
+import { Badge, Button, Card, EmptyState, PageHeader, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
@@ -28,7 +28,7 @@ function ReportDetail() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("report")} backHref="/reports" />
         {loading ? <Spinner /> : null}
         {!loading && !report?.ticket?.length && !report?.route?.length ? (
@@ -36,34 +36,37 @@ function ReportDetail() {
         ) : null}
         <div className="space-y-3">
           {report?.ticket?.map((ticket) => (
-            <Card key={ticket.id}>
-              <p className="font-bold text-navy">{ticket.ticketNo}</p>
-              <p className="text-sm text-slate-500">
-                {ticket.passenger} · {t("seat")} {ticket.seat}
-              </p>
+            <Card key={ticket.id} className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-bold text-navy">{ticket.ticketNo}</p>
+                <p className="text-sm text-text-muted">{ticket.passenger}</p>
+              </div>
+              <Badge tone="info">{t("seat")} {ticket.seat}</Badge>
             </Card>
           ))}
           {report?.route?.map((route) => (
-            <Card key={route.route}>
-              <div className="flex items-center justify-between">
-                <p className="font-bold text-navy">{route.route}</p>
-                <Button
-                  variant="ghost"
-                  className="min-h-9 px-3"
-                  onClick={() => {
-                    sessionStorage.setItem("passengerList", JSON.stringify(route.passengers || []));
-                    router.push("/reports/passengers");
-                  }}
-                >
-                  {t("passengers")}
-                </Button>
+            <Card key={route.route} className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-bold text-navy">{route.route}</p>
+                  <p className="text-sm text-text-muted">{route.passengers?.length || 0} {t("ticket")}</p>
+                </div>
+                <p className="text-lg font-bold text-primary">
+                  {formatMoney(
+                    route.passengers?.reduce((sum, item) => sum + Number(item.price || 0), 0),
+                  )}
+                </p>
               </div>
-              <p className="text-sm text-slate-500">{route.passengers?.length || 0} {t("ticket")}</p>
-              <p className="text-sm font-semibold text-primary">
-                {formatMoney(
-                  route.passengers?.reduce((sum, item) => sum + Number(item.price || 0), 0),
-                )}
-              </p>
+              <Button
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  sessionStorage.setItem("passengerList", JSON.stringify(route.passengers || []));
+                  router.push("/reports/passengers");
+                }}
+              >
+                {t("passengers")}
+              </Button>
             </Card>
           ))}
         </div>

@@ -44,7 +44,7 @@ export default function TopUpPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title="Top up" backHref="/profile" />
         <Card>
           <form className="space-y-4" onSubmit={onSubmit}>

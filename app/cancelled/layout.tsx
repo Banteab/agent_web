@@ -1,5 +1,5 @@
-import { SubpageFrame } from "@/components/subpage-frame";
+import { AppShell } from "@/components/app-shell";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <SubpageFrame>{children}</SubpageFrame>;
+  return <AppShell>{children}</AppShell>;
 }

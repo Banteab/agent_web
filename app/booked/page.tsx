@@ -1,7 +1,7 @@
 "use client";
 
 import { Protected } from "@/components/protected";
-import { Card, EmptyState, PageHeader, Spinner } from "@/components/ui";
+import { Card, EmptyState, PageHeader, Spinner, StatusBadge } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
@@ -27,7 +27,7 @@ export default function BookedPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("booked")} backHref="/menu" />
         {loading ? <Spinner /> : null}
         {!loading && !tickets.length ? <EmptyState title={t("no_ticket_data")} /> : null}
@@ -43,12 +43,18 @@ export default function BookedPage() {
                   router.push("/booked/detail");
                 }}
               >
-                <Card>
-                  <p className="font-bold text-navy">{ticket.ticketNo}</p>
-                  <p className="text-sm text-slate-500">{ticket.passenger}</p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {route?.from || ticket.booking?.trip?.from} → {route?.to || ticket.booking?.trip?.to}
-                  </p>
+                <Card className="flex items-center justify-between gap-3 transition hover:ring-primary/30">
+                  <div className="min-w-0">
+                    <p className="truncate font-bold text-navy">{ticket.ticketNo}</p>
+                    <p className="truncate text-sm text-text-muted">{ticket.passenger}</p>
+                    <p className="mt-1 truncate text-sm text-text-muted">
+                      {route?.from || ticket.booking?.trip?.from} → {route?.to || ticket.booking?.trip?.to}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <StatusBadge status={ticket.status} />
+                    <span className="text-text-faint">›</span>
+                  </div>
                 </Card>
               </button>
             );

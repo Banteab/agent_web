@@ -11,12 +11,12 @@ export default function HelpPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title={t("help")} backHref="/menu" />
         <Card className="space-y-3">
           <h2 className="font-bold text-navy">{t("steps")}</h2>
           {steps.map((step) => (
-            <p key={step} className="text-sm text-slate-600">
+            <p key={step} className="text-sm text-text-muted">
               {t(step)}
             </p>
           ))}

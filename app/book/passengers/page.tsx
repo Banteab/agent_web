@@ -2,7 +2,7 @@
 
 import { Countdown } from "@/components/countdown";
 import { Protected } from "@/components/protected";
-import { Button, Card, Input, PageHeader, Select, Spinner } from "@/components/ui";
+import { Button, Card, Input, PageHeader, SectionLabel, Select, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { getBookingSession, setBookingSession } from "@/lib/storage";
@@ -100,15 +100,28 @@ export default function PassengerPage() {
 
   return (
     <Protected>
-      <div className="mx-auto min-h-dvh max-w-3xl bg-page px-4 py-4">
+      <div className="mx-auto max-w-3xl">
         <PageHeader
           title={t("passanger_data")}
           backHref="/book/seats"
           action={<Countdown endTime={session?.endTime} />}
         />
         <Card className="space-y-4">
+          <SectionLabel>{t("passengers")}</SectionLabel>
           {session?.selectedSeats.map((seat, index) => (
-            <div key={seat} className="space-y-3">
+            <div key={seat} className="space-y-3 rounded-xl bg-surface-muted p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+                {t("seat_no")} {seat}
+              </p>
+              <Input
+                placeholder={`${t("passenger")} ${index + 1}`}
+                value={names[index] || ""}
+                onChange={(e) => {
+                  const nextNames = [...names];
+                  nextNames[index] = e.target.value;
+                  setNames(nextNames);
+                }}
+              />
               <Input
                 inputMode="numeric"
                 placeholder={`${t("phone")} ${index + 1}`}
@@ -119,17 +132,10 @@ export default function PassengerPage() {
                   setPhones(nextPhones);
                 }}
               />
-              <Input
-                placeholder={`${t("passenger")} ${index + 1}`}
-                value={names[index] || ""}
-                onChange={(e) => {
-                  const nextNames = [...names];
-                  nextNames[index] = e.target.value;
-                  setNames(nextNames);
-                }}
-              />
             </div>
           ))}
+
+          <SectionLabel>{t("contact_info")}</SectionLabel>
           <Select value={pickup} onChange={(e) => setPickup(e.target.value)}>
             <option value="">{t("pickup")}</option>
             {boardingPlaces?.map((place) => (
