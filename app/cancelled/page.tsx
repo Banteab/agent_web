@@ -1,7 +1,7 @@
 "use client";
 
 import { Protected } from "@/components/protected";
-import { Card, EmptyState, PageHeader, Spinner } from "@/components/ui";
+import { Card, EmptyState, PageHeader, Spinner, StatusBadge } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
@@ -43,12 +43,18 @@ export default function CancelledPage() {
                   router.push("/cancelled/detail");
                 }}
               >
-                <Card>
-                  <p className="font-bold text-navy">{ticket.ticketNo}</p>
-                  <p className="text-sm text-slate-500">{ticket.passenger}</p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {route?.from || ticket.booking?.trip?.from} → {route?.to || ticket.booking?.trip?.to}
-                  </p>
+                <Card className="flex items-center justify-between gap-3 transition hover:ring-primary/30">
+                  <div className="min-w-0">
+                    <p className="truncate font-bold text-navy">{ticket.ticketNo}</p>
+                    <p className="truncate text-sm text-slate-500">{ticket.passenger}</p>
+                    <p className="mt-1 truncate text-sm text-slate-600">
+                      {route?.from || ticket.booking?.trip?.from} → {route?.to || ticket.booking?.trip?.to}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <StatusBadge status={ticket.status} />
+                    <span className="text-slate-300">›</span>
+                  </div>
                 </Card>
               </button>
             );

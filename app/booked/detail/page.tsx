@@ -2,7 +2,7 @@
 
 import { BrandLogo } from "@/components/brand-logo";
 import { Protected } from "@/components/protected";
-import { Button, Card, Input, PageHeader } from "@/components/ui";
+import { Button, Card, DetailRow, Input, PageHeader } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
@@ -55,11 +55,11 @@ export default function BookedDetailPage() {
         <Card className="space-y-3">
           <BrandLogo className="mx-auto" imgClassName="h-16" />
           {ticket.ticketNo ? <img src={qrSrc(ticket.ticketNo)} alt="QR" className="mx-auto h-28 w-28" /> : null}
-          <Row label={t("ticket_no")} value={ticket.ticketNo} />
-          <Row label={t("from")} value={route?.from || ticket.booking?.trip?.from} />
-          <Row label={t("to")} value={route?.to || ticket.booking?.trip?.to} />
-          <Row label={t("seat")} value={ticket.seat} />
-          <Row label={t("price")} value={formatMoney(ticket.booking?.trip?.price || route?.price)} />
+          <DetailRow label={t("ticket_no")} value={ticket.ticketNo} />
+          <DetailRow label={t("from")} value={route?.from || ticket.booking?.trip?.from} />
+          <DetailRow label={t("to")} value={route?.to || ticket.booking?.trip?.to} />
+          <DetailRow label={t("seat")} value={ticket.seat} />
+          <DetailRow label={t("price")} value={formatMoney(ticket.booking?.trip?.price || route?.price)} />
           <Input value={passenger} onChange={(e) => setPassenger(e.target.value)} placeholder={t("passenger")} />
           <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t("phone")} />
         </Card>
@@ -77,14 +77,5 @@ export default function BookedDetailPage() {
         </div>
       </div>
     </Protected>
-  );
-}
-
-function Row({ label, value }: { label: string; value?: string | number | null }) {
-  return (
-    <div className="flex justify-between gap-3 text-sm">
-      <span className="text-slate-500">{label}</span>
-      <span className="font-semibold text-navy">{value || "-"}</span>
-    </div>
   );
 }

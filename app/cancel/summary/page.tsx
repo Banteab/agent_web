@@ -1,7 +1,7 @@
 "use client";
 
 import { Protected } from "@/components/protected";
-import { Button, Card, EmptyState, PageHeader, Spinner } from "@/components/ui";
+import { Button, Card, DetailRow, EmptyState, PageHeader, Spinner, StatusBadge } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
@@ -56,14 +56,17 @@ function CancelSummary() {
         {!loading && !ticket ? <EmptyState title={t("no_ticket_data")} /> : null}
         {ticket ? (
           <Card className="space-y-3">
-            <Row label={t("ticket_no")} value={ticket.ticketNo} />
-            <Row label={t("passenger")} value={ticket.passenger} />
-            <Row label={t("phone")} value={ticket.booking?.phoneNumber} />
-            <Row label={t("from")} value={route?.from || ticket.booking?.trip?.from} />
-            <Row label={t("to")} value={route?.to || ticket.booking?.trip?.to} />
-            <Row label={t("seat")} value={ticket.seat} />
-            <Row label={t("price")} value={formatMoney(ticket.booking?.price || route?.price)} />
-            <Row label={t("status")} value={ticket.status} />
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-navy">{t("journey_detail")}</h2>
+              <StatusBadge status={ticket.status} />
+            </div>
+            <DetailRow label={t("ticket_no")} value={ticket.ticketNo} />
+            <DetailRow label={t("passenger")} value={ticket.passenger} />
+            <DetailRow label={t("phone")} value={ticket.booking?.phoneNumber} />
+            <DetailRow label={t("from")} value={route?.from || ticket.booking?.trip?.from} />
+            <DetailRow label={t("to")} value={route?.to || ticket.booking?.trip?.to} />
+            <DetailRow label={t("seat")} value={ticket.seat} />
+            <DetailRow label={t("price")} value={formatMoney(ticket.booking?.price || route?.price)} />
             <Button variant="danger" className="w-full" loading={cancelling} onClick={confirm}>
               {t("cancel_this_ticket")}
             </Button>
@@ -79,14 +82,5 @@ export default function CancelSummaryPage() {
     <Suspense fallback={<Spinner />}>
       <CancelSummary />
     </Suspense>
-  );
-}
-
-function Row({ label, value }: { label: string; value?: string | number | null }) {
-  return (
-    <div className="flex justify-between gap-4 text-sm">
-      <span className="text-slate-500">{label}</span>
-      <span className="font-semibold text-navy">{value || "-"}</span>
-    </div>
   );
 }

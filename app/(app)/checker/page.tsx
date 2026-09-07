@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, EmptyState, Input, Spinner } from "@/components/ui";
+import { Button, Card, DetailRow, EmptyState, Input, Spinner, StatusBadge } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
@@ -62,30 +62,23 @@ export default function CheckerPage() {
       {loading ? <Spinner /> : null}
       {!loading && ticket ? (
         <Card className="space-y-3">
-          <h3 className="font-bold text-navy">{t("journey_detail")}</h3>
-          <Row label={t("ticket_no")} value={ticket.ticketNo} />
-          <Row label={t("passenger")} value={ticket.passenger} />
-          <Row label={t("phone")} value={ticket.booking?.phoneNumber} />
-          <Row label={t("from")} value={route?.from || ticket.booking?.trip?.from} />
-          <Row label={t("to")} value={route?.to || ticket.booking?.trip?.to} />
-          <Row label={t("seat")} value={ticket.seat} />
-          <Row label={t("travel_date")} value={ticket.booking?.trip?.travelDate?.slice(0, 10)} />
-          <Row label={t("status")} value={ticket.status} />
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-navy">{t("journey_detail")}</h3>
+            <StatusBadge status={ticket.status} />
+          </div>
+          <DetailRow label={t("ticket_no")} value={ticket.ticketNo} />
+          <DetailRow label={t("passenger")} value={ticket.passenger} />
+          <DetailRow label={t("phone")} value={ticket.booking?.phoneNumber} />
+          <DetailRow label={t("from")} value={route?.from || ticket.booking?.trip?.from} />
+          <DetailRow label={t("to")} value={route?.to || ticket.booking?.trip?.to} />
+          <DetailRow label={t("seat")} value={ticket.seat} />
+          <DetailRow label={t("travel_date")} value={ticket.booking?.trip?.travelDate?.slice(0, 10)} />
           <Button className="w-full" loading={activating} onClick={activate}>
             {t("active")}
           </Button>
         </Card>
       ) : null}
       {!loading && ticketNo && !ticket ? <EmptyState title={t("no_ticket_data")} /> : null}
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value?: string | number | null }) {
-  return (
-    <div className="flex items-center justify-between gap-4 text-sm">
-      <span className="text-slate-500">{label}</span>
-      <span className="font-semibold text-navy">{value || "-"}</span>
     </div>
   );
 }

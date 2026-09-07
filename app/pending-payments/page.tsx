@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Button, Card, EmptyState, Input, Modal, PageHeader, Spinner, TableFrame } from "@/components/ui";
+import { Badge, Button, Card, DetailRow, EmptyState, Input, Modal, PageHeader, Spinner, TableFrame } from "@/components/ui";
 import { Protected } from "@/components/protected";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
@@ -346,13 +346,13 @@ function ConfirmPaymentModal({
       }
     >
       <div className="space-y-3 text-sm">
-        <Row label={t("pnr")} value={row.booking?.refNumber || "-"} />
-        <Row label={t("reservation_no")} value={String(row.entry.bookingId)} />
-        <Row label={t("passenger")} value={passengerLabel(row)} />
-        <Row label={`${t("from")}/${t("to")}`} value={routeLabel(row)} />
-        <Row label={t("travel_date")} value={travelDateLabel(row)} />
-        <Row label={t("amount")} value={amountLabel(row)} />
-        <Row label={t("status")} value={t("pending_payment")} />
+        <DetailRow label={t("pnr")} value={row.booking?.refNumber || "-"} />
+        <DetailRow label={t("reservation_no")} value={String(row.entry.bookingId)} />
+        <DetailRow label={t("passenger")} value={passengerLabel(row)} />
+        <DetailRow label={`${t("from")}/${t("to")}`} value={routeLabel(row)} />
+        <DetailRow label={t("travel_date")} value={travelDateLabel(row)} />
+        <DetailRow label={t("amount")} value={amountLabel(row)} />
+        <DetailRow label={t("status")} value={t("pending_payment")} />
         <label className="block space-y-1.5 pt-2">
           <span className="text-sm font-semibold text-slate-600">
             {t("bank_transaction_number")} <span className="text-rose-500">*</span>
@@ -366,14 +366,5 @@ function ConfirmPaymentModal({
         </label>
       </div>
     </Modal>
-  );
-}
-
-function Row({ label, value }: { label: string; value?: string | number | null }) {
-  return (
-    <div className="flex justify-between gap-4">
-      <span className="text-slate-500">{label}</span>
-      <span className="text-right font-semibold text-navy">{value || "-"}</span>
-    </div>
   );
 }
