@@ -2,89 +2,84 @@
 
 import { Badge, Button, Card, DetailRow, EmptyState, Input, Modal, PageHeader, Spinner, TableFrame } from "@/components/ui";
 import { Countdown } from "@/components/countdown";
+import { DateTriggerBox, EthiopianDatePicker } from "@/components/ethiopian-date-picker";
 import { Protected } from "@/components/protected";
 import { api } from "@/lib/api";
+import { ApiError } from "@/lib/api/client";
+import { PENDING_BANK_PAYMENT_TTL_MS, PENDING_PAYMENTS_REFRESH_EVENT } from "@/lib/constants";
+import { formatEthiopianDate } from "@/lib/ethiopian-calendar";
 import { useI18n } from "@/lib/i18n";
-import {
-  getPendingBankPayments,
-  isPendingBankPaymentExpired,
-  pendingBankPaymentExpiresAt,
-  removePendingBankPayment,
-  type PendingBankPayment,
-} from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { Booking } from "@/lib/types";
-import { formatMoney, parsePassengerNames } from "@/lib/utils";
+import { notifyPendingPaymentsRefresh } from "@/lib/use-pending-bank-payments-count";
+import { formatDateISO, formatMoney, parsePassengerNames } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 
-type Row = {
-  entry: PendingBankPayment;
-  booking: Booking | null;
-  loadError?: string;
-};
+function expiresAtFor(booking: Booking) {
+  if (!booking.firstSeatReserved) return undefined;
+  return new Date(booking.firstSeatReserved).getTime() + PENDING_BANK_PAYMENT_TTL_MS;
+}
+
+function isExpired(booking: Booking, now = Date.now()) {
+  const at = expiresAtFor(booking);
+  return at != null && now >= at;
+}
 
 export default function PendingPaymentsPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const toast = useToast();
-  const [rows, setRows] = useState<Row[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [travelDate, setTravelDate] = useState("");
-  const [confirmRow, setConfirmRow] = useState<Row | null>(null);
-
-  function fetchPending() {
-    const entries = getPendingBankPayments();
-    return Promise.all(
-      entries.map(async (entry): Promise<Row> => {
-        try {
-          const booking = await api.getBooking(entry.bookingId);
-          return { entry, booking };
-        } catch (err) {
-          return { entry, booking: null, loadError: err instanceof Error ? err.message : t("error_occured") };
-        }
-      }),
-    );
-  }
+  const [confirmBooking, setConfirmBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
-    fetchPending().then((results) => {
-      // A booking that already carries a bank reference number has been
-      // confirmed (by this agent or another session) — no longer pending.
-      results
-        .filter((row) => row.booking?.bankReferenceNumber)
-        .forEach((row) => removePendingBankPayment(row.entry.bookingId));
-      setRows(results.filter((row) => !row.booking?.bankReferenceNumber));
-      setLoading(false);
-    });
+    let cancelled = false;
+
+    const load = () => {
+      api
+        .getPendingBankPayments()
+        .then((list) => {
+          if (!cancelled) setBookings(list);
+        })
+        .catch((err) => {
+          if (!cancelled) {
+            toast.error(err instanceof Error ? err.message : t("error_occured"));
+            setBookings([]);
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    };
+
+    load();
+    const timer = window.setInterval(load, 60_000);
+    window.addEventListener(PENDING_PAYMENTS_REFRESH_EVENT, load);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      window.removeEventListener(PENDING_PAYMENTS_REFRESH_EVENT, load);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return rows.filter((row) => {
-      const { booking, entry } = row;
+    return bookings.filter((booking) => {
       if (travelDate) {
-        const rowDate = (booking?.trip?.travelDate || entry.travelDate || "").slice(0, 10);
+        const rowDate = (booking.trip?.travelDate || "").slice(0, 10);
         if (rowDate !== travelDate) return false;
       }
       if (!needle) return true;
-      const haystack = [
-        booking?.refNumber,
-        String(entry.bookingId),
-        booking?.passengers || entry.passengers,
-        booking?.phoneNumber || entry.phoneNumber,
-      ]
+      const haystack = [booking.refNumber, String(booking.id), booking.passengers, booking.phoneNumber]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
       return haystack.includes(needle);
     });
-  }, [rows, query, travelDate]);
-
-  function removeStale(bookingId: number) {
-    removePendingBankPayment(bookingId);
-    setRows((prev) => prev.filter((row) => row.entry.bookingId !== bookingId));
-  }
+  }, [bookings, query, travelDate]);
 
   async function confirmPayment(bookingId: number, transactionNumber: string) {
     const trimmed = transactionNumber.trim();
@@ -92,22 +87,25 @@ export default function PendingPaymentsPage() {
       toast.error(t("bank_transaction_number_required"));
       return;
     }
-    const row = rows.find((item) => item.entry.bookingId === bookingId);
+    const booking = bookings.find((item) => item.id === bookingId);
     try {
-      const res = await api.confirmBankPayment(
-        bookingId,
-        trimmed,
-        row?.entry.bank,
-      );
+      const res = await api.confirmBankPayment(bookingId, trimmed, booking?.bank);
       if (res.success === false) {
         toast.error(res.message || t("error_occured"));
         return;
       }
       toast.success(res.message || t("payment_confirmed"));
-      removePendingBankPayment(bookingId);
-      setRows((prev) => prev.filter((row) => row.entry.bookingId !== bookingId));
-      setConfirmRow(null);
+      setBookings((prev) => prev.filter((item) => item.id !== bookingId));
+      setConfirmBooking(null);
+      notifyPendingPaymentsRefresh();
     } catch (err) {
+      if (err instanceof ApiError && err.status === 404) {
+        setBookings((prev) => prev.filter((item) => item.id !== bookingId));
+        setConfirmBooking(null);
+        notifyPendingPaymentsRefresh();
+        toast.error(t("booking_expired_or_not_found"));
+        return;
+      }
       toast.error(err instanceof Error ? err.message : t("error_occured"));
     }
   }
@@ -119,9 +117,9 @@ export default function PendingPaymentsPage() {
           title={t("pending_payments")}
           subtitle={t("pending_payments_subtitle")}
           action={
-            !loading && rows.length ? (
+            !loading && bookings.length ? (
               <Badge tone="pending" className="hidden sm:inline-flex">
-                {rows.length} {t("pending_payment")}
+                {bookings.length} {t("pending_payment")}
               </Badge>
             ) : undefined
           }
@@ -148,13 +146,35 @@ export default function PendingPaymentsPage() {
               className="pl-10"
             />
           </div>
-          <Input
-            type="date"
-            value={travelDate}
-            onChange={(e) => setTravelDate(e.target.value)}
-            aria-label={t("travel_date")}
-            className="sm:w-48"
-          />
+          {locale?.startsWith("am") ? (
+            <div className="flex items-center gap-1.5 sm:w-56">
+              <EthiopianDatePicker value={travelDate || formatDateISO(new Date())} onChange={setTravelDate}>
+                <DateTriggerBox
+                  label={travelDate ? formatEthiopianDate(new Date(`${travelDate}T00:00:00`)) : t("travel_date")}
+                />
+              </EthiopianDatePicker>
+              {travelDate ? (
+                <button
+                  type="button"
+                  onClick={() => setTravelDate("")}
+                  aria-label={t("clear")}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-faint transition hover:bg-surface-muted hover:text-danger"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M6 6l12 12M18 6 6 18" />
+                  </svg>
+                </button>
+              ) : null}
+            </div>
+          ) : (
+            <Input
+              type="date"
+              value={travelDate}
+              onChange={(e) => setTravelDate(e.target.value)}
+              aria-label={t("travel_date")}
+              className="sm:w-48"
+            />
+          )}
         </Card>
 
         {loading ? <Spinner label={t("pending_payments")} /> : null}
@@ -183,16 +203,16 @@ export default function PendingPaymentsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {filtered.map((row) => (
-                    <PendingRow key={row.entry.bookingId} row={row} onConfirm={setConfirmRow} onRemoveStale={removeStale} t={t} />
+                  {filtered.map((booking) => (
+                    <PendingRow key={booking.id} booking={booking} onConfirm={setConfirmBooking} t={t} />
                   ))}
                 </tbody>
               </table>
             </TableFrame>
 
             <div className="space-y-3 md:hidden">
-              {filtered.map((row) => (
-                <PendingCard key={row.entry.bookingId} row={row} onConfirm={setConfirmRow} onRemoveStale={removeStale} t={t} />
+              {filtered.map((booking) => (
+                <PendingCard key={booking.id} booking={booking} onConfirm={setConfirmBooking} t={t} />
               ))}
             </div>
           </>
@@ -200,9 +220,9 @@ export default function PendingPaymentsPage() {
       </div>
 
       <ConfirmPaymentModal
-        key={confirmRow?.entry.bookingId ?? "closed"}
-        row={confirmRow}
-        onClose={() => setConfirmRow(null)}
+        key={confirmBooking?.id ?? "closed"}
+        booking={confirmBooking}
+        onClose={() => setConfirmBooking(null)}
         onConfirm={confirmPayment}
         t={t}
       />
@@ -210,148 +230,125 @@ export default function PendingPaymentsPage() {
   );
 }
 
-function passengerLabel(row: Row) {
-  const names = parsePassengerNames(row.booking?.passengers || row.entry.passengers);
-  return names.join(", ") || "-";
+function passengerLabel(booking: Booking) {
+  return parsePassengerNames(booking.passengers).join(", ") || "-";
 }
 
-function routeLabel(row: Row) {
-  const from = row.booking?.trip?.from || row.entry.fromCity;
-  const to = row.booking?.trip?.to || row.entry.toCity;
+function routeLabel(booking: Booking) {
+  const from = booking.trip?.from;
+  const to = booking.trip?.to;
   if (!from && !to) return "-";
   return `${from || "-"} → ${to || "-"}`;
 }
 
-function amountLabel(row: Row) {
-  // `entry.price` (set at BANK-selection time) is already the total for all
-  // passengers; `booking.price` from the API is a per-seat price.
-  if (row.booking?.price != null) {
-    const passengers = Math.max(parsePassengerNames(row.booking.passengers || row.entry.passengers).length, 1);
-    return formatMoney(row.booking.price * passengers);
-  }
-  return row.entry.price != null ? formatMoney(row.entry.price) : "-";
+function amountLabel(booking: Booking) {
+  if (booking.price == null) return "-";
+  const passengers = Math.max(parsePassengerNames(booking.passengers).length, 1);
+  return formatMoney(booking.price * passengers);
 }
 
-function travelDateLabel(row: Row) {
-  const value = row.booking?.trip?.travelDate || row.entry.travelDate;
+function travelDateLabel(booking: Booking) {
+  const value = booking.trip?.travelDate;
   return value ? value.slice(0, 10) : "-";
 }
 
-function bookingDateLabel(row: Row) {
-  return row.entry.addedAt ? row.entry.addedAt.slice(0, 10) : "-";
-}
-
-function bankLabel(row: Row) {
-  return row.entry.bank || "-";
+function bookingDateLabel(booking: Booking) {
+  return booking.firstSeatReserved ? booking.firstSeatReserved.slice(0, 10) : "-";
 }
 
 function PendingRow({
-  row,
+  booking,
   onConfirm,
-  onRemoveStale,
   t,
 }: {
-  row: Row;
-  onConfirm: (row: Row) => void;
-  onRemoveStale: (bookingId: number) => void;
+  booking: Booking;
+  onConfirm: (booking: Booking) => void;
   t: (key: string) => string;
 }) {
-  const expiresAt = pendingBankPaymentExpiresAt(row.entry);
-  const [expired, setExpired] = useState(() => isPendingBankPaymentExpired(row.entry));
-  const blocked = row.loadError || expired;
+  const expiresAt = expiresAtFor(booking);
+  const [expired, setExpired] = useState(() => isExpired(booking));
 
   return (
-    <tr className="align-middle text-text transition hover:bg-surface-muted/60">
-      <td className="px-4 py-3 font-semibold text-navy">{row.booking?.refNumber || "-"}</td>
-      <td className="px-4 py-3 text-text-muted">{row.entry.bookingId}</td>
-      <td className="px-4 py-3">{passengerLabel(row)}</td>
-      <td className="px-4 py-3 text-text-muted">{row.booking?.phoneNumber || row.entry.phoneNumber || "-"}</td>
+    <tr
+      onClick={() => onConfirm(booking)}
+      className="cursor-pointer align-middle text-text transition hover:bg-surface-muted/60"
+    >
+      <td className="px-4 py-3 font-semibold text-navy">{booking.refNumber || "-"}</td>
+      <td className="px-4 py-3 text-text-muted">{booking.id}</td>
+      <td className="px-4 py-3">{passengerLabel(booking)}</td>
+      <td className="px-4 py-3 text-text-muted">{booking.phoneNumber || "-"}</td>
       <td className="px-4 py-3">
-        <p>{routeLabel(row)}</p>
-        {row.entry.bank ? <p className="text-xs text-text-faint">{bankLabel(row)}</p> : null}
+        <p>{routeLabel(booking)}</p>
+        {booking.bank ? <p className="text-xs text-text-faint">{booking.bank}</p> : null}
       </td>
-      <td className="px-4 py-3 text-text-muted">{travelDateLabel(row)}</td>
-      <td className="px-4 py-3 text-right font-semibold text-navy">{amountLabel(row)}</td>
-      <td className="px-4 py-3 text-text-muted">{bookingDateLabel(row)}</td>
+      <td className="px-4 py-3 text-text-muted">{travelDateLabel(booking)}</td>
+      <td className="px-4 py-3 text-right font-semibold text-navy">{amountLabel(booking)}</td>
+      <td className="px-4 py-3 text-text-muted">{bookingDateLabel(booking)}</td>
       <td className="px-4 py-3">
-        {row.loadError || expired ? (
-          <span className="text-text-faint">—</span>
-        ) : (
+        {expiresAt && !expired ? (
           <Countdown endTime={expiresAt} onExpire={() => setExpired(true)} />
+        ) : (
+          <span className="text-text-faint">—</span>
         )}
       </td>
       <td className="px-4 py-3">
-        {row.loadError ? (
-          <Badge tone="danger">{t("error_occured")}</Badge>
-        ) : expired ? (
-          <Badge tone="danger">{t("expired")}</Badge>
-        ) : (
-          <Badge tone="pending">{t("pending_payment")}</Badge>
-        )}
+        {expired ? <Badge tone="danger">{t("expired")}</Badge> : <Badge tone="pending">{t("pending_payment")}</Badge>}
       </td>
       <td className="px-4 py-3 text-right">
-        {blocked ? (
-          <Button variant="ghost" size="sm" onClick={() => onRemoveStale(row.entry.bookingId)}>
-            {t("cancel_button")}
-          </Button>
-        ) : (
-          <Button size="sm" onClick={() => onConfirm(row)}>
-            {t("confirm_payment")}
-          </Button>
-        )}
+        <Button
+          size="sm"
+          disabled={expired}
+          onClick={(e) => {
+            e.stopPropagation();
+            onConfirm(booking);
+          }}
+        >
+          {t("confirm_payment")}
+        </Button>
       </td>
     </tr>
   );
 }
 
 function PendingCard({
-  row,
+  booking,
   onConfirm,
-  onRemoveStale,
   t,
 }: {
-  row: Row;
-  onConfirm: (row: Row) => void;
-  onRemoveStale: (bookingId: number) => void;
+  booking: Booking;
+  onConfirm: (booking: Booking) => void;
   t: (key: string) => string;
 }) {
-  const expiresAt = pendingBankPaymentExpiresAt(row.entry);
-  const [expired, setExpired] = useState(() => isPendingBankPaymentExpired(row.entry));
-  const blocked = row.loadError || expired;
+  const expiresAt = expiresAtFor(booking);
+  const [expired, setExpired] = useState(() => isExpired(booking));
 
   return (
-    <Card className="space-y-2 text-sm">
+    <Card className="cursor-pointer space-y-2 text-sm" onClick={() => onConfirm(booking)}>
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-bold text-navy">{row.booking?.refNumber || `#${row.entry.bookingId}`}</p>
-          <p className="text-text-muted">{passengerLabel(row)}</p>
+          <p className="font-bold text-navy">{booking.refNumber || `#${booking.id}`}</p>
+          <p className="text-text-muted">{passengerLabel(booking)}</p>
         </div>
-        {row.loadError ? (
-          <Badge tone="danger">{t("error_occured")}</Badge>
-        ) : expired ? (
-          <Badge tone="danger">{t("expired")}</Badge>
-        ) : (
-          <Badge tone="pending">{t("pending_payment")}</Badge>
-        )}
+        {expired ? <Badge tone="danger">{t("expired")}</Badge> : <Badge tone="pending">{t("pending_payment")}</Badge>}
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-text-muted">
         <span>{t("from")}/{t("to")}</span>
-        <span className="text-right font-semibold text-navy">{routeLabel(row)}</span>
-        {row.entry.bank ? (
+        <span className="text-right font-semibold text-navy">{routeLabel(booking)}</span>
+        {booking.bank ? (
           <>
             <span>{t("select_bank")}</span>
-            <span className="text-right font-semibold text-navy">{bankLabel(row)}</span>
+            <span className="text-right font-semibold text-navy">{booking.bank}</span>
           </>
         ) : null}
         <span>{t("travel_date")}</span>
-        <span className="text-right font-semibold text-navy">{travelDateLabel(row)}</span>
+        <span className="text-right font-semibold text-navy">{travelDateLabel(booking)}</span>
         <span>{t("phone")}</span>
-        <span className="text-right font-semibold text-navy">{row.booking?.phoneNumber || row.entry.phoneNumber || "-"}</span>
+        <span className="text-right font-semibold text-navy">{booking.phoneNumber || "-"}</span>
         <span>{t("amount")}</span>
-        <span className="text-right font-semibold text-navy">{amountLabel(row)}</span>
+        <span className="text-right font-semibold text-navy">{amountLabel(booking)}</span>
         <span>{t("booking_date")}</span>
-        <span className="text-right font-semibold text-navy">{bookingDateLabel(row)}</span>
-        {!row.loadError && !expired ? (
+        <span className="text-right font-semibold text-navy">{bookingDateLabel(booking)}</span>
+        {expiresAt && !expired ? (
           <>
             <span>{t("expires_in")}</span>
             <span className="text-right">
@@ -360,43 +357,44 @@ function PendingCard({
           </>
         ) : null}
       </div>
-      {blocked ? (
-        <Button variant="ghost" className="w-full" onClick={() => onRemoveStale(row.entry.bookingId)}>
-          {t("cancel_button")}
-        </Button>
-      ) : (
-        <Button className="w-full" onClick={() => onConfirm(row)}>
-          {t("confirm_payment")}
-        </Button>
-      )}
+      <Button
+        className="w-full"
+        disabled={expired}
+        onClick={(e) => {
+          e.stopPropagation();
+          onConfirm(booking);
+        }}
+      >
+        {t("confirm_payment")}
+      </Button>
     </Card>
   );
 }
 
 function ConfirmPaymentModal({
-  row,
+  booking,
   onClose,
   onConfirm,
   t,
 }: {
-  row: Row | null;
+  booking: Booking | null;
   onClose: () => void;
   onConfirm: (bookingId: number, transactionNumber: string) => Promise<void>;
   t: (key: string) => string;
 }) {
   const [transactionNumber, setTransactionNumber] = useState("");
   const [saving, setSaving] = useState(false);
-  const [expired, setExpired] = useState(() => (row ? isPendingBankPaymentExpired(row.entry) : false));
+  const [expired, setExpired] = useState(() => (booking ? isExpired(booking) : false));
 
-  if (!row) return null;
+  if (!booking) return null;
 
-  const expiresAt = pendingBankPaymentExpiresAt(row.entry);
+  const expiresAt = expiresAtFor(booking);
 
   async function submit() {
-    if (!row || !transactionNumber.trim() || expired) return;
+    if (!booking || !transactionNumber.trim() || expired) return;
     setSaving(true);
     try {
-      await onConfirm(row.entry.bookingId, transactionNumber);
+      await onConfirm(booking.id, transactionNumber);
     } finally {
       setSaving(false);
     }
@@ -404,10 +402,10 @@ function ConfirmPaymentModal({
 
   return (
     <Modal
-      open={!!row}
+      open={!!booking}
       onClose={onClose}
-      title={t("confirm_payment")}
-      subtitle={`${t("pnr")} ${row.booking?.refNumber || `#${row.entry.bookingId}`}`}
+      title={expired ? t("reservation_detail") : t("confirm_payment")}
+      subtitle={`${t("pnr")} ${booking.refNumber || `#${booking.id}`}`}
       footer={
         <>
           <Button variant="ghost" className="flex-1" onClick={onClose} disabled={saving}>
@@ -433,21 +431,25 @@ function ConfirmPaymentModal({
         ) : (
           <div className="flex items-center justify-between rounded-lg bg-warning-soft px-3.5 py-2.5">
             <span className="text-xs font-semibold uppercase tracking-wide text-warning">{t("pending_payment")}</span>
-            <span className="flex items-center gap-2">
-              <span className="text-xs text-warning">{t("expires_in")}</span>
-              <Countdown endTime={expiresAt} onExpire={() => setExpired(true)} />
-            </span>
+            {expiresAt ? (
+              <span className="flex items-center gap-2">
+                <span className="text-xs text-warning">{t("expires_in")}</span>
+                <Countdown endTime={expiresAt} onExpire={() => setExpired(true)} />
+              </span>
+            ) : null}
           </div>
         )}
 
         <div className="space-y-1 rounded-lg border border-border p-3.5">
-          <DetailRow label={t("reservation_no")} value={String(row.entry.bookingId)} />
-          <DetailRow label={t("passenger")} value={passengerLabel(row)} />
-          <DetailRow label={`${t("from")}/${t("to")}`} value={routeLabel(row)} />
-          {row.entry.bank ? <DetailRow label={t("select_bank")} value={bankLabel(row)} /> : null}
-          <DetailRow label={t("travel_date")} value={travelDateLabel(row)} />
+          <DetailRow label={t("reservation_no")} value={String(booking.id)} />
+          <DetailRow label={t("passenger")} value={passengerLabel(booking)} />
+          <DetailRow label={t("phone")} value={booking.phoneNumber} />
+          <DetailRow label={`${t("from")}/${t("to")}`} value={routeLabel(booking)} />
+          {booking.bank ? <DetailRow label={t("bank")} value={booking.bank} /> : null}
+          <DetailRow label={t("travel_date")} value={travelDateLabel(booking)} />
+          <DetailRow label={t("booking_date")} value={bookingDateLabel(booking)} />
           <div className="my-1 border-t border-border" />
-          <DetailRow label={t("amount")} value={<span className="text-base text-primary">{amountLabel(row)}</span>} />
+          <DetailRow label={t("amount")} value={<span className="text-base text-primary">{amountLabel(booking)}</span>} />
         </div>
 
         <div className="space-y-1.5 rounded-lg border border-primary/20 bg-primary-soft/50 p-3.5">

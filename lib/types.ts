@@ -260,6 +260,23 @@ export type BookingSession = {
   ticketNumbers?: string[];
 };
 
+// Summary handed off from the payment/review step to the booking-complete
+// screen (app/book/complete). "bank_pending" is the live flow (a booking
+// awaiting bank confirmation); "ticket_issued" covers the cash/reference
+// flow where a ticket is generated immediately.
+export type BookingCompleteSummary = {
+  kind: "bank_pending" | "ticket_issued";
+  reservationNo?: string;
+  fromCity?: string;
+  toCity?: string;
+  travelDate?: string;
+  passengers: string[];
+  seats: string[];
+  amount?: number;
+  bank?: string;
+  ticketNumbers?: string[];
+};
+
 export type City = {
   name: string;
   sys: string;

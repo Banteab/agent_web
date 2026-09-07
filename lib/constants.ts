@@ -64,7 +64,6 @@ export const STORAGE_KEYS = {
   recentHistories: "recentHistories",
   searchedBus: "searchedBus",
   bookingSession: "bookingSession",
-  pendingBankPayments: "pendingBankPayments",
   cancellationReasons: "cancellationReasons",
 } as const;
 

@@ -1,8 +1,10 @@
 "use client";
 
+import { DateTriggerBox, EthiopianDatePicker } from "@/components/ethiopian-date-picker";
 import { Protected } from "@/components/protected";
 import { Button, Card, EmptyState, Input, PageHeader, SectionLabel, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
+import { formatEthiopianDate } from "@/lib/ethiopian-calendar";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
 import type { RouteSalesData } from "@/lib/types";
@@ -11,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SalesReportPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const toast = useToast();
   const router = useRouter();
   const today = formatDateISO(new Date());
@@ -37,8 +39,21 @@ export default function SalesReportPage() {
       <div className="mx-auto max-w-3xl">
         <PageHeader title={t("sales_report")} backHref="/menu" />
         <Card className="mb-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-          <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
-          <Input type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
+          {locale?.startsWith("am") ? (
+            <>
+              <EthiopianDatePicker value={start} onChange={setStart}>
+                <DateTriggerBox label={formatEthiopianDate(new Date(`${start}T00:00:00`))} />
+              </EthiopianDatePicker>
+              <EthiopianDatePicker value={end} onChange={setEnd}>
+                <DateTriggerBox label={formatEthiopianDate(new Date(`${end}T00:00:00`))} />
+              </EthiopianDatePicker>
+            </>
+          ) : (
+            <>
+              <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
+              <Input type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
+            </>
+          )}
           <Button onClick={load} loading={loading}>
             {t("search")}
           </Button>
