@@ -311,6 +311,8 @@
     "login_footer": "Agent Portal",
     "login_prompt": "Sign in to your agent workspace",
     "call_center_line": "Call center:",
+    "select_bank": "Select bank",
+    "driver": "Driver",
     "new_booking": "New Booking",
     "workspace": "Workspace",
     "reports_and_account": "Reports & Account",
