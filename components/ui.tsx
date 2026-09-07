@@ -116,12 +116,13 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
 export function Card({
   children,
   className,
-}: {
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode;
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-xl border border-border bg-surface p-5 shadow-sm", className)}>
+    <div className={cn("rounded-xl border border-border bg-surface p-5 shadow-sm", className)} {...props}>
       {children}
     </div>
   );

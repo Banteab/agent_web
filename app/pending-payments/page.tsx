@@ -293,7 +293,10 @@ function PendingRow({
   const blocked = row.loadError || expired;
 
   return (
-    <tr className="align-middle text-text transition hover:bg-surface-muted/60">
+    <tr
+      onClick={() => onConfirm(row)}
+      className="cursor-pointer align-middle text-text transition hover:bg-surface-muted/60"
+    >
       <td className="px-4 py-3 font-semibold text-navy">{row.booking?.refNumber || "-"}</td>
       <td className="px-4 py-3 text-text-muted">{row.entry.bookingId}</td>
       <td className="px-4 py-3">{passengerLabel(row)}</td>
@@ -323,11 +326,24 @@ function PendingRow({
       </td>
       <td className="px-4 py-3 text-right">
         {blocked ? (
-          <Button variant="ghost" size="sm" onClick={() => onRemoveStale(row.entry.bookingId)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemoveStale(row.entry.bookingId);
+            }}
+          >
             {t("cancel_button")}
           </Button>
         ) : (
-          <Button size="sm" onClick={() => onConfirm(row)}>
+          <Button
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onConfirm(row);
+            }}
+          >
             {t("confirm_payment")}
           </Button>
         )}
@@ -352,7 +368,7 @@ function PendingCard({
   const blocked = row.loadError || expired;
 
   return (
-    <Card className="space-y-2 text-sm">
+    <Card className="cursor-pointer space-y-2 text-sm" onClick={() => onConfirm(row)}>
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="font-bold text-navy">{row.booking?.refNumber || `#${row.entry.bookingId}`}</p>
@@ -393,11 +409,24 @@ function PendingCard({
         ) : null}
       </div>
       {blocked ? (
-        <Button variant="ghost" className="w-full" onClick={() => onRemoveStale(row.entry.bookingId)}>
+        <Button
+          variant="ghost"
+          className="w-full"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemoveStale(row.entry.bookingId);
+          }}
+        >
           {t("cancel_button")}
         </Button>
       ) : (
-        <Button className="w-full" onClick={() => onConfirm(row)}>
+        <Button
+          className="w-full"
+          onClick={(e) => {
+            e.stopPropagation();
+            onConfirm(row);
+          }}
+        >
           {t("confirm_payment")}
         </Button>
       )}
@@ -434,30 +463,43 @@ function ConfirmPaymentModal({
     }
   }
 
+  const viewOnly = Boolean(row.loadError) || expired;
+
   return (
     <Modal
       open={!!row}
       onClose={onClose}
-      title={t("confirm_payment")}
+      title={viewOnly ? t("reservation_detail") : t("confirm_payment")}
       subtitle={`${t("pnr")} ${row.booking?.refNumber || `#${row.entry.bookingId}`}`}
       footer={
-        <>
-          <Button variant="ghost" className="flex-1" onClick={onClose} disabled={saving}>
+        row.loadError ? (
+          <Button variant="ghost" className="flex-1" onClick={onClose}>
             {t("cancel_button")}
           </Button>
-          <Button
-            className="flex-1"
-            loading={saving}
-            disabled={!transactionNumber.trim() || expired}
-            onClick={submit}
-          >
-            {t("confirm_payment")}
-          </Button>
-        </>
+        ) : (
+          <>
+            <Button variant="ghost" className="flex-1" onClick={onClose} disabled={saving}>
+              {t("cancel_button")}
+            </Button>
+            <Button
+              className="flex-1"
+              loading={saving}
+              disabled={!transactionNumber.trim() || expired}
+              onClick={submit}
+            >
+              {t("confirm_payment")}
+            </Button>
+          </>
+        )
       }
     >
       <div className="space-y-4 text-sm">
-        {expired ? (
+        {row.loadError ? (
+          <div className="flex items-center justify-between rounded-lg bg-danger-soft px-3.5 py-2.5">
+            <span className="text-xs font-semibold uppercase tracking-wide text-danger">{t("error_occured")}</span>
+            <span className="text-xs text-danger">{row.loadError}</span>
+          </div>
+        ) : expired ? (
           <div className="flex items-center justify-between rounded-lg bg-danger-soft px-3.5 py-2.5">
             <span className="text-xs font-semibold uppercase tracking-wide text-danger">{t("expired")}</span>
             <span className="text-xs text-danger">{t("payment_window_expired_hint")}</span>
@@ -475,28 +517,32 @@ function ConfirmPaymentModal({
         <div className="space-y-1 rounded-lg border border-border p-3.5">
           <DetailRow label={t("reservation_no")} value={String(row.entry.bookingId)} />
           <DetailRow label={t("passenger")} value={passengerLabel(row)} />
+          <DetailRow label={t("phone")} value={row.booking?.phoneNumber || row.entry.phoneNumber} />
           <DetailRow label={`${t("from")}/${t("to")}`} value={routeLabel(row)} />
           {row.entry.bank ? <DetailRow label={t("select_bank")} value={bankLabel(row)} /> : null}
           <DetailRow label={t("travel_date")} value={travelDateLabel(row)} />
+          <DetailRow label={t("booking_date")} value={bookingDateLabel(row)} />
           <div className="my-1 border-t border-border" />
           <DetailRow label={t("amount")} value={<span className="text-base text-primary">{amountLabel(row)}</span>} />
         </div>
 
-        <div className="space-y-1.5 rounded-lg border border-primary/20 bg-primary-soft/50 p-3.5">
-          <label className="block space-y-1.5">
-            <span className="text-[13px] font-semibold text-navy">
-              {t("bank_transaction_number")} <span className="text-danger">*</span>
-            </span>
-            <Input
-              value={transactionNumber}
-              onChange={(e) => setTransactionNumber(e.target.value)}
-              placeholder={t("bank_transaction_number_placeholder")}
-              disabled={expired}
-              autoFocus
-            />
-          </label>
-          <p className="text-xs text-text-muted">{t("bank_transaction_number_hint")}</p>
-        </div>
+        {!row.loadError ? (
+          <div className="space-y-1.5 rounded-lg border border-primary/20 bg-primary-soft/50 p-3.5">
+            <label className="block space-y-1.5">
+              <span className="text-[13px] font-semibold text-navy">
+                {t("bank_transaction_number")} <span className="text-danger">*</span>
+              </span>
+              <Input
+                value={transactionNumber}
+                onChange={(e) => setTransactionNumber(e.target.value)}
+                placeholder={t("bank_transaction_number_placeholder")}
+                disabled={expired}
+                autoFocus
+              />
+            </label>
+            <p className="text-xs text-text-muted">{t("bank_transaction_number_hint")}</p>
+          </div>
+        ) : null}
       </div>
     </Modal>
   );
