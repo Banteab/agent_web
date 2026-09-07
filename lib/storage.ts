@@ -104,3 +104,47 @@ export function clearBookingSession() {
   if (!browser()) return;
   sessionStorage.removeItem(STORAGE_KEYS.bookingSession);
 }
+
+export type PendingBankPayment = {
+  bookingId: number;
+  addedAt: string;
+  fromCity?: string;
+  toCity?: string;
+  phoneNumber?: string;
+  passengers?: string;
+  price?: number;
+  travelDate?: string;
+};
+
+function readPendingBankPayments(): PendingBankPayment[] {
+  try {
+    const raw = JSON.parse(storage.get(STORAGE_KEYS.pendingBankPayments) || "[]");
+    return Array.isArray(raw) ? (raw as PendingBankPayment[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export const PENDING_BANK_PAYMENTS_EVENT = "pending-bank-payments-changed";
+
+function writePendingBankPayments(list: PendingBankPayment[]) {
+  storage.set(STORAGE_KEYS.pendingBankPayments, JSON.stringify(list));
+  if (browser()) window.dispatchEvent(new Event(PENDING_BANK_PAYMENTS_EVENT));
+}
+
+export function getPendingBankPayments(): PendingBankPayment[] {
+  if (!browser()) return [];
+  return readPendingBankPayments();
+}
+
+export function addPendingBankPayment(entry: Omit<PendingBankPayment, "addedAt">) {
+  if (!browser()) return;
+  const list = readPendingBankPayments().filter((item) => item.bookingId !== entry.bookingId);
+  list.unshift({ ...entry, addedAt: new Date().toISOString() });
+  writePendingBankPayments(list);
+}
+
+export function removePendingBankPayment(bookingId: number) {
+  if (!browser()) return;
+  writePendingBankPayments(readPendingBankPayments().filter((item) => item.bookingId !== bookingId));
+}
