@@ -2,8 +2,10 @@
 
 import { Badge, Button, Card, DetailRow, EmptyState, Input, Modal, PageHeader, Spinner, TableFrame } from "@/components/ui";
 import { Countdown } from "@/components/countdown";
+import { DateTriggerBox, EthiopianDatePicker } from "@/components/ethiopian-date-picker";
 import { Protected } from "@/components/protected";
 import { api } from "@/lib/api";
+import { formatEthiopianDate } from "@/lib/ethiopian-calendar";
 import { useI18n } from "@/lib/i18n";
 import {
   getPendingBankPayments,
@@ -14,7 +16,7 @@ import {
 } from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { Booking } from "@/lib/types";
-import { formatMoney, parsePassengerNames } from "@/lib/utils";
+import { formatDateISO, formatMoney, parsePassengerNames } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 
 type Row = {
@@ -24,7 +26,7 @@ type Row = {
 };
 
 export default function PendingPaymentsPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const toast = useToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
@@ -156,13 +158,35 @@ export default function PendingPaymentsPage() {
               className="pl-10"
             />
           </div>
-          <Input
-            type="date"
-            value={travelDate}
-            onChange={(e) => setTravelDate(e.target.value)}
-            aria-label={t("travel_date")}
-            className="sm:w-48"
-          />
+          {locale?.startsWith("am") ? (
+            <div className="flex items-center gap-1.5 sm:w-56">
+              <EthiopianDatePicker value={travelDate || formatDateISO(new Date())} onChange={setTravelDate}>
+                <DateTriggerBox
+                  label={travelDate ? formatEthiopianDate(new Date(`${travelDate}T00:00:00`)) : t("travel_date")}
+                />
+              </EthiopianDatePicker>
+              {travelDate ? (
+                <button
+                  type="button"
+                  onClick={() => setTravelDate("")}
+                  aria-label={t("clear")}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-faint transition hover:bg-surface-muted hover:text-danger"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M6 6l12 12M18 6 6 18" />
+                  </svg>
+                </button>
+              ) : null}
+            </div>
+          ) : (
+            <Input
+              type="date"
+              value={travelDate}
+              onChange={(e) => setTravelDate(e.target.value)}
+              aria-label={t("travel_date")}
+              className="sm:w-48"
+            />
+          )}
         </Card>
 
         {loading ? <Spinner label={t("pending_payments")} /> : null}

@@ -1,6 +1,7 @@
 "use client";
 
 import { CityPicker } from "@/components/city-picker";
+import { EthiopianDatePicker } from "@/components/ethiopian-date-picker";
 import { SupportIllustration } from "@/components/support-illustration";
 import { Button, EmptyState, SectionLabel } from "@/components/ui";
 import { api } from "@/lib/api";
@@ -178,22 +179,28 @@ export default function HomeSearchPage() {
               </p>
             </div>
           </button>
-          <label className="flex flex-1 cursor-pointer items-center gap-3 rounded-xl px-4 py-3 transition hover:bg-surface-muted">
+          <div className="flex flex-1 items-center gap-3 rounded-xl px-4 py-3 transition hover:bg-surface-muted">
             <CalendarIcon />
             <div className="min-w-0 flex-1">
               <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("departure")}</p>
-              <input
-                type="date"
-                value={date}
-                min={formatDateISO(new Date())}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full truncate border-none bg-transparent p-0 font-semibold text-navy outline-none [color-scheme:light]"
-              />
-              {locale?.startsWith("am") && (
-                <p className="truncate text-[11px] text-text-faint">{formatEthiopianDate(new Date(date))}</p>
+              {locale?.startsWith("am") ? (
+                <EthiopianDatePicker value={date} onChange={setDate} min={formatDateISO(new Date())}>
+                  <p className="truncate font-semibold text-navy">{formatEthiopianDate(new Date(date))}</p>
+                  <p className="truncate text-[11px] text-text-faint">{date}</p>
+                </EthiopianDatePicker>
+              ) : (
+                <label className="block cursor-pointer">
+                  <input
+                    type="date"
+                    value={date}
+                    min={formatDateISO(new Date())}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full truncate border-none bg-transparent p-0 font-semibold text-navy outline-none [color-scheme:light]"
+                  />
+                </label>
               )}
             </div>
-          </label>
+          </div>
           <div className="flex items-center p-1.5 lg:pl-3">
             <Button className="w-full shadow-md shadow-primary/20 lg:w-auto" loading={loading} onClick={search}>
               <SearchIcon />

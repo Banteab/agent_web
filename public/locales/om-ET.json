@@ -408,5 +408,6 @@
     "support": "Deggersa",
     "greeting_morning": "Akkam bultan",
     "greeting_afternoon": "Akkam oolte",
-    "greeting_evening": "Akkam galgaltan"
+    "greeting_evening": "Akkam galgaltan",
+    "clear": "Haqi"
 }

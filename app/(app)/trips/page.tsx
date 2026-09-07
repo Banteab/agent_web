@@ -1,7 +1,9 @@
 "use client";
 
+import { DateTriggerBox, EthiopianDatePicker } from "@/components/ethiopian-date-picker";
 import { Badge, Button, Card, EmptyState, Input, SectionLabel, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
+import { formatEthiopianDate } from "@/lib/ethiopian-calendar";
 import { useI18n } from "@/lib/i18n";
 import { getSearchedBus, setSearchedBus } from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
@@ -11,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function FastTripPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const toast = useToast();
   const router = useRouter();
   const [date, setDate] = useState(formatDateISO(new Date()));
@@ -81,7 +83,13 @@ export default function FastTripPage() {
       <Card className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <label className="flex-1 space-y-1.5">
           <span className="text-[13px] font-medium text-text-muted">{t("travel_date")}</span>
-          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          {locale?.startsWith("am") ? (
+            <EthiopianDatePicker value={date} onChange={setDate}>
+              <DateTriggerBox label={formatEthiopianDate(new Date(date))} />
+            </EthiopianDatePicker>
+          ) : (
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          )}
         </label>
         <Button onClick={() => load(date)} loading={loading} className="sm:w-40">
           {t("search")}
