@@ -6,12 +6,12 @@ import { Protected } from "@/components/protected";
 import { Button, Card, DetailRow } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import type { BookingCompleteSummary } from "@/lib/types";
-import { formatMoney, qrSrc } from "@/lib/utils";
+import { formatDisplayDateValue, formatMoney, qrSrc } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function BookingCompletePage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const router = useRouter();
   const [summary, setSummary] = useState<BookingCompleteSummary | null>(null);
   const [ready, setReady] = useState(false);
@@ -80,7 +80,7 @@ export default function BookingCompletePage() {
           </div>
           <DetailRow label={t("from")} value={summary.fromCity} />
           <DetailRow label={t("to")} value={summary.toCity} />
-          <DetailRow label={t("travel_date")} value={summary.travelDate} />
+          <DetailRow label={t("travel_date")} value={formatDisplayDateValue(summary.travelDate, locale)} />
           <DetailRow label={t("passengers")} value={summary.passengers.join(", ")} />
           <DetailRow label={t("seat")} value={summary.seats.join(", ")} />
           {summary.bank ? <DetailRow label={t("bank")} value={summary.bank} /> : null}

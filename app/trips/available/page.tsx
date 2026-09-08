@@ -7,12 +7,12 @@ import { useI18n } from "@/lib/i18n";
 import { getBookingSession, setBookingSession } from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { CancellationPolicy, SearchResult } from "@/lib/types";
-import { citySearchName, formatMoney } from "@/lib/utils";
+import { citySearchName, formatDisplayDateValue, formatMoney } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 function AvailableBuses() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const toast = useToast();
   const router = useRouter();
   const params = useSearchParams();
@@ -77,7 +77,7 @@ function AvailableBuses() {
                   <span>{trip.arrivalTime}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-text-muted">
-                  <span>{trip.travelDate}</span>
+                  <span>{formatDisplayDateValue(trip.travelDate, locale)}</span>
                   <Badge tone={lowSeats ? "danger" : "info"}>
                     {trip.seatsLeft} {t("seats")}
                   </Badge>

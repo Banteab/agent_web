@@ -5,11 +5,11 @@ import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
 import type { Ticket } from "@/lib/types";
-import { parseSelectedRoute } from "@/lib/utils";
+import { formatDisplayDateValue, parseSelectedRoute } from "@/lib/utils";
 import { useState } from "react";
 
 export default function CheckerPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const toast = useToast();
   const [ticketNo, setTicketNo] = useState("");
   const [ticket, setTicket] = useState<Ticket | null>(null);
@@ -72,7 +72,7 @@ export default function CheckerPage() {
           <DetailRow label={t("from")} value={route?.from || ticket.booking?.trip?.from} />
           <DetailRow label={t("to")} value={route?.to || ticket.booking?.trip?.to} />
           <DetailRow label={t("seat")} value={ticket.seat} />
-          <DetailRow label={t("travel_date")} value={ticket.booking?.trip?.travelDate?.slice(0, 10)} />
+          <DetailRow label={t("travel_date")} value={formatDisplayDateValue(ticket.booking?.trip?.travelDate, locale)} />
           <Button className="w-full" loading={activating} onClick={activate}>
             {t("active")}
           </Button>
