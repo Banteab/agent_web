@@ -84,11 +84,15 @@ export const DEFAULT_LOCALE = "am-ET";
 
 export const BANKS = [
   { id: "CBE", name: "Commercial Bank of Ethiopia", logo: "/images/cbe.jpg" },
-  { id: "AWASH", name: "Awash Bank", logo: "/images/awash.png" },
+  { id: "AWASH", name: "Awash Bank", logo: "/images/awash.svg" },
   { id: "DASHEN", name: "Dashen Bank", logo: "/images/dashen.png" },
   { id: "COOP", name: "Cooperative Bank", logo: "/images/coop.png" },
+  { id: "TELEBIRR", name: "telebirr", logo: "/images/telebirr.png" },
 ] as const;
 
-// Banks offered at booking checkout for the BANK payment method. A small,
-// explicit subset of BANKS — CASH and REFERENCE are hidden there for now.
-export const CHECKOUT_BANKS = [BANKS[1], BANKS[0]];
+// Payment options offered at booking checkout for the BANK payment method. A
+// small, explicit subset of BANKS — CASH and REFERENCE are hidden there for now.
+const CHECKOUT_BANK_IDS = ["AWASH", "CBE", "TELEBIRR"] as const;
+export const CHECKOUT_BANKS = CHECKOUT_BANK_IDS.map(
+  (id) => BANKS.find((bank) => bank.id === id)!,
+);
