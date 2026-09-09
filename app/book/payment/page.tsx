@@ -170,13 +170,8 @@ export default function PaymentPage() {
                           : "border-border hover:border-primary/30 hover:bg-surface-muted",
                       )}
                     >
-                      <span
-                        className={cn(
-                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition",
-                          active ? "bg-primary text-white" : "bg-surface-muted text-text-muted",
-                        )}
-                      >
-                        <BankIcon />
+                      <span className="flex h-11 w-16 shrink-0 items-center justify-center rounded-lg border border-border bg-white p-1.5">
+                        <img src={item.logo} alt={item.name} className="h-full w-full object-contain" />
                       </span>
                       <span className={cn("text-sm font-semibold", active ? "text-primary" : "text-navy")}>
                         {item.name}
@@ -219,15 +214,6 @@ export default function PaymentPage() {
   );
 }
 
-function BankIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 10 12 4l9 6" />
-      <path d="M5 10v9M10 10v9M14 10v9M19 10v9" />
-      <path d="M3 19h18" />
-    </svg>
-  );
-}
 function ArrowRightIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

@@ -12,7 +12,7 @@ import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
 import type { Booking } from "@/lib/types";
 import { notifyPendingPaymentsRefresh } from "@/lib/use-pending-bank-payments-count";
-import { formatDateISO, formatMoney, parsePassengerNames } from "@/lib/utils";
+import { formatDateISO, formatDisplayDateValue, formatMoney, parsePassengerNames } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 
 function expiresAtFor(booking: Booking) {
@@ -204,7 +204,7 @@ export default function PendingPaymentsPage() {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filtered.map((booking) => (
-                    <PendingRow key={booking.id} booking={booking} onConfirm={setConfirmBooking} t={t} />
+                    <PendingRow key={booking.id} booking={booking} onConfirm={setConfirmBooking} t={t} locale={locale} />
                   ))}
                 </tbody>
               </table>
@@ -212,7 +212,7 @@ export default function PendingPaymentsPage() {
 
             <div className="space-y-3 md:hidden">
               {filtered.map((booking) => (
-                <PendingCard key={booking.id} booking={booking} onConfirm={setConfirmBooking} t={t} />
+                <PendingCard key={booking.id} booking={booking} onConfirm={setConfirmBooking} t={t} locale={locale} />
               ))}
             </div>
           </>
@@ -225,6 +225,7 @@ export default function PendingPaymentsPage() {
         onClose={() => setConfirmBooking(null)}
         onConfirm={confirmPayment}
         t={t}
+        locale={locale}
       />
     </Protected>
   );
@@ -247,23 +248,24 @@ function amountLabel(booking: Booking) {
   return formatMoney(booking.price * passengers);
 }
 
-function travelDateLabel(booking: Booking) {
-  const value = booking.trip?.travelDate;
-  return value ? value.slice(0, 10) : "-";
+function travelDateLabel(booking: Booking, locale?: string) {
+  return formatDisplayDateValue(booking.trip?.travelDate, locale);
 }
 
-function bookingDateLabel(booking: Booking) {
-  return booking.firstSeatReserved ? booking.firstSeatReserved.slice(0, 10) : "-";
+function bookingDateLabel(booking: Booking, locale?: string) {
+  return formatDisplayDateValue(booking.firstSeatReserved, locale);
 }
 
 function PendingRow({
   booking,
   onConfirm,
   t,
+  locale,
 }: {
   booking: Booking;
   onConfirm: (booking: Booking) => void;
   t: (key: string) => string;
+  locale?: string;
 }) {
   const expiresAt = expiresAtFor(booking);
   const [expired, setExpired] = useState(() => isExpired(booking));
@@ -281,9 +283,9 @@ function PendingRow({
         <p>{routeLabel(booking)}</p>
         {booking.bank ? <p className="text-xs text-text-faint">{booking.bank}</p> : null}
       </td>
-      <td className="px-4 py-3 text-text-muted">{travelDateLabel(booking)}</td>
+      <td className="px-4 py-3 text-text-muted">{travelDateLabel(booking, locale)}</td>
       <td className="px-4 py-3 text-right font-semibold text-navy">{amountLabel(booking)}</td>
-      <td className="px-4 py-3 text-text-muted">{bookingDateLabel(booking)}</td>
+      <td className="px-4 py-3 text-text-muted">{bookingDateLabel(booking, locale)}</td>
       <td className="px-4 py-3">
         {expiresAt && !expired ? (
           <Countdown endTime={expiresAt} onExpire={() => setExpired(true)} />
@@ -314,10 +316,12 @@ function PendingCard({
   booking,
   onConfirm,
   t,
+  locale,
 }: {
   booking: Booking;
   onConfirm: (booking: Booking) => void;
   t: (key: string) => string;
+  locale?: string;
 }) {
   const expiresAt = expiresAtFor(booking);
   const [expired, setExpired] = useState(() => isExpired(booking));
@@ -341,13 +345,13 @@ function PendingCard({
           </>
         ) : null}
         <span>{t("travel_date")}</span>
-        <span className="text-right font-semibold text-navy">{travelDateLabel(booking)}</span>
+        <span className="text-right font-semibold text-navy">{travelDateLabel(booking, locale)}</span>
         <span>{t("phone")}</span>
         <span className="text-right font-semibold text-navy">{booking.phoneNumber || "-"}</span>
         <span>{t("amount")}</span>
         <span className="text-right font-semibold text-navy">{amountLabel(booking)}</span>
         <span>{t("booking_date")}</span>
-        <span className="text-right font-semibold text-navy">{bookingDateLabel(booking)}</span>
+        <span className="text-right font-semibold text-navy">{bookingDateLabel(booking, locale)}</span>
         {expiresAt && !expired ? (
           <>
             <span>{t("expires_in")}</span>
@@ -376,11 +380,13 @@ function ConfirmPaymentModal({
   onClose,
   onConfirm,
   t,
+  locale,
 }: {
   booking: Booking | null;
   onClose: () => void;
   onConfirm: (bookingId: number, transactionNumber: string) => Promise<void>;
   t: (key: string) => string;
+  locale?: string;
 }) {
   const [transactionNumber, setTransactionNumber] = useState("");
   const [saving, setSaving] = useState(false);
@@ -446,8 +452,8 @@ function ConfirmPaymentModal({
           <DetailRow label={t("phone")} value={booking.phoneNumber} />
           <DetailRow label={`${t("from")}/${t("to")}`} value={routeLabel(booking)} />
           {booking.bank ? <DetailRow label={t("bank")} value={booking.bank} /> : null}
-          <DetailRow label={t("travel_date")} value={travelDateLabel(booking)} />
-          <DetailRow label={t("booking_date")} value={bookingDateLabel(booking)} />
+          <DetailRow label={t("travel_date")} value={travelDateLabel(booking, locale)} />
+          <DetailRow label={t("booking_date")} value={bookingDateLabel(booking, locale)} />
           <div className="my-1 border-t border-border" />
           <DetailRow label={t("amount")} value={<span className="text-base text-primary">{amountLabel(booking)}</span>} />
         </div>

@@ -8,7 +8,7 @@ import { formatEthiopianDate } from "@/lib/ethiopian-calendar";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
 import type { RouteSalesData } from "@/lib/types";
-import { formatDateISO, formatMoney } from "@/lib/utils";
+import { formatDateISO, formatDisplayDateValue, formatMoney } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -66,7 +66,7 @@ export default function SalesReportPage() {
             return (
               <Card key={day.date} className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <SectionLabel>{day.date}</SectionLabel>
+                  <SectionLabel>{formatDisplayDateValue(day.date, locale)}</SectionLabel>
                   <p className="font-bold text-navy">{formatMoney(dayTotal)}</p>
                 </div>
                 <div className="divide-y divide-border text-sm">
