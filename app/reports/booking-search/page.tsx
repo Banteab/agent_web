@@ -2,6 +2,7 @@
 
 import { Protected } from "@/components/protected";
 import {
+  Badge,
   Button,
   Card,
   DetailRow,
@@ -15,11 +16,15 @@ import {
   TableFrame,
 } from "@/components/ui";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
 import type { Booking } from "@/lib/types";
 import { formatDisplayDateValue, formatMoney, parsePassengerNames } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+
+const CLOSED_STATUSES = new Set(["CANCELLED", "CANCELED", "REJECTED", "EXPIRED"]);
 
 function passengerLabel(booking: Booking) {
   return parsePassengerNames(booking.passengers).join(", ") || "-";
@@ -37,8 +42,14 @@ function agentLabel(booking: Booking) {
   return name || "-";
 }
 
+function isOwnBooking(booking: Booking, agentId?: number) {
+  return agentId != null && booking.agent?.id === agentId;
+}
+
 export default function BookingSearchPage() {
   const { t, locale } = useI18n();
+  const { profile } = useAuth();
+  const router = useRouter();
   const toast = useToast();
   const [phone, setPhone] = useState("");
   const [passenger, setPassenger] = useState("");
@@ -137,7 +148,13 @@ export default function BookingSearchPage() {
                       <td className="px-4 py-3 text-text-muted">
                         {formatDisplayDateValue(booking.trip?.travelDate, locale)}
                       </td>
-                      <td className="px-4 py-3 text-text-muted">{agentLabel(booking)}</td>
+                      <td className="px-4 py-3 text-text-muted">
+                        {isOwnBooking(booking, profile?.id) ? (
+                          <span className="font-semibold text-primary">{t("you")}</span>
+                        ) : (
+                          agentLabel(booking)
+                        )}
+                      </td>
                       <td className="px-4 py-3">
                         <StatusBadge status={booking.status} />
                       </td>
@@ -174,7 +191,13 @@ export default function BookingSearchPage() {
                       {formatDisplayDateValue(booking.trip?.travelDate, locale)}
                     </span>
                     <span>{t("agent")}</span>
-                    <span className="text-right font-semibold text-navy">{agentLabel(booking)}</span>
+                    <span className="text-right font-semibold text-navy">
+                      {isOwnBooking(booking, profile?.id) ? (
+                        <span className="text-primary">{t("you")}</span>
+                      ) : (
+                        agentLabel(booking)
+                      )}
+                    </span>
                   </div>
                 </Card>
               ))}
@@ -183,7 +206,21 @@ export default function BookingSearchPage() {
         ) : null}
       </div>
 
-      <BookingDetailModal booking={selected} onClose={() => setSelected(null)} t={t} locale={locale} />
+      <BookingDetailModal
+        booking={selected}
+        onClose={() => setSelected(null)}
+        t={t}
+        locale={locale}
+        own={selected ? isOwnBooking(selected, profile?.id) : false}
+        onCancelTicket={(ticketNo) => {
+          setSelected(null);
+          router.push(ticketNo ? `/cancel/summary?ticket=${encodeURIComponent(ticketNo)}` : "/cancel");
+        }}
+        onViewPendingPayment={() => {
+          setSelected(null);
+          router.push("/pending-payments");
+        }}
+      />
     </Protected>
   );
 }
@@ -193,13 +230,23 @@ function BookingDetailModal({
   onClose,
   t,
   locale,
+  own,
+  onCancelTicket,
+  onViewPendingPayment,
 }: {
   booking: Booking | null;
   onClose: () => void;
   t: (key: string) => string;
   locale?: string;
+  own: boolean;
+  onCancelTicket: (ticketNo?: string) => void;
+  onViewPendingPayment: () => void;
 }) {
   if (!booking) return null;
+
+  const status = (booking.status || "").toUpperCase();
+  const isCancellable = own && !CLOSED_STATUSES.has(status);
+  const isPendingPayment = own && status.includes("PENDING");
 
   return (
     <Modal
@@ -208,9 +255,25 @@ function BookingDetailModal({
       title={t("reservation_detail")}
       subtitle={`${t("pnr")} ${booking.refNumber || `#${booking.id}`}`}
       footer={
-        <Button variant="ghost" className="flex-1" onClick={onClose}>
-          {t("close")}
-        </Button>
+        <>
+          <Button variant="ghost" className="flex-1" onClick={onClose}>
+            {t("close")}
+          </Button>
+          {isPendingPayment ? (
+            <Button variant="secondary" className="flex-1" onClick={onViewPendingPayment}>
+              {t("pending_payments")}
+            </Button>
+          ) : null}
+          {isCancellable ? (
+            <Button
+              variant="danger"
+              className="flex-1"
+              onClick={() => onCancelTicket(booking.ticketNumbers?.[0])}
+            >
+              {t("cancele_ticket")}
+            </Button>
+          ) : null}
+        </>
       }
     >
       <div className="space-y-4 text-sm">
@@ -218,6 +281,17 @@ function BookingDetailModal({
           <span className="text-xs font-semibold uppercase tracking-wide text-text-faint">{t("status")}</span>
           <StatusBadge status={booking.status} />
         </div>
+
+        {own ? (
+          <p className="rounded-lg bg-primary-soft/60 px-3.5 py-2.5 text-xs font-medium text-primary">
+            {t("your_booking_hint")}
+          </p>
+        ) : (
+          <div className="flex items-center justify-between gap-3 rounded-lg bg-surface-muted px-3.5 py-2.5">
+            <p className="text-xs font-medium text-text-muted">{t("other_agent_booking_hint")}</p>
+            <Badge tone="neutral">{t("view_only")}</Badge>
+          </div>
+        )}
 
         <div className="space-y-1 rounded-lg border border-border p-3.5">
           <SectionLabel>{t("journey_detail")}</SectionLabel>

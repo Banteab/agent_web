@@ -420,5 +420,9 @@
     "booking_search_hint": "Lakkoofsa bilbilaa ykn maqaa imalaa armaan olitti galchuun iyyannoo imalaa kanaaf bakka bu'aa kamiin iyyuu taasifame ilaali.",
     "no_bookings_found": "Iyyannoon hin argamne",
     "no_bookings_found_hint": "Lakkoofsa bilbilaa ykn maqaa imalaa biraa yaali.",
-    "agent": "Bakka bu'aa"
+    "agent": "Bakka bu'aa",
+    "you": "Ati",
+    "view_only": "Ilaaluu qofa",
+    "your_booking_hint": "Iyyannoo kana kan taasifte ati — gadii bulchuu ni dandeessa.",
+    "other_agent_booking_hint": "Bakka bu'aa biraatiin qabame — ilaaluu qofa."
 }

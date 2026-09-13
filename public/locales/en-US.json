@@ -420,5 +420,9 @@
     "booking_search_hint": "Enter a phone number or passenger name above to see every booking made for that passenger, by any agent.",
     "no_bookings_found": "No bookings found",
     "no_bookings_found_hint": "Try a different phone number or passenger name.",
-    "agent": "Agent"
+    "agent": "Agent",
+    "you": "You",
+    "view_only": "View only",
+    "your_booking_hint": "You made this booking — you can manage it below.",
+    "other_agent_booking_hint": "Booked by another agent — view only."
 }
