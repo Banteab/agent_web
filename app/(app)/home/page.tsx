@@ -81,66 +81,55 @@ export default function HomeSearchPage() {
   return (
     <div>
       {/* Full-bleed hero — breaks out of the page's normal max-width column */}
-      <div className="relative mx-[calc(50%-50vw)] -mt-6 w-screen overflow-hidden bg-navy sm:-mt-8">
+      <div className="relative mx-[calc(50%-50vw)] -mt-6 w-screen overflow-hidden bg-gradient-to-br from-primary-soft via-[#f6fdfc] to-azure sm:-mt-8">
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          className="pointer-events-none absolute inset-0 opacity-[0.05]"
           style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+            backgroundImage: "radial-gradient(circle at 1px 1px, var(--navy) 1px, transparent 0)",
             backgroundSize: "26px 26px",
           }}
         />
         <div
-          className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-primary/30 blur-3xl"
+          className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-primary/15 blur-3xl"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-gold/10 blur-3xl"
+          className="pointer-events-none absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-primary-dark/10 blur-3xl"
           aria-hidden
         />
-
-        {/* 3D road plane at the base of the hero, tilted into the distance */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-28 [perspective:600px] sm:block" aria-hidden>
-          <div
-            className="absolute inset-x-0 bottom-0 h-24 origin-bottom bg-gradient-to-t from-white/[0.07] to-transparent"
-            style={{ transform: "rotateX(58deg)" }}
-          />
-          <span className="absolute -top-1 left-0 -translate-x-1/2 text-gold/70 animate-[driveAcross_9s_linear_infinite]">
-            <BusGlyphIcon />
-          </span>
-        </div>
 
         <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-10 sm:px-6 sm:pb-28 sm:pt-14 lg:pt-16">
           <div className="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-2xl animate-[riseIn_450ms_ease-out]">
               <div className="flex flex-wrap items-center gap-2.5">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-dark">
                   {t(greetingKey(new Date().getHours()))}
                   {profile?.firstName ? `, ${profile.firstName}` : ""}
                 </p>
                 {pendingCount > 0 ? (
                   <Link
                     href="/payments"
-                    className="inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-semibold text-gold transition hover:bg-gold/25"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-warning-soft px-2.5 py-1 text-[11px] font-semibold text-warning transition hover:bg-warning-soft/70"
                   >
                     <span className="relative flex h-1.5 w-1.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
-                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-warning opacity-75" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-warning" />
                     </span>
                     {pendingCount} {t("pending_payments")}
                   </Link>
                 ) : null}
               </div>
-              <h1 className="mt-3 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-[3.4rem]">
+              <h1 className="font-display mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight text-navy sm:text-5xl lg:text-[3.4rem]">
                 {t("new_booking_hero_title")}
               </h1>
-              <p className="mt-4 max-w-md text-base text-white/70 sm:text-lg">{t("new_booking_hero_subtitle")}</p>
+              <p className="mt-4 max-w-md text-base text-text-muted sm:text-lg">{t("new_booking_hero_subtitle")}</p>
               <div className="mt-6 flex flex-wrap gap-2">
                 <TrustBadge icon={<SeatMapIcon />} label={t("feature_live_seats")} />
                 <TrustBadge icon={<ShieldIcon />} label={t("feature_secure_payments")} />
                 <TrustBadge icon={<BoltIcon />} label={t("feature_instant_tickets")} />
               </div>
             </div>
-            <HeroBusIllustration className="hidden h-56 w-auto shrink-0 drop-shadow-2xl animate-[floatY_6s_ease-in-out_infinite] lg:block xl:h-64" />
+            <HeroBusIllustration className="hidden h-56 w-auto shrink-0 drop-shadow-xl animate-[floatY_6s_ease-in-out_infinite] lg:block xl:h-64" />
           </div>
         </div>
       </div>
@@ -285,8 +274,8 @@ export default function HomeSearchPage() {
 
 function TrustBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/85 backdrop-blur-sm">
-      <span className="text-gold">{icon}</span>
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-white/70 px-3 py-1.5 text-xs font-medium text-navy shadow-sm backdrop-blur-sm">
+      <span className="text-primary">{icon}</span>
       {label}
     </span>
   );
@@ -295,7 +284,7 @@ function TrustBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
 function FeatureCard({ icon, title, caption }: { icon: React.ReactNode; title: string; caption: string }) {
   return (
     <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-navy/10">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gold-soft text-gold-ink">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
         {icon}
       </span>
       <div className="min-w-0">
@@ -336,17 +325,6 @@ function RouteIcon() {
       <circle cx="6" cy="6" r="2.5" />
       <circle cx="18" cy="18" r="2.5" />
       <path d="M8 7c3 0 2 6 5 6M13 13c1.5 0 2-1 3.5-1" />
-    </svg>
-  );
-}
-function BusGlyphIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <rect x="3" y="5" width="18" height="11" rx="3" />
-      <rect x="5.5" y="7.5" width="5" height="4" rx="0.75" fill="#0a1730" />
-      <rect x="13.5" y="7.5" width="5" height="4" rx="0.75" fill="#0a1730" />
-      <circle cx="7.5" cy="17.5" r="1.8" />
-      <circle cx="16.5" cy="17.5" r="1.8" />
     </svg>
   );
 }

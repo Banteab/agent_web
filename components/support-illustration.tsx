@@ -6,7 +6,7 @@ export function SupportIllustration({ className }: { className?: string }) {
       <rect x="18" y="18" width="284" height="244" rx="28" stroke="white" strokeOpacity="0.14" />
 
       {/* soft glow accents */}
-      <circle cx="252" cy="56" r="34" fill="#eab308" fillOpacity="0.18" />
+      <circle cx="252" cy="56" r="34" fill="#0d9488" fillOpacity="0.22" />
       <circle cx="52" cy="216" r="26" fill="#dc2626" fillOpacity="0.16" />
 
       {/* agent shoulders + head */}
@@ -18,20 +18,20 @@ export function SupportIllustration({ className }: { className?: string }) {
       {/* headset */}
       <path
         d="M118 112a38 38 0 0 1 76 0"
-        stroke="#eab308"
+        stroke="#2dd4bf"
         strokeWidth="6"
         strokeLinecap="round"
       />
-      <rect x="110" y="108" width="16" height="26" rx="8" fill="#eab308" />
-      <rect x="186" y="108" width="16" height="26" rx="8" fill="#eab308" />
-      <path d="M202 128c14 2 20 12 18 26" stroke="#eab308" strokeWidth="5" strokeLinecap="round" />
-      <circle cx="220" cy="156" r="6" fill="#eab308" />
+      <rect x="110" y="108" width="16" height="26" rx="8" fill="#2dd4bf" />
+      <rect x="186" y="108" width="16" height="26" rx="8" fill="#2dd4bf" />
+      <path d="M202 128c14 2 20 12 18 26" stroke="#2dd4bf" strokeWidth="5" strokeLinecap="round" />
+      <circle cx="220" cy="156" r="6" fill="#2dd4bf" />
 
       {/* chat bubble */}
       <rect x="196" y="46" width="86" height="58" rx="16" fill="white" />
       <path d="M214 104l-10 16 22-10z" fill="white" />
-      <circle cx="220" cy="75" r="5" fill="#0a5fa0" />
-      <circle cx="239" cy="75" r="5" fill="#0a5fa0" />
+      <circle cx="220" cy="75" r="5" fill="#0d9488" />
+      <circle cx="239" cy="75" r="5" fill="#0d9488" />
       <circle cx="258" cy="75" r="5" fill="#dc2626" />
 
       {/* base line */}

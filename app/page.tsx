@@ -56,7 +56,7 @@ export default function LoginPage() {
             <BrandLogo compact imgClassName="h-9 w-9" />
             <span className="text-base font-semibold tracking-tight">Biftu Bus</span>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-gold">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-primary-soft">
             <PhoneIcon />
             {t("call_center_line")} 8477
           </span>
@@ -65,7 +65,7 @@ export default function LoginPage() {
         <div className="relative flex flex-1 flex-col items-center justify-center gap-6 py-6">
           <SupportIllustration className="h-40 w-full max-w-[220px] lg:h-56 lg:max-w-xs" />
           <div className="max-w-sm text-center">
-            <p className="text-xl font-semibold leading-snug tracking-tight lg:text-2xl">
+            <p className="font-display text-xl font-bold leading-snug tracking-tight lg:text-2xl">
               {t("login_hero_title")}
             </p>
             <p className="mt-3 text-sm leading-relaxed text-white/70">{t("login_hero_subtitle")}</p>
@@ -82,7 +82,7 @@ export default function LoginPage() {
             <span className="text-base font-semibold tracking-tight text-navy">Biftu Bus</span>
           </div>
 
-          <h1 className="text-2xl font-semibold tracking-tight text-navy">{t("log_in")}</h1>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-navy">{t("log_in")}</h1>
           <p className="mt-1.5 text-sm text-text-muted">{t("login_prompt")}</p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-4">
