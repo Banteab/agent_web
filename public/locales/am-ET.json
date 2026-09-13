@@ -448,5 +448,7 @@
     "requires_backend_update": "የስርዓት ዝማኔ ይፈልጋል",
     "actions_unlock_hint": "አንዳንድ ተግባራት እስካሁን አይገኙም እና ስርዓቱ ሲደግፋቸው ይከፈታሉ።",
     "find_ticket_subtitle": "ትኬት በቁጥር ፈልገው ቼክ ያድርጉ",
-    "view_full_details": "ሙሉ ዝርዝር ይመልከቱ"
+    "view_full_details": "ሙሉ ዝርዝር ይመልከቱ",
+    "open_menu": "ምናሌ ክፈት",
+    "close_menu": "ምናሌ ዝጋ"
 }

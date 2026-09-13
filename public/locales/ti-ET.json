@@ -448,5 +448,7 @@
     "requires_backend_update": "ዝማነ ስርዓት የድሊ",
     "actions_unlock_hint": "ገለ ንጥፈታት ክሳብ ሕጂ የለዉን፣ ስርዓቱ ምስ ደገፎም ክኽፈቱ እዮም።",
     "find_ticket_subtitle": "ቲኬት ብቁጽሪ ድለ፣ ቼክ ግበር",
-    "view_full_details": "ምሉእ ዝርዝር ርአ"
+    "view_full_details": "ምሉእ ዝርዝር ርአ",
+    "open_menu": "ሜኑ ክፈት",
+    "close_menu": "ሜኑ ዕጸው"
 }

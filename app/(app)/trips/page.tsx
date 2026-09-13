@@ -79,7 +79,7 @@ export default function FastTripPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-6xl space-y-4">
       <Card className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <label className="flex-1 space-y-1.5">
           <span className="text-[13px] font-medium text-text-muted">{t("travel_date")}</span>

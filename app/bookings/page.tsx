@@ -138,7 +138,7 @@ function ManageBookings() {
   const isBusy = loading || searching;
 
   return (
-    <div>
+    <div className="mx-auto max-w-6xl">
       <PageHeader title={t("manage_bookings")} subtitle={t("manage_bookings_subtitle")} />
 
       <Card className="mb-4 space-y-3">

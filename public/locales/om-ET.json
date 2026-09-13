@@ -448,5 +448,7 @@
     "requires_backend_update": "Haaromsa sirna duubaa barbaada",
     "actions_unlock_hint": "Gochaaleen tokko tokko ammatti hin argaman; sirni yeroo isaan deeggaru banamu.",
     "find_ticket_subtitle": "Tikeeta lakkoofsaan barbaadii galmeessi",
-    "view_full_details": "Bal'ina Guutuu Ilaali"
+    "view_full_details": "Bal'ina Guutuu Ilaali",
+    "open_menu": "Baaburbara Baniif",
+    "close_menu": "Baaburbara Cufi"
 }

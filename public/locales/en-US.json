@@ -448,5 +448,7 @@
     "requires_backend_update": "Requires a backend update",
     "actions_unlock_hint": "Some actions aren't available yet and will unlock once the backend supports them.",
     "find_ticket_subtitle": "Look up a ticket by number and check it in",
-    "view_full_details": "View Full Details"
+    "view_full_details": "View Full Details",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu"
 }

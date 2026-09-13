@@ -2,7 +2,7 @@
 
 import { CityPicker } from "@/components/city-picker";
 import { EthiopianDatePicker } from "@/components/ethiopian-date-picker";
-import { SupportIllustration } from "@/components/support-illustration";
+import { HeroBusIllustration } from "@/components/hero-bus-illustration";
 import { Button, EmptyState, SectionLabel } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -80,67 +80,73 @@ export default function HomeSearchPage() {
 
   return (
     <div>
-      {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl bg-navy px-6 py-10 sm:px-10 sm:py-14">
+      {/* Full-bleed hero — breaks out of the page's normal max-width column */}
+      <div className="relative mx-[calc(50%-50vw)] -mt-6 w-screen overflow-hidden bg-navy sm:-mt-8">
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.08]"
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
           style={{
             backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
             backgroundSize: "26px 26px",
           }}
         />
         <div
-          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl"
+          className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-primary/30 blur-3xl"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-gold/10 blur-3xl"
+          className="pointer-events-none absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-gold/10 blur-3xl"
           aria-hidden
         />
-        {/* Decorative route line — a small bus travels across the hero */}
-        <div className="pointer-events-none absolute inset-x-10 bottom-16 hidden sm:block" aria-hidden>
-          <div className="relative h-px border-t border-dashed border-white/15">
-            <span className="absolute -top-[9px] left-0 -translate-x-1/2 text-gold/70 animate-[driveAcross_10s_linear_infinite]">
-              <BusGlyphIcon />
-            </span>
-          </div>
+
+        {/* 3D road plane at the base of the hero, tilted into the distance */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-28 [perspective:600px] sm:block" aria-hidden>
+          <div
+            className="absolute inset-x-0 bottom-0 h-24 origin-bottom bg-gradient-to-t from-white/[0.07] to-transparent"
+            style={{ transform: "rotateX(58deg)" }}
+          />
+          <span className="absolute -top-1 left-0 -translate-x-1/2 text-gold/70 animate-[driveAcross_9s_linear_infinite]">
+            <BusGlyphIcon />
+          </span>
         </div>
-        <div className="relative flex items-center justify-between gap-6">
-          <div className="max-w-xl animate-[riseIn_450ms_ease-out]">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gold">
-                {t(greetingKey(new Date().getHours()))}
-                {profile?.firstName ? `, ${profile.firstName}` : ""}
-              </p>
-              {pendingCount > 0 ? (
-                <Link
-                  href="/payments"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-semibold text-gold transition hover:bg-gold/25"
-                >
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
-                  </span>
-                  {pendingCount} {t("pending_payments")}
-                </Link>
-              ) : null}
+
+        <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-10 sm:px-6 sm:pb-28 sm:pt-14 lg:pt-16">
+          <div className="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl animate-[riseIn_450ms_ease-out]">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+                  {t(greetingKey(new Date().getHours()))}
+                  {profile?.firstName ? `, ${profile.firstName}` : ""}
+                </p>
+                {pendingCount > 0 ? (
+                  <Link
+                    href="/payments"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-semibold text-gold transition hover:bg-gold/25"
+                  >
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+                    </span>
+                    {pendingCount} {t("pending_payments")}
+                  </Link>
+                ) : null}
+              </div>
+              <h1 className="mt-3 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-[3.4rem]">
+                {t("new_booking_hero_title")}
+              </h1>
+              <p className="mt-4 max-w-md text-base text-white/70 sm:text-lg">{t("new_booking_hero_subtitle")}</p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <TrustBadge icon={<SeatMapIcon />} label={t("feature_live_seats")} />
+                <TrustBadge icon={<ShieldIcon />} label={t("feature_secure_payments")} />
+                <TrustBadge icon={<BoltIcon />} label={t("feature_instant_tickets")} />
+              </div>
             </div>
-            <p className="mt-2 text-3xl font-bold leading-snug tracking-tight text-white sm:text-4xl">
-              {t("new_booking_hero_title")}
-            </p>
-            <p className="mt-2 text-sm text-white/70 sm:text-base">{t("new_booking_hero_subtitle")}</p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              <TrustBadge icon={<SeatMapIcon />} label={t("feature_live_seats")} />
-              <TrustBadge icon={<ShieldIcon />} label={t("feature_secure_payments")} />
-              <TrustBadge icon={<BoltIcon />} label={t("feature_instant_tickets")} />
-            </div>
+            <HeroBusIllustration className="hidden h-56 w-auto shrink-0 drop-shadow-2xl animate-[floatY_6s_ease-in-out_infinite] lg:block xl:h-64" />
           </div>
-          <SupportIllustration className="hidden h-40 w-40 shrink-0 animate-[floatY_6s_ease-in-out_infinite] xl:block" />
         </div>
       </div>
 
-      {/* Elevated search widget */}
-      <div className="relative z-10 -mt-8 animate-[riseIn_500ms_ease-out] rounded-2xl border border-border bg-surface p-3 shadow-lg shadow-navy/5 sm:-mt-9 sm:p-4">
+      {/* Elevated search widget, floating over the hero's bottom edge */}
+      <div className="relative z-10 -mt-20 animate-[riseIn_500ms_ease-out] rounded-3xl border border-border bg-surface p-3 shadow-2xl shadow-navy/20 sm:-mt-24 sm:p-4">
         <div className="flex flex-col divide-y divide-border lg:flex-row lg:divide-x lg:divide-y-0">
           <div className="relative flex flex-1 items-stretch">
             <button
@@ -227,7 +233,7 @@ export default function HomeSearchPage() {
                 <button
                   key={`${item.from.sys}-${item.to.sys}`}
                   onClick={() => searchRoute(item.from, item.to)}
-                  className="group flex items-center gap-3 rounded-xl border border-border bg-surface p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+                  className="group flex items-center gap-3 rounded-xl border border-border bg-surface p-4 text-left shadow-sm transition duration-200 [transform-style:preserve-3d] hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-navy/10"
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary transition group-hover:bg-primary group-hover:text-white">
                     <RouteIcon />
@@ -288,7 +294,7 @@ function TrustBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
 
 function FeatureCard({ icon, title, caption }: { icon: React.ReactNode; title: string; caption: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:shadow-md">
+    <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-navy/10">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gold-soft text-gold-ink">
         {icon}
       </span>
