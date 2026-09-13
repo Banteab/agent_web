@@ -410,5 +410,19 @@
     "greeting_afternoon": "ደሓንዶ ውዒልኩም",
     "greeting_evening": "ደሓንዶ ኣምሲኹም",
     "clear": "ኣጽርይ",
-    "booking_expired_or_not_found": "እዚ ምሕዛእ ኣኺሉ ወይ ተመሊሱ እዩ። ሓድሽ ምሕዛእ ፍጠር።"
+    "booking_expired_or_not_found": "እዚ ምሕዛእ ኣኺሉ ወይ ተመሊሱ እዩ። ሓድሽ ምሕዛእ ፍጠር።",
+    "booking_search": "ምድላይ ምሕዛእ",
+    "booking_search_subtitle": "ብቁጽሪ ተሌፎን ወይ ብስም ተሳፋሪ ናይ ኩሎም ወከልቲ ምሕዛእ ድለ",
+    "booking_search_phone_placeholder": "ንኣብነት 0911000000",
+    "booking_search_name_placeholder": "ንኣብነት አበበ ከበደ",
+    "booking_search_empty_query": "በጃኹም ቁጽሪ ተሌፎን ወይ ስም ተሳፋሪ ኣእትዉ",
+    "booking_search_hint_title": "ምሕዛእ ድለ",
+    "booking_search_hint": "ኣብ ላዕሊ ቁጽሪ ተሌፎን ወይ ስም ተሳፋሪ ብምእታው ነቲ ተሳፋሪ ብዝኾነ ወኪል ዝተገብረ ኩሉ ምሕዛእ ርአ።",
+    "no_bookings_found": "ምንም ምሕዛእ ኣይተረኽበን",
+    "no_bookings_found_hint": "ካልእ ቁጽሪ ተሌፎን ወይ ስም ተሳፋሪ ፈትን።",
+    "agent": "ወኪል",
+    "you": "ንስኹም",
+    "view_only": "ንምርኣይ ጥራይ",
+    "your_booking_hint": "ነዚ ምሕዛእ ዝገበርክሞ ንስኹም ኢኹም — ኣብ ታሕቲ ከተመሓድርዎ ትኽእሉ።",
+    "other_agent_booking_hint": "ብኻልእ ወኪል ተታሒዙ — ንምርኣይ ጥራይ።"
 }

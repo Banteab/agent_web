@@ -410,5 +410,19 @@
     "greeting_afternoon": "እንደምን ዋሉ",
     "greeting_evening": "እንደምን አመሹ",
     "clear": "አጽዳ",
-    "booking_expired_or_not_found": "ይህ ማስያዣ አልፎበታል ወይም ተወግዷል። አዲስ ማስያዣ ይፍጠሩ።"
+    "booking_expired_or_not_found": "ይህ ማስያዣ አልፎበታል ወይም ተወግዷል። አዲስ ማስያዣ ይፍጠሩ።",
+    "booking_search": "የቦታ ማስያዣ ፍለጋ",
+    "booking_search_subtitle": "በስልክ ቁጥር ወይም በተሳፋሪ ስም የሁሉንም ወኪሎች ማስያዣዎች ይፈልጉ",
+    "booking_search_phone_placeholder": "ለምሳሌ 0911000000",
+    "booking_search_name_placeholder": "ለምሳሌ አበበ ከበደ",
+    "booking_search_empty_query": "እባክዎ የስልክ ቁጥር ወይም የተሳፋሪ ስም ያስገቡ",
+    "booking_search_hint_title": "ማስያዣ ይፈልጉ",
+    "booking_search_hint": "ከላይ የስልክ ቁጥር ወይም የተሳፋሪ ስም በማስገባት ለዚያ ተሳፋሪ በማንኛውም ወኪል የተደረጉ ማስያዣዎችን ይመልከቱ።",
+    "no_bookings_found": "ምንም ማስያዣ አልተገኘም",
+    "no_bookings_found_hint": "የተለየ የስልክ ቁጥር ወይም የተሳፋሪ ስም ይሞክሩ።",
+    "agent": "ወኪል",
+    "you": "እርስዎ",
+    "view_only": "ለማየት ብቻ",
+    "your_booking_hint": "ይህን ማስያዣ ያደረጉት እርስዎ ነዎት — ከታች ማስተዳደር ይችላሉ።",
+    "other_agent_booking_hint": "በሌላ ወኪል የተያዘ — ለማየት ብቻ።"
 }
