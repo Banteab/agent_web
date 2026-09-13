@@ -191,6 +191,15 @@ export const api = {
     );
   },
 
+  // Proposed — GET /booking/agent/search?phone=&passenger=, not live on the
+  // backend yet. Returns every agent's bookings matching the phone number
+  // and/or passenger name so an agent can tell whether a caller has already
+  // booked, and who booked it. See the booking-search page.
+  async searchBookings(params: { phone?: string; passenger?: string }) {
+    const data = await apiRequest<unknown>(ENDPOINTS.searchBookings(params));
+    return asList<Booking>(data);
+  },
+
   // BookingService.deleteBooking  DELETE /booking/:id
   deleteBooking(id: number) {
     return apiRequest<ApiMessage>(ENDPOINTS.booking(id), { method: "DELETE" });

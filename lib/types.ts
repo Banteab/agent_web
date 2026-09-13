@@ -167,6 +167,9 @@ export type Booking = {
     travelDate?: string;
   };
   tickets?: unknown[];
+  // Proposed for the booking-search endpoint — lets the search result link
+  // straight to /cancel/summary for a booking the searching agent owns.
+  ticketNumbers?: string[];
 };
 
 export type Ticket = {

@@ -11,7 +11,7 @@ import { clearBookingSession, getBookingSession, setBookingSession } from "@/lib
 import { useToast } from "@/lib/toast-context";
 import { asNumberList, cn, formatMoney, selectedRoutePayload } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 /**
  * Splits a bus's seat-map string into rows of seat/aisle cells ("p"/"_").
@@ -42,10 +42,32 @@ export default function SeatsPage() {
   const toast = useToast();
   const router = useRouter();
   const [ready, setReady] = useState(false);
-  const [selected, setSelected] = useState<number[]>([]);
-  const [bookingId, setBookingId] = useState<number>();
+  const [selected, setSelectedState] = useState<number[]>([]);
+  const [bookingId, setBookingIdState] = useState<number>();
   const [endTime, setEndTime] = useState<number>();
   const [busy, setBusy] = useState(false);
+
+  // Seat taps can arrive faster than their network round trips resolve (an
+  // agent picking several seats for a group, for instance). `toggleSeat`
+  // queues each tap instead of dropping the ones that land while a previous
+  // one is still in flight, so `performToggle` must read the *latest*
+  // selection/booking id at the moment it actually runs rather than whatever
+  // was captured in the click's closure — hence mirroring both into refs
+  // that are updated synchronously, right alongside the state setters.
+  const selectedRef = useRef<number[]>([]);
+  const bookingIdRef = useRef<number | undefined>(undefined);
+  const queueRef = useRef<Promise<void>>(Promise.resolve());
+  const pendingCountRef = useRef(0);
+
+  function setSelected(next: number[]) {
+    selectedRef.current = next;
+    setSelectedState(next);
+  }
+
+  function setBookingIdValue(next: number | undefined) {
+    bookingIdRef.current = next;
+    setBookingIdState(next);
+  }
 
   const [liveBooked, setLiveBooked] = useState<number[]>([]);
   const session = useMemo(() => getBookingSession(), [ready, selected, bookingId]);
@@ -67,7 +89,7 @@ export default function SeatsPage() {
       return;
     }
     setSelected(current.selectedSeats || []);
-    setBookingId(current.bookingId);
+    setBookingIdValue(current.bookingId);
     setEndTime(current.endTime);
     setReady(true);
     api
@@ -117,41 +139,43 @@ export default function SeatsPage() {
     router.replace("/home");
   }, [router, t, toast]);
 
-  async function toggleSeat(seat: number) {
-    if (busy) return;
+  // Runs one seat tap. Reads/writes the refs (not `selected`/`bookingId`
+  // directly) so it always sees the outcome of whichever taps the queue has
+  // already processed, even though this function itself was created back
+  // when the tap happened.
+  async function performToggle(seat: number) {
+    const currentSelected = selectedRef.current;
+    const currentBookingId = bookingIdRef.current;
+
     // Check the agent's own selection before the booked/reserved guard: once a
     // seat they've picked shows up again in the live occupied-seats poll (which
     // it will, since the backend now genuinely considers it held), it must stay
     // deselectable — otherwise a seat becomes permanently stuck a few seconds
     // after being selected.
-    if (selected.includes(seat)) {
-      if (!bookingId) return;
-      setBusy(true);
+    if (currentSelected.includes(seat)) {
+      if (!currentBookingId) return;
       try {
-        await api.removeSeat(seat, bookingId);
-        const next = selected.filter((s) => s !== seat);
+        await api.removeSeat(seat, currentBookingId);
+        const next = currentSelected.filter((s) => s !== seat);
         setSelected(next);
         const current = getBookingSession();
         if (current) setBookingSession({ ...current, selectedSeats: next });
         toast.success(t("seat_removed"));
       } catch (err) {
         toast.error(err instanceof Error ? err.message : t("err"));
-      } finally {
-        setBusy(false);
       }
       return;
     }
 
     if (booked.includes(seat)) return;
 
-    if (selected.length >= MAX_SEATS) {
+    if (currentSelected.length >= MAX_SEATS) {
       toast.error(t("more_than_six"));
       return;
     }
 
-    setBusy(true);
     try {
-      if (!bookingId) {
+      if (!currentBookingId) {
         const res = await api.reserveFirstSeat(
           String(seat),
           trip!.busId || 0,
@@ -163,7 +187,7 @@ export default function SeatsPage() {
           throw new Error(res.message || t("err"));
         }
         const hold = Date.now() + BOOKING_HOLD_MS;
-        setBookingId(id);
+        setBookingIdValue(id);
         setEndTime(hold);
         const next = [seat];
         setSelected(next);
@@ -173,17 +197,31 @@ export default function SeatsPage() {
         }
         toast.success(res.message || t("booking_added"));
       } else {
-        await api.addSeat(bookingId, seat);
-        const next = [...selected, seat];
+        await api.addSeat(currentBookingId, seat);
+        const next = [...currentSelected, seat];
         setSelected(next);
         const current = getBookingSession();
         if (current) setBookingSession({ ...current, selectedSeats: next });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("err"));
-    } finally {
-      setBusy(false);
     }
+  }
+
+  // Queues seat taps instead of dropping the ones that land while an earlier
+  // one is still in flight — an agent picking several seats for a group taps
+  // faster than each add/remove round trip resolves, and a plain "ignore
+  // while busy" guard here would silently swallow every seat but the first.
+  function toggleSeat(seat: number) {
+    pendingCountRef.current += 1;
+    setBusy(true);
+    queueRef.current = queueRef.current
+      .then(() => performToggle(seat))
+      .catch(() => {})
+      .finally(() => {
+        pendingCountRef.current -= 1;
+        if (pendingCountRef.current === 0) setBusy(false);
+      });
   }
 
   async function next() {

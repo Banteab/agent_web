@@ -416,5 +416,19 @@
     "payments": "ክፍያዎች",
     "requests": "ጥያቄዎች",
     "account_menu": "የመለያ ምናሌ",
-    "fast_booking_hint": "አንድ ትኬት ብቻ ለመስጠት ነው? ፈጣን ማስያዣ ይሞክሩ →"
+    "fast_booking_hint": "አንድ ትኬት ብቻ ለመስጠት ነው? ፈጣን ማስያዣ ይሞክሩ →",
+    "booking_search": "የቦታ ማስያዣ ፍለጋ",
+    "booking_search_subtitle": "በስልክ ቁጥር ወይም በተሳፋሪ ስም የሁሉንም ወኪሎች ማስያዣዎች ይፈልጉ",
+    "booking_search_phone_placeholder": "ለምሳሌ 0911000000",
+    "booking_search_name_placeholder": "ለምሳሌ አበበ ከበደ",
+    "booking_search_empty_query": "እባክዎ የስልክ ቁጥር ወይም የተሳፋሪ ስም ያስገቡ",
+    "booking_search_hint_title": "ማስያዣ ይፈልጉ",
+    "booking_search_hint": "ከላይ የስልክ ቁጥር ወይም የተሳፋሪ ስም በማስገባት ለዚያ ተሳፋሪ በማንኛውም ወኪል የተደረጉ ማስያዣዎችን ይመልከቱ።",
+    "no_bookings_found": "ምንም ማስያዣ አልተገኘም",
+    "no_bookings_found_hint": "የተለየ የስልክ ቁጥር ወይም የተሳፋሪ ስም ይሞክሩ።",
+    "agent": "ወኪል",
+    "you": "እርስዎ",
+    "view_only": "ለማየት ብቻ",
+    "your_booking_hint": "ይህን ማስያዣ ያደረጉት እርስዎ ነዎት — ከታች ማስተዳደር ይችላሉ።",
+    "other_agent_booking_hint": "በሌላ ወኪል የተያዘ — ለማየት ብቻ።"
 }
