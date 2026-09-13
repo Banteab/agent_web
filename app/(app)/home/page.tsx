@@ -82,11 +82,11 @@ export default function HomeSearchPage() {
   return (
     <div>
       {/* Full-bleed cinematic hero — breaks out of the page's normal max-width column */}
-      <div className="relative mx-[calc(50%-50vw)] -mt-6 flex min-h-[78vh] w-screen flex-col overflow-hidden sm:-mt-8 sm:min-h-[86vh]">
+      <div className="relative mx-[calc(50%-50vw)] -mt-6 flex min-h-[70vh] w-screen flex-col overflow-hidden sm:-mt-8 sm:min-h-[74vh]">
         <CinematicSkyline />
 
         <div className="relative flex flex-1 flex-col">
-          <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 pt-8 sm:px-6 sm:pt-10">
+          <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 pb-20 pt-8 sm:px-6 sm:pb-24 sm:pt-10">
             <div className="flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-2xl animate-[riseIn_450ms_ease-out] [text-shadow:0_2px_16px_rgba(10,30,25,0.35)]">
                 <div className="flex flex-wrap items-center gap-2.5">
@@ -117,85 +117,91 @@ export default function HomeSearchPage() {
                   <TrustBadge icon={<BoltIcon />} label={t("feature_instant_tickets")} />
                 </div>
               </div>
-              <HeroBusIllustration className="hidden h-56 w-auto shrink-0 drop-shadow-2xl animate-[floatY_6s_ease-in-out_infinite] lg:block xl:h-64" />
+              <HeroBusIllustration className="hidden h-48 w-auto shrink-0 drop-shadow-2xl animate-[floatY_6s_ease-in-out_infinite] lg:block xl:h-56" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Elevated glass search panel, floating over the hero's bottom edge */}
-      <div className="relative z-10 -mt-20 animate-[riseIn_500ms_ease-out] rounded-3xl border border-white/60 bg-surface/95 p-3 shadow-2xl shadow-navy/25 backdrop-blur-xl sm:-mt-24 sm:p-4">
-        <div className="flex flex-col divide-y divide-border lg:flex-row lg:divide-x lg:divide-y-0">
-          <div className="relative flex flex-1 items-stretch">
+      {/* Large glass booking console — the visual anchor the road leads into */}
+      <div className="relative z-10 mx-[calc(50%-50vw)] -mt-24 w-screen px-4 sm:-mt-32 sm:px-6 lg:-mt-40">
+        <div className="mx-auto max-w-[1360px] animate-[riseIn_500ms_ease-out] rounded-[1.75rem] border border-white/60 bg-surface/95 p-3 shadow-2xl shadow-navy/30 backdrop-blur-xl sm:rounded-[2rem] sm:p-5 lg:p-6">
+          <div className="flex flex-col divide-y divide-border lg:flex-row lg:divide-x lg:divide-y-0">
+            <div className="relative flex flex-1 items-stretch">
+              <button
+                type="button"
+                onClick={() => setPicker("from")}
+                className="flex flex-1 items-center gap-4 rounded-2xl px-5 py-5 text-left transition hover:bg-surface-muted sm:py-6"
+              >
+                <LocationIcon />
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">{t("leaving_from")}</p>
+                  <p className={from ? "truncate text-lg font-bold text-navy sm:text-xl" : "truncate text-lg text-text-faint sm:text-xl"}>
+                    {from ? from.sys : t("leaving_from")}
+                  </p>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={swap}
+                aria-label={t("swap_route")}
+                title={t("swap_route")}
+                className="absolute right-0 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-border bg-surface text-text-muted shadow-sm transition hover:border-primary/40 hover:text-primary lg:flex"
+              >
+                <SwapIcon />
+              </button>
+            </div>
             <button
               type="button"
-              onClick={() => setPicker("from")}
-              className="flex flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left transition hover:bg-surface-muted"
+              onClick={() => setPicker("to")}
+              className="flex flex-1 items-center gap-4 rounded-2xl px-5 py-5 text-left transition hover:bg-surface-muted sm:py-6"
             >
-              <LocationIcon />
+              <PinIcon />
               <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("leaving_from")}</p>
-                <p className={from ? "truncate font-semibold text-navy" : "truncate text-text-faint"}>
-                  {from ? from.sys : t("leaving_from")}
+                <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">{t("going_to")}</p>
+                <p className={to ? "truncate text-lg font-bold text-navy sm:text-xl" : "truncate text-lg text-text-faint sm:text-xl"}>
+                  {to ? to.sys : t("going_to")}
                 </p>
               </div>
             </button>
-            <button
-              type="button"
-              onClick={swap}
-              aria-label={t("swap_route")}
-              title={t("swap_route")}
-              className="absolute right-0 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-border bg-surface text-text-muted shadow-sm transition hover:border-primary/40 hover:text-primary lg:flex"
-            >
-              <SwapIcon />
-            </button>
-          </div>
-          <button
-            type="button"
-            onClick={() => setPicker("to")}
-            className="flex flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left transition hover:bg-surface-muted"
-          >
-            <PinIcon />
-            <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("going_to")}</p>
-              <p className={to ? "truncate font-semibold text-navy" : "truncate text-text-faint"}>
-                {to ? to.sys : t("going_to")}
-              </p>
+            <div className="flex flex-1 items-center gap-4 rounded-2xl px-5 py-5 transition hover:bg-surface-muted sm:py-6">
+              <CalendarIcon />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">{t("departure")}</p>
+                {locale?.startsWith("am") ? (
+                  <EthiopianDatePicker value={date} onChange={setDate} min={formatDateISO(new Date())}>
+                    <p className="truncate text-lg font-bold text-navy sm:text-xl">{formatEthiopianDate(new Date(date))}</p>
+                    <p className="truncate text-[11px] text-text-faint">{date}</p>
+                  </EthiopianDatePicker>
+                ) : (
+                  <label className="block cursor-pointer">
+                    <input
+                      type="date"
+                      value={date}
+                      min={formatDateISO(new Date())}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="w-full truncate border-none bg-transparent p-0 text-lg font-bold text-navy outline-none [color-scheme:light] sm:text-xl"
+                    />
+                  </label>
+                )}
+              </div>
             </div>
-          </button>
-          <div className="flex flex-1 items-center gap-3 rounded-xl px-4 py-3 transition hover:bg-surface-muted">
-            <CalendarIcon />
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">{t("departure")}</p>
-              {locale?.startsWith("am") ? (
-                <EthiopianDatePicker value={date} onChange={setDate} min={formatDateISO(new Date())}>
-                  <p className="truncate font-semibold text-navy">{formatEthiopianDate(new Date(date))}</p>
-                  <p className="truncate text-[11px] text-text-faint">{date}</p>
-                </EthiopianDatePicker>
-              ) : (
-                <label className="block cursor-pointer">
-                  <input
-                    type="date"
-                    value={date}
-                    min={formatDateISO(new Date())}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full truncate border-none bg-transparent p-0 font-semibold text-navy outline-none [color-scheme:light]"
-                  />
-                </label>
-              )}
+            <div className="flex items-center p-2 lg:pl-4">
+              <Button
+                className="h-14 w-full rounded-2xl text-base font-bold shadow-lg shadow-primary/30 sm:h-16 sm:text-lg lg:w-auto lg:px-10"
+                loading={loading}
+                onClick={search}
+              >
+                <SearchIcon />
+                {t("search_bus")}
+              </Button>
             </div>
-          </div>
-          <div className="flex items-center p-1.5 lg:pl-3">
-            <Button className="w-full shadow-md shadow-primary/20 lg:w-auto" loading={loading} onClick={search}>
-              <SearchIcon />
-              {t("search_bus")}
-            </Button>
           </div>
         </div>
       </div>
 
       {/* Quick link to single-passenger express issuing */}
-      <div className="mt-3 text-center">
+      <div className="mt-4 text-center">
         <Link href="/trips" className="text-xs font-medium text-text-faint transition hover:text-primary">
           {t("fast_booking_hint")}
         </Link>
@@ -286,7 +292,7 @@ function FeatureCard({ icon, title, caption }: { icon: React.ReactNode; title: s
 
 function LocationIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-primary">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-primary">
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v5l3 2" />
     </svg>
@@ -294,7 +300,7 @@ function LocationIcon() {
 }
 function PinIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-gold">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-navy">
       <path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11Z" />
       <circle cx="12" cy="10" r="2.5" />
     </svg>
@@ -302,7 +308,7 @@ function PinIcon() {
 }
 function CalendarIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-primary">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-primary">
       <rect x="3" y="5" width="18" height="16" rx="2" />
       <path d="M8 3v4M16 3v4M3 10h18" />
     </svg>
@@ -319,7 +325,7 @@ function RouteIcon() {
 }
 function SwapIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <path d="M7 4v13M7 17 3.5 13.5M7 17l3.5-3.5" />
       <path d="M17 20V7M17 7l3.5 3.5M17 7l-3.5 3.5" />
     </svg>
