@@ -1,5 +1,6 @@
 "use client";
 
+import { CinematicSkyline } from "@/components/cinematic-skyline";
 import { CityPicker } from "@/components/city-picker";
 import { EthiopianDatePicker } from "@/components/ethiopian-date-picker";
 import { HeroBusIllustration } from "@/components/hero-bus-illustration";
@@ -80,62 +81,50 @@ export default function HomeSearchPage() {
 
   return (
     <div>
-      {/* Full-bleed hero — breaks out of the page's normal max-width column */}
-      <div className="relative mx-[calc(50%-50vw)] -mt-6 w-screen overflow-hidden bg-gradient-to-br from-primary-soft via-[#f6fdfc] to-azure sm:-mt-8">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, var(--navy) 1px, transparent 0)",
-            backgroundSize: "26px 26px",
-          }}
-        />
-        <div
-          className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-primary/15 blur-3xl"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-primary-dark/10 blur-3xl"
-          aria-hidden
-        />
+      {/* Full-bleed cinematic hero — breaks out of the page's normal max-width column */}
+      <div className="relative mx-[calc(50%-50vw)] -mt-6 flex min-h-[78vh] w-screen flex-col overflow-hidden sm:-mt-8 sm:min-h-[86vh]">
+        <CinematicSkyline />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-10 sm:px-6 sm:pb-28 sm:pt-14 lg:pt-16">
-          <div className="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-2xl animate-[riseIn_450ms_ease-out]">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-dark">
-                  {t(greetingKey(new Date().getHours()))}
-                  {profile?.firstName ? `, ${profile.firstName}` : ""}
-                </p>
-                {pendingCount > 0 ? (
-                  <Link
-                    href="/payments"
-                    className="inline-flex items-center gap-1.5 rounded-full bg-warning-soft px-2.5 py-1 text-[11px] font-semibold text-warning transition hover:bg-warning-soft/70"
-                  >
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-warning opacity-75" />
-                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-warning" />
-                    </span>
-                    {pendingCount} {t("pending_payments")}
-                  </Link>
-                ) : null}
+        <div className="relative flex flex-1 flex-col">
+          <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 pt-8 sm:px-6 sm:pt-10">
+            <div className="flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-2xl animate-[riseIn_450ms_ease-out] [text-shadow:0_2px_16px_rgba(10,30,25,0.35)]">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d7fff3]">
+                    {t(greetingKey(new Date().getHours()))}
+                    {profile?.firstName ? `, ${profile.firstName}` : ""}
+                  </p>
+                  {pendingCount > 0 ? (
+                    <Link
+                      href="/payments"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold text-[#ffe4a8] backdrop-blur-sm transition hover:bg-white/25"
+                    >
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#ffe4a8] opacity-75" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#ffe4a8]" />
+                      </span>
+                      {pendingCount} {t("pending_payments")}
+                    </Link>
+                  ) : null}
+                </div>
+                <h1 className="font-display mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-[3.6rem]">
+                  {t("new_booking_hero_title")}
+                </h1>
+                <p className="mt-4 max-w-md text-base text-white/85 sm:text-lg">{t("new_booking_hero_subtitle")}</p>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  <TrustBadge icon={<SeatMapIcon />} label={t("feature_live_seats")} />
+                  <TrustBadge icon={<ShieldIcon />} label={t("feature_secure_payments")} />
+                  <TrustBadge icon={<BoltIcon />} label={t("feature_instant_tickets")} />
+                </div>
               </div>
-              <h1 className="font-display mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight text-navy sm:text-5xl lg:text-[3.4rem]">
-                {t("new_booking_hero_title")}
-              </h1>
-              <p className="mt-4 max-w-md text-base text-text-muted sm:text-lg">{t("new_booking_hero_subtitle")}</p>
-              <div className="mt-6 flex flex-wrap gap-2">
-                <TrustBadge icon={<SeatMapIcon />} label={t("feature_live_seats")} />
-                <TrustBadge icon={<ShieldIcon />} label={t("feature_secure_payments")} />
-                <TrustBadge icon={<BoltIcon />} label={t("feature_instant_tickets")} />
-              </div>
+              <HeroBusIllustration className="hidden h-56 w-auto shrink-0 drop-shadow-2xl animate-[floatY_6s_ease-in-out_infinite] lg:block xl:h-64" />
             </div>
-            <HeroBusIllustration className="hidden h-56 w-auto shrink-0 drop-shadow-xl animate-[floatY_6s_ease-in-out_infinite] lg:block xl:h-64" />
           </div>
         </div>
       </div>
 
-      {/* Elevated search widget, floating over the hero's bottom edge */}
-      <div className="relative z-10 -mt-20 animate-[riseIn_500ms_ease-out] rounded-3xl border border-border bg-surface p-3 shadow-2xl shadow-navy/20 sm:-mt-24 sm:p-4">
+      {/* Elevated glass search panel, floating over the hero's bottom edge */}
+      <div className="relative z-10 -mt-20 animate-[riseIn_500ms_ease-out] rounded-3xl border border-white/60 bg-surface/95 p-3 shadow-2xl shadow-navy/25 backdrop-blur-xl sm:-mt-24 sm:p-4">
         <div className="flex flex-col divide-y divide-border lg:flex-row lg:divide-x lg:divide-y-0">
           <div className="relative flex flex-1 items-stretch">
             <button
@@ -274,8 +263,8 @@ export default function HomeSearchPage() {
 
 function TrustBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-white/70 px-3 py-1.5 text-xs font-medium text-navy shadow-sm backdrop-blur-sm">
-      <span className="text-primary">{icon}</span>
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-3 py-1.5 text-xs font-medium text-white shadow-sm backdrop-blur-md">
+      <span className="text-[#7ef0d8]">{icon}</span>
       {label}
     </span>
   );

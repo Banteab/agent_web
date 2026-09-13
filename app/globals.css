@@ -169,6 +169,24 @@ body {
   }
 }
 
+@keyframes cloudDriftSlow {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(140vw);
+  }
+}
+
+@keyframes roadDashes {
+  from {
+    background-position-y: 0;
+  }
+  to {
+    background-position-y: 40px;
+  }
+}
+
 @keyframes driveAcross {
   0% {
     left: 0%;

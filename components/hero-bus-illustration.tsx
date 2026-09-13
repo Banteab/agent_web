@@ -10,14 +10,14 @@ export function HeroBusIllustration({ className }: { className?: string }) {
           <stop offset="0%" stopColor="#eaf1f6" stopOpacity="0.9" />
           <stop offset="100%" stopColor="#8fb4d6" stopOpacity="0.55" />
         </linearGradient>
+        <radialGradient id="headlightGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#fff6df" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#fff6df" stopOpacity="0" />
+        </radialGradient>
       </defs>
 
       {/* ground shadow */}
-      <ellipse cx="215" cy="262" rx="150" ry="16" fill="#122a52" fillOpacity="0.15" />
-
-      {/* road perspective */}
-      <path d="M40 262 L160 190 L270 190 L390 262 Z" fill="#0d9488" fillOpacity="0.06" />
-      <path d="M198 190 L182 262 M242 190 L258 262" stroke="#0d9488" strokeOpacity="0.55" strokeWidth="3" strokeDasharray="10 10" />
+      <ellipse cx="215" cy="262" rx="150" ry="16" fill="#122a52" fillOpacity="0.18" />
 
       {/* bus body — tilted 3/4 view for depth */}
       <g transform="translate(58 70)">
@@ -36,7 +36,8 @@ export function HeroBusIllustration({ className }: { className?: string }) {
         {/* door */}
         <rect x="18" y="66" width="26" height="70" rx="4" fill="#122a52" stroke="#0d9488" strokeOpacity="0.5" />
 
-        {/* headlight */}
+        {/* headlight + glow */}
+        <circle cx="310" cy="118" r="40" fill="url(#headlightGlow)" />
         <circle cx="290" cy="118" r="7" fill="#ffffff" />
 
         {/* wheels */}

@@ -48,7 +48,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <Protected>
       <div className="min-h-dvh bg-page">
-        <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur-md print:hidden">
+        <header className="sticky top-0 z-40 bg-surface/95 shadow-sm backdrop-blur-md print:hidden">
           <div className="mx-auto flex h-16 max-w-7xl items-center gap-1.5 px-4 sm:px-6">
             <Link href="/home" className="flex shrink-0 items-center gap-2.5">
               <BrandLogo compact imgClassName="h-8 w-8" />
