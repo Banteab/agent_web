@@ -410,5 +410,11 @@
     "greeting_afternoon": "Akkam oolte",
     "greeting_evening": "Akkam galgaltan",
     "clear": "Haqi",
-    "booking_expired_or_not_found": "Iyyannoon kun dabreera ykn haqameera. Iyyannoo haaraa uumi."
+    "booking_expired_or_not_found": "Iyyannoon kun dabreera ykn haqameera. Iyyannoo haaraa uumi.",
+    "manage_bookings": "Iyyannoo Bulchuu",
+    "find_ticket": "Tikeeta Barbaadi",
+    "payments": "Kaffaltiiwwan",
+    "requests": "Gaaffiiwwan",
+    "account_menu": "Menu Herrega",
+    "fast_booking_hint": "Tikeeta tokko qofa kennuuf jirtaa? Booking Ariifachiisaa yaali →"
 }

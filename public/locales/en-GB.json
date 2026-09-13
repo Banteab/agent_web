@@ -424,5 +424,11 @@
     "greeting_morning": "Good morning",
     "greeting_afternoon": "Good afternoon",
     "greeting_evening": "Good evening",
-    "clear": "Clear"
+    "clear": "Clear",
+    "manage_bookings": "Manage Bookings",
+    "find_ticket": "Find Ticket",
+    "payments": "Payments",
+    "requests": "Requests",
+    "account_menu": "Account menu",
+    "fast_booking_hint": "Issuing just one ticket? Try Fast Booking →"
 }

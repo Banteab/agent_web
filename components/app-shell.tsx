@@ -7,42 +7,28 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AccountMenu } from "./account-menu";
 import { BrandLogo } from "./brand-logo";
 import { Protected } from "./protected";
 
 type NavItem = { href: string; key: string; icon: (props: { className?: string }) => React.ReactNode; badge?: boolean };
-type NavGroup = { label: string; items: NavItem[] };
 
-const NAV_GROUPS: NavGroup[] = [
-  {
-    label: "workspace",
-    items: [
-      { href: "/home", key: "new_booking", icon: HomeIcon },
-      { href: "/menu", key: "dashboard", icon: DashboardIcon },
-      // Fast Booking is hidden for now — keep the route working, just don't surface it in the nav.
-      // { href: "/trips", key: "trip", icon: BusIcon },
-      { href: "/pending-payments", key: "pending_payments", icon: PendingPaymentIcon, badge: true },
-      { href: "/cancel", key: "cancel", icon: CancelIcon },
-      { href: "/checker", key: "checker", icon: CheckIcon },
-    ],
-  },
-  {
-    label: "reports_and_account",
-    items: [
-      { href: "/reports/sales", key: "sales_report", icon: ReportIcon },
-      { href: "/booked", key: "booked", icon: TicketIcon },
-      { href: "/cancelled", key: "cancelled", icon: XCircleIcon },
-      { href: "/reports", key: "report", icon: FolderIcon },
-      { href: "/profile", key: "profile", icon: ProfileIcon },
-    ],
-  },
-  {
-    label: "support",
-    items: [
-      { href: "/help", key: "help", icon: HelpIcon },
-      { href: "/about", key: "about", icon: InfoIcon },
-    ],
-  },
+// The redesign's target IA is 6 flat destinations (no grouping, no
+// Profile/Settings/Reports clutter — those moved into the header account
+// menu). A few of these still point at their pre-redesign route as an
+// interim measure until the page that owns them ships in a later phase:
+// manage_bookings -> /booked (until /bookings ships), find_ticket -> /checker
+// (until /find-ticket ships), payments -> /pending-payments (until /payments
+// ships), requests -> /cancelled (until the cancellation-requests view inside
+// Manage Bookings ships). Update these hrefs in place as each phase lands —
+// the nav shape/labels/icons below are already final.
+const NAV_ITEMS: NavItem[] = [
+  { href: "/home", key: "new_booking", icon: HomeIcon },
+  { href: "/booked", key: "manage_bookings", icon: TicketIcon },
+  { href: "/checker", key: "find_ticket", icon: CheckIcon },
+  { href: "/pending-payments", key: "payments", icon: PendingPaymentIcon, badge: true },
+  { href: "/cancelled", key: "requests", icon: XCircleIcon },
+  { href: "/help", key: "help", icon: HelpIcon },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -181,20 +167,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-danger" />
               ) : null}
             </Link>
-            <Link
-              href="/settings"
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted hover:text-text"
-              aria-label={t("setting")}
-            >
-              <SettingsIcon />
-            </Link>
-            <Link
-              href="/profile"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary"
-              aria-label={t("profile")}
-            >
-              {initials}
-            </Link>
+            <AccountMenu
+              profile={profile}
+              t={t}
+              onLogout={logout}
+              trigger={
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary">
+                  {initials}
+                </span>
+              }
+            />
           </header>
 
           <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 sm:py-6">
@@ -218,50 +200,41 @@ function SidebarNav({
   collapsed?: boolean;
 }) {
   return (
-    <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
-      {NAV_GROUPS.map((group) => (
-        <div key={group.label} className="space-y-1">
-          {!collapsed ? (
-            <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-text-faint">
-              {t(group.label)}
-            </p>
-          ) : null}
-          {group.items.map((item) => {
-            const active = isActive(pathname, item.href);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                title={collapsed ? t(item.key) : undefined}
-                className={cn(
-                  "group relative flex items-center gap-3 rounded-lg py-2 text-[13.5px] font-medium transition",
-                  collapsed ? "justify-center px-0" : "px-3",
-                  active ? "bg-primary-soft text-primary" : "text-text-muted hover:bg-surface-muted hover:text-text",
-                )}
-              >
-                {active ? <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-primary" /> : null}
-                <span className="relative shrink-0">
-                  <Icon className={cn("h-[18px] w-[18px]", active ? "text-primary" : "text-text-faint group-hover:text-text-muted")} />
-                  {collapsed && item.badge && pendingCount > 0 ? (
-                    <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-danger" />
-                  ) : null}
-                </span>
-                {!collapsed ? (
-                  <>
-                    <span className="flex-1 truncate">{t(item.key)}</span>
-                    {item.badge && pendingCount > 0 ? (
-                      <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-[11px] font-semibold text-white">
-                        {pendingCount > 99 ? "99+" : pendingCount}
-                      </span>
-                    ) : null}
-                  </>
+    <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+      {NAV_ITEMS.map((item) => {
+        const active = isActive(pathname, item.href);
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            title={collapsed ? t(item.key) : undefined}
+            className={cn(
+              "group relative flex items-center gap-3 rounded-lg py-2 text-[13.5px] font-medium transition",
+              collapsed ? "justify-center px-0" : "px-3",
+              active ? "bg-primary-soft text-primary" : "text-text-muted hover:bg-surface-muted hover:text-text",
+            )}
+          >
+            {active ? <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-primary" /> : null}
+            <span className="relative shrink-0">
+              <Icon className={cn("h-[18px] w-[18px]", active ? "text-primary" : "text-text-faint group-hover:text-text-muted")} />
+              {collapsed && item.badge && pendingCount > 0 ? (
+                <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-danger" />
+              ) : null}
+            </span>
+            {!collapsed ? (
+              <>
+                <span className="flex-1 truncate">{t(item.key)}</span>
+                {item.badge && pendingCount > 0 ? (
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-[11px] font-semibold text-white">
+                    {pendingCount > 99 ? "99+" : pendingCount}
+                  </span>
                 ) : null}
-              </Link>
-            );
-          })}
-        </div>
-      ))}
+              </>
+            ) : null}
+          </Link>
+        );
+      })}
     </nav>
   );
 }
@@ -336,15 +309,6 @@ function HomeIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-// Unused while Fast Booking is hidden from the nav — see NAV_GROUPS above.
-// function BusIcon({ className }: { className?: string }) {
-//   return (
-//     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-//       <rect x="4" y="3" width="16" height="14" rx="2" />
-//       <path d="M6 17v2M18 17v2M4 11h16" />
-//     </svg>
-//   );
-// }
 function PendingPaymentIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -354,36 +318,11 @@ function PendingPaymentIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-function CancelIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="9" />
-      <path d="m9 9 6 6M15 9l-6 6" />
-    </svg>
-  );
-}
 function CheckIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="12" r="9" />
       <path d="m8 12 3 3 5-6" />
-    </svg>
-  );
-}
-function DashboardIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="3" width="8" height="8" rx="1.5" />
-      <rect x="13" y="3" width="8" height="5" rx="1.5" />
-      <rect x="13" y="10" width="8" height="11" rx="1.5" />
-      <rect x="3" y="13" width="8" height="8" rx="1.5" />
-    </svg>
-  );
-}
-function ReportIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M4 20V10M12 20V4M20 20v-7" />
     </svg>
   );
 }
@@ -403,35 +342,12 @@ function XCircleIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-function FolderIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
-    </svg>
-  );
-}
-function ProfileIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="8" r="3.5" />
-      <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
-    </svg>
-  );
-}
 function HelpIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="12" r="9" />
       <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7" />
       <path d="M12 17h.01" />
-    </svg>
-  );
-}
-function InfoIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 11v5M12 8h.01" />
     </svg>
   );
 }
@@ -463,14 +379,6 @@ function CollapseIcon({ collapsed, className }: { collapsed: boolean; className?
       <rect x="3" y="4" width="18" height="16" rx="2" />
       <path d="M9 4v16" />
       {collapsed ? <path d="M13.5 9.5 16 12l-2.5 2.5" /> : <path d="M16.5 9.5 14 12l2.5 2.5" />}
-    </svg>
-  );
-}
-function SettingsIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.3.7 1 1.2 1.7 1.2H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
     </svg>
   );
 }

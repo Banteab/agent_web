@@ -410,5 +410,11 @@
     "greeting_afternoon": "እንደምን ዋሉ",
     "greeting_evening": "እንደምን አመሹ",
     "clear": "አጽዳ",
-    "booking_expired_or_not_found": "ይህ ማስያዣ አልፎበታል ወይም ተወግዷል። አዲስ ማስያዣ ይፍጠሩ።"
+    "booking_expired_or_not_found": "ይህ ማስያዣ አልፎበታል ወይም ተወግዷል። አዲስ ማስያዣ ይፍጠሩ።",
+    "manage_bookings": "ማስያዣዎችን ያስተዳድሩ",
+    "find_ticket": "ትኬት ፈልግ",
+    "payments": "ክፍያዎች",
+    "requests": "ጥያቄዎች",
+    "account_menu": "የመለያ ምናሌ",
+    "fast_booking_hint": "አንድ ትኬት ብቻ ለመስጠት ነው? ፈጣን ማስያዣ ይሞክሩ →"
 }

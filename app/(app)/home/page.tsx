@@ -210,6 +210,13 @@ export default function HomeSearchPage() {
         </div>
       </div>
 
+      {/* Quick link to single-passenger express issuing */}
+      <div className="mt-3 text-center">
+        <Link href="/trips" className="text-xs font-medium text-text-faint transition hover:text-primary">
+          {t("fast_booking_hint")}
+        </Link>
+      </div>
+
       {/* Popular / recent routes */}
       <div className="mt-8">
         <SectionLabel>{t("popular_routes")}</SectionLabel>
