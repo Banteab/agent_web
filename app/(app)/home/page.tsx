@@ -1,9 +1,9 @@
 "use client";
 
+import heroBusPhoto from "@/app/assets/hero-bus-photo.jpg";
 import { CinematicSkyline } from "@/components/cinematic-skyline";
 import { CityPicker } from "@/components/city-picker";
 import { EthiopianDatePicker } from "@/components/ethiopian-date-picker";
-import { HeroBusIllustration } from "@/components/hero-bus-illustration";
 import { Button, EmptyState, SectionLabel } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -15,6 +15,7 @@ import { useToast } from "@/lib/toast-context";
 import type { City } from "@/lib/types";
 import { usePendingBankPaymentsCount } from "@/lib/use-pending-bank-payments-count";
 import { formatDateISO, formatDisplayDate } from "@/lib/utils";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -117,7 +118,23 @@ export default function HomeSearchPage() {
                   <TrustBadge icon={<BoltIcon />} label={t("feature_instant_tickets")} />
                 </div>
               </div>
-              <HeroBusIllustration className="hidden h-48 w-auto shrink-0 drop-shadow-2xl animate-[floatY_6s_ease-in-out_infinite] lg:block xl:h-56" />
+              {/*
+                Real coach-bus photo (Pexels, free-to-use license). Cropped to the
+                windshield/roof band (aspect-[13/5], object-top) to keep the shot
+                focused on the vehicle itself without carrying the pictured
+                operator's own livery/name into a different company's site.
+              */}
+              <div className="relative hidden aspect-[13/5] h-48 shrink-0 overflow-hidden rounded-3xl shadow-2xl animate-[floatY_6s_ease-in-out_infinite] lg:block xl:h-56">
+                <Image
+                  src={heroBusPhoto}
+                  alt=""
+                  fill
+                  sizes="(min-width: 1280px) 500px, 420px"
+                  className="object-cover object-top"
+                  priority
+                />
+                <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/25" />
+              </div>
             </div>
           </div>
         </div>
