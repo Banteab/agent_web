@@ -15,14 +15,12 @@ type NavItem = { href: string; key: string; icon: (props: { className?: string }
 
 // The redesign's target IA is 6 flat destinations (no grouping, no
 // Profile/Settings/Reports clutter — those moved into the header account
-// menu). "payments" still points at its pre-redesign route as an interim
-// measure until /payments ships in Phase 3 — update that href in place when
-// it does. Everything else already points at its final destination.
+// menu).
 const NAV_ITEMS: NavItem[] = [
   { href: "/home", key: "new_booking", icon: HomeIcon },
   { href: "/bookings", key: "manage_bookings", icon: TicketIcon },
   { href: "/find-ticket", key: "find_ticket", icon: CheckIcon },
-  { href: "/pending-payments", key: "payments", icon: PendingPaymentIcon, badge: true },
+  { href: "/payments", key: "payments", icon: PendingPaymentIcon, badge: true },
   { href: "/bookings?status=cancelled", key: "requests", icon: XCircleIcon },
   { href: "/help", key: "help", icon: HelpIcon },
 ];
@@ -154,7 +152,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <div className="flex-1" />
             <Link
-              href="/pending-payments"
+              href="/payments"
               className="relative hidden h-9 w-9 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted hover:text-text sm:flex"
               aria-label={t("pending_payments")}
             >

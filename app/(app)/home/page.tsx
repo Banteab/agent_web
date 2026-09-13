@@ -114,7 +114,7 @@ export default function HomeSearchPage() {
               </p>
               {pendingCount > 0 ? (
                 <Link
-                  href="/pending-payments"
+                  href="/payments"
                   className="inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-semibold text-gold transition hover:bg-gold/25"
                 >
                   <span className="relative flex h-1.5 w-1.5">
