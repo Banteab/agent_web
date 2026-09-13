@@ -32,6 +32,13 @@ export const ENDPOINTS = {
   pendingBankPayments: "/booking/agent/pending-bank-payments",
   confirmBankPayment: (bookingId: number | string) =>
     `/booking/agent/${bookingId}/confirm-bank-payment`,
+  // Proposed — not live on the backend yet, see the booking-search page.
+  searchBookings: (params: { phone?: string; passenger?: string }) => {
+    const query = new URLSearchParams();
+    if (params.phone) query.set("phone", params.phone);
+    if (params.passenger) query.set("passenger", params.passenger);
+    return `/booking/agent/search?${query.toString()}`;
+  },
   refundRequest: "/refunds/request-cancellation",
   generateTickets: "/tickets/generate/agent",
   issueTicket: "/tickets/issue/agent",

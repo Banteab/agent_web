@@ -24,6 +24,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/pending-payments", key: "pending_payments", icon: PendingPaymentIcon, badge: true },
       { href: "/cancel", key: "cancel", icon: CancelIcon },
       { href: "/checker", key: "checker", icon: CheckIcon },
+      { href: "/reports/booking-search", key: "booking_search", icon: SearchIcon },
     ],
   },
   {
@@ -367,6 +368,14 @@ function CheckIcon({ className }: { className?: string }) {
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="12" r="9" />
       <path d="m8 12 3 3 5-6" />
+    </svg>
+  );
+}
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.3-4.3" />
     </svg>
   );
 }

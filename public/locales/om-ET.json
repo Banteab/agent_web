@@ -410,5 +410,15 @@
     "greeting_afternoon": "Akkam oolte",
     "greeting_evening": "Akkam galgaltan",
     "clear": "Haqi",
-    "booking_expired_or_not_found": "Iyyannoon kun dabreera ykn haqameera. Iyyannoo haaraa uumi."
+    "booking_expired_or_not_found": "Iyyannoon kun dabreera ykn haqameera. Iyyannoo haaraa uumi.",
+    "booking_search": "Barbaacha Iyyannoo",
+    "booking_search_subtitle": "Lakkoofsa bilbilaa ykn maqaa imalaa fayyadamuudhaan iyyannoo bakka bu'oota hundaa barbaadi",
+    "booking_search_phone_placeholder": "fkn 0911000000",
+    "booking_search_name_placeholder": "fkn Abebe Kebede",
+    "booking_search_empty_query": "Maaloo lakkoofsa bilbilaa ykn maqaa imalaa galchi",
+    "booking_search_hint_title": "Iyyannoo barbaadi",
+    "booking_search_hint": "Lakkoofsa bilbilaa ykn maqaa imalaa armaan olitti galchuun iyyannoo imalaa kanaaf bakka bu'aa kamiin iyyuu taasifame ilaali.",
+    "no_bookings_found": "Iyyannoon hin argamne",
+    "no_bookings_found_hint": "Lakkoofsa bilbilaa ykn maqaa imalaa biraa yaali.",
+    "agent": "Bakka bu'aa"
 }
