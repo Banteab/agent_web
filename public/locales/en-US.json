@@ -410,5 +410,15 @@
     "greeting_morning": "Good morning",
     "greeting_afternoon": "Good afternoon",
     "greeting_evening": "Good evening",
-    "clear": "Clear"
+    "clear": "Clear",
+    "booking_search": "Booking Search",
+    "booking_search_subtitle": "Search all agents' bookings by phone number or passenger name",
+    "booking_search_phone_placeholder": "e.g. 0911000000",
+    "booking_search_name_placeholder": "e.g. Abebe Kebede",
+    "booking_search_empty_query": "Enter a phone number or passenger name to search",
+    "booking_search_hint_title": "Search for a booking",
+    "booking_search_hint": "Enter a phone number or passenger name above to see every booking made for that passenger, by any agent.",
+    "no_bookings_found": "No bookings found",
+    "no_bookings_found_hint": "Try a different phone number or passenger name.",
+    "agent": "Agent"
 }
