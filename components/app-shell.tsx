@@ -15,19 +15,15 @@ type NavItem = { href: string; key: string; icon: (props: { className?: string }
 
 // The redesign's target IA is 6 flat destinations (no grouping, no
 // Profile/Settings/Reports clutter — those moved into the header account
-// menu). A few of these still point at their pre-redesign route as an
-// interim measure until the page that owns them ships in a later phase:
-// manage_bookings -> /booked (until /bookings ships), find_ticket -> /checker
-// (until /find-ticket ships), payments -> /pending-payments (until /payments
-// ships), requests -> /cancelled (until the cancellation-requests view inside
-// Manage Bookings ships). Update these hrefs in place as each phase lands —
-// the nav shape/labels/icons below are already final.
+// menu). "payments" still points at its pre-redesign route as an interim
+// measure until /payments ships in Phase 3 — update that href in place when
+// it does. Everything else already points at its final destination.
 const NAV_ITEMS: NavItem[] = [
   { href: "/home", key: "new_booking", icon: HomeIcon },
-  { href: "/booked", key: "manage_bookings", icon: TicketIcon },
-  { href: "/checker", key: "find_ticket", icon: CheckIcon },
+  { href: "/bookings", key: "manage_bookings", icon: TicketIcon },
+  { href: "/find-ticket", key: "find_ticket", icon: CheckIcon },
   { href: "/pending-payments", key: "payments", icon: PendingPaymentIcon, badge: true },
-  { href: "/cancelled", key: "requests", icon: XCircleIcon },
+  { href: "/bookings?status=cancelled", key: "requests", icon: XCircleIcon },
   { href: "/help", key: "help", icon: HelpIcon },
 ];
 
