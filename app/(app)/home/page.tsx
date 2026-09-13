@@ -1,6 +1,5 @@
 "use client";
 
-import heroBusPhoto from "@/app/assets/hero-bus-photo.jpg";
 import { CinematicSkyline } from "@/components/cinematic-skyline";
 import { CityPicker } from "@/components/city-picker";
 import { EthiopianDatePicker } from "@/components/ethiopian-date-picker";
@@ -15,7 +14,6 @@ import { useToast } from "@/lib/toast-context";
 import type { City } from "@/lib/types";
 import { usePendingBankPaymentsCount } from "@/lib/use-pending-bank-payments-count";
 import { formatDateISO, formatDisplayDate } from "@/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -88,52 +86,33 @@ export default function HomeSearchPage() {
 
         <div className="relative flex flex-1 flex-col">
           <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 pb-20 pt-8 sm:px-6 sm:pb-24 sm:pt-10">
-            <div className="flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
-              <div className="max-w-2xl animate-[riseIn_450ms_ease-out] [text-shadow:0_2px_16px_rgba(10,30,25,0.35)]">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d7fff3]">
-                    {t(greetingKey(new Date().getHours()))}
-                    {profile?.firstName ? `, ${profile.firstName}` : ""}
-                  </p>
-                  {pendingCount > 0 ? (
-                    <Link
-                      href="/payments"
-                      className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold text-[#ffe4a8] backdrop-blur-sm transition hover:bg-white/25"
-                    >
-                      <span className="relative flex h-1.5 w-1.5">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#ffe4a8] opacity-75" />
-                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#ffe4a8]" />
-                      </span>
-                      {pendingCount} {t("pending_payments")}
-                    </Link>
-                  ) : null}
-                </div>
-                <h1 className="font-display mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-[3.6rem]">
-                  {t("new_booking_hero_title")}
-                </h1>
-                <p className="mt-4 max-w-md text-base text-white/85 sm:text-lg">{t("new_booking_hero_subtitle")}</p>
-                <div className="mt-6 flex flex-wrap gap-2">
-                  <TrustBadge icon={<SeatMapIcon />} label={t("feature_live_seats")} />
-                  <TrustBadge icon={<ShieldIcon />} label={t("feature_secure_payments")} />
-                  <TrustBadge icon={<BoltIcon />} label={t("feature_instant_tickets")} />
-                </div>
+            <div className="max-w-2xl animate-[riseIn_450ms_ease-out] [text-shadow:0_2px_16px_rgba(10,30,25,0.35)]">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d7fff3]">
+                  {t(greetingKey(new Date().getHours()))}
+                  {profile?.firstName ? `, ${profile.firstName}` : ""}
+                </p>
+                {pendingCount > 0 ? (
+                  <Link
+                    href="/payments"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold text-[#ffe4a8] backdrop-blur-sm transition hover:bg-white/25"
+                  >
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#ffe4a8] opacity-75" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#ffe4a8]" />
+                    </span>
+                    {pendingCount} {t("pending_payments")}
+                  </Link>
+                ) : null}
               </div>
-              {/*
-                Real coach-bus photo (Pexels, free-to-use license). Cropped to the
-                windshield/roof band (aspect-[13/5], object-top) to keep the shot
-                focused on the vehicle itself without carrying the pictured
-                operator's own livery/name into a different company's site.
-              */}
-              <div className="relative hidden aspect-[13/5] h-48 shrink-0 overflow-hidden rounded-3xl shadow-2xl animate-[floatY_6s_ease-in-out_infinite] lg:block xl:h-56">
-                <Image
-                  src={heroBusPhoto}
-                  alt=""
-                  fill
-                  sizes="(min-width: 1280px) 500px, 420px"
-                  className="object-cover object-top"
-                  priority
-                />
-                <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/25" />
+              <h1 className="font-display mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-[3.6rem]">
+                {t("new_booking_hero_title")}
+              </h1>
+              <p className="mt-4 max-w-md text-base text-white/85 sm:text-lg">{t("new_booking_hero_subtitle")}</p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <TrustBadge icon={<SeatMapIcon />} label={t("feature_live_seats")} />
+                <TrustBadge icon={<ShieldIcon />} label={t("feature_secure_payments")} />
+                <TrustBadge icon={<BoltIcon />} label={t("feature_instant_tickets")} />
               </div>
             </div>
           </div>
