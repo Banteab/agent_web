@@ -40,11 +40,12 @@ export function BookingTable({ rows, onSelect, showAgentColumn, t, locale }: Lis
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {rows.map((row) => (
+          {rows.map((row, index) => (
             <tr
               key={row.key}
               onClick={() => onSelect(row)}
-              className="cursor-pointer align-middle text-text transition hover:bg-surface-muted/60"
+              className="cursor-pointer align-middle text-text opacity-0 transition hover:bg-surface-muted/60 animate-[riseIn_320ms_ease-out_forwards]"
+              style={{ animationDelay: `${Math.min(index, 8) * 30}ms` }}
             >
               <td className="px-4 py-3 font-semibold text-navy">{reservationLabel(row)}</td>
               <td className="px-4 py-3">{row.passenger}</td>
@@ -71,8 +72,13 @@ export function BookingTable({ rows, onSelect, showAgentColumn, t, locale }: Lis
 export function BookingCardList({ rows, onSelect, showAgentColumn, t, locale }: ListProps) {
   return (
     <div className="space-y-3 md:hidden">
-      {rows.map((row) => (
-        <Card key={row.key} className="cursor-pointer space-y-2 text-sm" onClick={() => onSelect(row)}>
+      {rows.map((row, index) => (
+        <Card
+          key={row.key}
+          className="cursor-pointer space-y-2 text-sm opacity-0 transition animate-[riseIn_320ms_ease-out_forwards]"
+          style={{ animationDelay: `${Math.min(index, 8) * 30}ms` }}
+          onClick={() => onSelect(row)}
+        >
           <div className="flex items-start justify-between gap-2">
             <div>
               <p className="font-bold text-navy">{reservationLabel(row)}</p>

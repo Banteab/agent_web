@@ -101,7 +101,7 @@ export function EthiopianDatePicker({
         {children}
       </button>
       {open ? (
-        <div className="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-border bg-surface p-3 shadow-lg">
+        <div className="absolute left-0 top-full z-30 mt-2 w-72 origin-top-left animate-[dropIn_150ms_ease-out] rounded-xl border border-border bg-surface p-3 shadow-lg">
           <div className="mb-2 flex items-center justify-between">
             <button
               type="button"

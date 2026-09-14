@@ -209,11 +209,12 @@ export default function HomeSearchPage() {
         <div className="mt-3">
           {recents.length ? (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {recents.slice(0, 6).map((item) => (
+              {recents.slice(0, 6).map((item, index) => (
                 <button
                   key={`${item.from.sys}-${item.to.sys}`}
                   onClick={() => searchRoute(item.from, item.to)}
-                  className="group flex items-center gap-3 rounded-xl border border-border bg-surface p-4 text-left shadow-sm transition duration-200 [transform-style:preserve-3d] hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-navy/10"
+                  style={{ animationDelay: `${index * 40}ms` }}
+                  className="group flex animate-[riseIn_360ms_ease-out_forwards] items-center gap-3 rounded-xl border border-border bg-surface p-4 text-left opacity-0 shadow-sm transition duration-200 [transform-style:preserve-3d] hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-navy/10"
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary transition group-hover:bg-primary group-hover:text-white">
                     <RouteIcon />
@@ -234,16 +235,23 @@ export default function HomeSearchPage() {
 
       {/* Why agents choose this platform */}
       <div className="mt-8 grid gap-3 sm:grid-cols-3">
-        <FeatureCard icon={<SeatMapIcon />} title={t("feature_live_seats")} caption={t("feature_live_seats_caption")} />
+        <FeatureCard
+          icon={<SeatMapIcon />}
+          title={t("feature_live_seats")}
+          caption={t("feature_live_seats_caption")}
+          delay={0}
+        />
         <FeatureCard
           icon={<ShieldIcon />}
           title={t("feature_secure_payments")}
           caption={t("feature_secure_payments_caption")}
+          delay={60}
         />
         <FeatureCard
           icon={<BoltIcon />}
           title={t("feature_instant_tickets")}
           caption={t("feature_instant_tickets_caption")}
+          delay={120}
         />
       </div>
 
@@ -272,9 +280,22 @@ function TrustBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
   );
 }
 
-function FeatureCard({ icon, title, caption }: { icon: React.ReactNode; title: string; caption: string }) {
+function FeatureCard({
+  icon,
+  title,
+  caption,
+  delay = 0,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  caption: string;
+  delay?: number;
+}) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-navy/10">
+    <div
+      style={{ animationDelay: `${delay}ms` }}
+      className="flex animate-[riseIn_360ms_ease-out_forwards] items-start gap-3 rounded-xl border border-border bg-surface p-4 opacity-0 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-navy/10"
+    >
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
         {icon}
       </span>
