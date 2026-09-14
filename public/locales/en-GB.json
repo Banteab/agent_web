@@ -14,6 +14,8 @@
     "title": "Biftu Bus",
     "sales_report": "Sales Report",
     "no_sales_report": "No sales in this day",
+    "cancel_report": "Cancel Report",
+    "no_cancel_report": "No cancellations on this day",
     "leaving_from": "Leaving From",
     "going_to": "Going To",
     "departure": "Departure",
