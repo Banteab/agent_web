@@ -321,6 +321,7 @@
     "no_pending_payments_hint": "Kaffaltiiwwan baankii mirkaneessa eegaa jiran asitti ni mul'atu.",
     "search_pending_payments": "PNR, lakkoofsa iyyannoo, imaltuu yookiin bilbilaan barbaadi",
     "reservation_no": "Lakkoofsa Iyyannoo",
+    "bank_txn_no": "Lakkoofsa Daldala Baankii",
     "booking_date": "Guyyaa Iyyannoo",
     "amount": "Hanga",
     "pending_payment": "Kaffaltii Eegamaa Jiru",

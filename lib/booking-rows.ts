@@ -22,6 +22,7 @@ export type BookingRow = {
   status?: string;
   price?: number;
   bookingDate?: string;
+  bankTransactionNumber?: string;
   agentId?: number;
   agentName?: string;
   isOwn: boolean;
@@ -66,6 +67,7 @@ export function fromTicket(ticket: TicketListItem): BookingRow {
     status: ticket.status,
     price: booking?.trip?.price ?? route?.price,
     bookingDate: booking?.firstSeatReserved || ticket.date || ticket.createdAt,
+    bankTransactionNumber: booking?.bankReferenceNumber,
     agentId: booking?.agent?.id,
     agentName: agentNameFrom(booking?.agent),
     isOwn: true,
@@ -86,6 +88,7 @@ export function fromPendingBooking(booking: Booking): BookingRow {
     status: booking.status || "PENDING_PAYMENT",
     price: booking.price,
     bookingDate: booking.firstSeatReserved,
+    bankTransactionNumber: booking.bankReferenceNumber,
     agentId: booking.agent?.id,
     agentName: agentNameFrom(booking.agent),
     isOwn: true,
@@ -107,6 +110,7 @@ export function fromSearchBooking(booking: Booking, myAgentId?: number): Booking
     status: booking.status,
     price: booking.price,
     bookingDate: booking.firstSeatReserved,
+    bankTransactionNumber: booking.bankReferenceNumber,
     agentId: booking.agent?.id,
     agentName: agentNameFrom(booking.agent),
     isOwn: myAgentId != null && booking.agent?.id === myAgentId,

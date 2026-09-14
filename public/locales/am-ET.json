@@ -320,6 +320,7 @@
     "no_pending_payments_hint": "ማረጋገጫ በመጠባበቅ ላይ ያሉ የባንክ ክፍያዎች እዚህ ይታያሉ።",
     "search_pending_payments": "በPNR፣ በማስያዣ ቁጥር፣ በተጓዥ ወይም በስልክ ቁጥር ይፈልጉ",
     "reservation_no": "የማስያዣ ቁጥር",
+    "bank_txn_no": "የባንክ ግብይት ቁጥር",
     "booking_date": "የማስያዣ ቀን",
     "amount": "መጠን",
     "pending_payment": "በመጠባበቅ ላይ ያለ ክፍያ",
