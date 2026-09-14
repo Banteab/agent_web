@@ -111,7 +111,11 @@ export default function PassengerPage() {
         <Card className="space-y-4">
           <SectionLabel>{t("passengers")}</SectionLabel>
           {session?.selectedSeats.map((seat, index) => (
-            <div key={seat} className="space-y-3 rounded-xl border border-border bg-surface-muted p-3.5">
+            <div
+              key={seat}
+              style={{ animationDelay: `${index * 60}ms` }}
+              className="animate-[riseIn_320ms_ease-out_forwards] space-y-3 rounded-xl border border-border bg-surface-muted p-3.5 opacity-0 transition-colors duration-200 focus-within:border-primary/40 focus-within:bg-primary-soft/40"
+            >
               <div className="flex items-center gap-2">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
                   {index + 1}

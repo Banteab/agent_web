@@ -27,14 +27,22 @@ export function BookingStepper({ current, t }: { current: BookingStep; t: (key: 
             <div className="flex flex-col items-center gap-1.5">
               <span
                 className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors",
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-all duration-300",
                   isDone && "border-success bg-success text-white",
-                  isCurrent && "border-primary bg-primary text-white",
+                  isCurrent && "animate-[dropIn_280ms_ease-out] border-primary bg-primary text-white ring-4 ring-primary/15",
                   !isDone && !isCurrent && "border-border bg-surface text-text-faint",
                 )}
               >
                 {isDone ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    className="animate-[scaleCheck_320ms_ease-out]"
+                  >
                     <path d="m5 13 4 4 10-10" />
                   </svg>
                 ) : (
