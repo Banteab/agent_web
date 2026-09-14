@@ -261,14 +261,11 @@ export default function SeatsPage() {
           backHref="/home"
           action={<Countdown endTime={endTime} onExpire={expire} />}
         />
-        <Card className="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-5">
+        <Card className="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-4">
           <Legend icon={<SeatIcon className="text-white" />} label={t("available_seat")} />
           <Legend icon={<SeatIcon className="text-success" />} label={t("selected_seat")} />
           <Legend icon={<SeatIcon className="text-gold" />} label={t("reserved_seat")} />
           <Legend icon={<SeatIcon className="text-danger" />} label={t("booked_seat")} />
-          <p className="col-span-2 text-right font-semibold text-primary sm:col-span-1">
-            {formatMoney((trip.price || 0) * selected.length)}
-          </p>
         </Card>
 
         <Card>
@@ -302,17 +299,17 @@ export default function SeatsPage() {
                         aria-label={`${t("seat")} ${current}`}
                         aria-pressed={isSelected}
                         className={cn(
-                          "group relative flex shrink-0 flex-col items-center transition disabled:cursor-not-allowed",
-                          !isBlocked && "cursor-pointer",
+                          "group relative flex shrink-0 flex-col items-center transition duration-150 disabled:cursor-not-allowed",
+                          !isBlocked && "cursor-pointer hover:-translate-y-0.5 active:scale-90",
                         )}
                       >
                         <SeatIcon
                           className={cn(
-                            "h-10 w-9 drop-shadow-sm transition",
+                            "h-10 w-9 drop-shadow-sm transition-colors duration-150",
                             isSelected && "text-success",
                             !isSelected && isBooked && "text-danger",
                             !isSelected && isReserved && "text-gold",
-                            !isSelected && !isBooked && !isReserved && "text-white group-hover:text-success/20",
+                            !isSelected && !isBooked && !isReserved && "text-white group-hover:text-success/30",
                           )}
                         />
                         <span
@@ -332,9 +329,21 @@ export default function SeatsPage() {
           </div>
         </Card>
 
-        <Button className="mt-4 w-full" loading={busy} onClick={next}>
-          {t("next")} · {selected.length} {t("seats")}
-        </Button>
+        <div className="sticky bottom-4 z-10 mt-4 rounded-2xl border border-border bg-surface/95 p-3 shadow-xl shadow-navy/10 backdrop-blur-md sm:p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-xs font-medium text-text-faint">
+                {selected.length} {t("seats")}
+              </p>
+              <p className="text-lg font-bold text-primary sm:text-xl">
+                {formatMoney((trip.price || 0) * selected.length)}
+              </p>
+            </div>
+            <Button loading={busy} onClick={next} className="shrink-0 shadow-lg shadow-primary/25">
+              {t("next")}
+            </Button>
+          </div>
+        </div>
       </div>
     </Protected>
   );

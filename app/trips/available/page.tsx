@@ -56,10 +56,14 @@ function AvailableBuses() {
         {loading ? <Spinner /> : null}
         {!loading && !trips.length ? <EmptyState title={t("no_available")} /> : null}
         <div className="space-y-3">
-          {trips.map((trip) => {
+          {trips.map((trip, index) => {
             const lowSeats = typeof trip.seatsLeft === "number" && trip.seatsLeft <= 5;
             return (
-              <Card key={trip.id} className="space-y-3">
+              <Card
+                key={trip.id}
+                style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
+                className="animate-[riseIn_360ms_ease-out_forwards] space-y-3 opacity-0 transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-bold text-navy">{trip.busAssociation || t("bus")}</p>

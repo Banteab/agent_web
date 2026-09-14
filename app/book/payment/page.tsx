@@ -164,10 +164,10 @@ export default function PaymentPage() {
                       type="button"
                       onClick={() => setBank(item.id)}
                       className={cn(
-                        "relative flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition",
+                        "relative flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition duration-150 active:scale-[0.98]",
                         active
                           ? "border-primary bg-primary/10 shadow-sm"
-                          : "border-border hover:border-primary/30 hover:bg-surface-muted",
+                          : "border-border hover:-translate-y-0.5 hover:border-primary/30 hover:bg-surface-muted hover:shadow-sm",
                       )}
                     >
                       <span className="flex h-11 w-16 shrink-0 items-center justify-center rounded-lg border border-border bg-white p-1.5">
@@ -205,18 +205,22 @@ export default function PaymentPage() {
           <DetailRow label={t("total")} value={<span className="text-primary">{formatMoney(total)}</span>} />
         </Card>
 
-        <Button className="mt-4 h-12 w-full text-[15px] shadow-md shadow-primary/25" loading={saving} onClick={submit}>
+        <Button
+          className="group mt-4 h-12 w-full text-[15px] shadow-md shadow-primary/25"
+          loading={saving}
+          onClick={submit}
+        >
           {t("confirm_booking")}
-          <ArrowRightIcon />
+          <ArrowRightIcon className="transition-transform duration-150 group-hover:translate-x-1" />
         </Button>
       </div>
     </Protected>
   );
 }
 
-function ArrowRightIcon() {
+function ArrowRightIcon({ className }: { className?: string }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={className}>
       <path d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   );
