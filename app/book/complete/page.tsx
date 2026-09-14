@@ -104,12 +104,12 @@ export default function BookingCompletePage() {
 
         <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
           {isBankPending ? (
-            <Button className="flex-1 shadow-md shadow-primary/20" onClick={() => router.push("/pending-payments")}>
+            <Button className="flex-1 shadow-md shadow-primary/20" onClick={() => router.push("/payments")}>
               {t("view_pending_payments")}
             </Button>
           ) : (
             <>
-              <Button className="flex-1 shadow-md shadow-primary/20" onClick={() => router.push("/booked")}>
+              <Button className="flex-1 shadow-md shadow-primary/20" onClick={() => router.push("/bookings")}>
                 {t("view_my_bookings")}
               </Button>
               <Button variant="ghost" className="flex-1" onClick={() => window.print()}>

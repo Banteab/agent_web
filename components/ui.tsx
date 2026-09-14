@@ -401,7 +401,7 @@ export function PageHeader({
           </Link>
         ) : null}
         <div>
-          <h1 className="text-lg font-semibold tracking-tight text-navy sm:text-xl">{title}</h1>
+          <h1 className="font-display text-lg font-bold tracking-tight text-navy sm:text-xl">{title}</h1>
           {subtitle ? <p className="mt-0.5 text-sm text-text-muted">{subtitle}</p> : null}
         </div>
       </div>
