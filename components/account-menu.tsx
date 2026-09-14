@@ -40,6 +40,7 @@ export function AccountMenu({
     { href: "/profile", label: t("profile"), icon: ProfileIcon },
     { href: "/reports", label: t("report"), icon: ReportIcon },
     { href: "/reports/sales", label: t("sales_report"), icon: ReportIcon },
+    { href: "/reports/cancelled", label: t("cancel_report"), icon: ReportIcon },
     { href: "/settings", label: t("setting"), icon: SettingsIcon },
     { href: "/about", label: t("about"), icon: InfoIcon },
   ];

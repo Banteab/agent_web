@@ -14,6 +14,8 @@
     "title": "ቢፍቱ ባስ",
     "sales_report": "የሽያጭ ሪፖርት",
     "no_sales_report": "በዚህ ቀን ምንም ሽያጭ የለም",
+    "cancel_report": "የመሰረዝ ሪፖርት",
+    "no_cancel_report": "በዚህ ቀን ምንም ስረዛ የለም",
     "leaving_from": "መነሻ ከተማ",
     "going_to": "መድረሻ ከተማ",
     "departure": "የጉዞ ቀን",
