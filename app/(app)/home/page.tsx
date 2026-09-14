@@ -1,5 +1,6 @@
 "use client";
 
+import { CallCenterBadge } from "@/components/call-center-badge";
 import { CinematicSkyline } from "@/components/cinematic-skyline";
 import { CityPicker } from "@/components/city-picker";
 import { EthiopianDatePicker } from "@/components/ethiopian-date-picker";
@@ -85,6 +86,7 @@ export default function HomeSearchPage() {
         <CinematicSkyline />
 
         <div className="relative flex flex-1 flex-col">
+          <CallCenterBadge className="right-4 top-4 sm:right-8 sm:top-8" />
           <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 pb-20 pt-8 sm:px-6 sm:pb-24 sm:pt-10">
             <div className="max-w-2xl animate-[riseIn_450ms_ease-out] [text-shadow:0_2px_16px_rgba(10,30,25,0.35)]">
               <div className="flex flex-wrap items-center gap-2.5">
