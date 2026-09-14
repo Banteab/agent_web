@@ -305,7 +305,7 @@ export default function SeatsPage() {
                       >
                         <SeatIcon
                           className={cn(
-                            "h-10 w-9 drop-shadow-sm transition-colors duration-150",
+                            "h-10 w-9 drop-shadow-md transition-colors duration-150",
                             isSelected && "text-success",
                             !isSelected && isBooked && "text-danger",
                             !isSelected && isReserved && "text-gold",
@@ -360,11 +360,22 @@ function Legend({ icon, label }: { icon: React.ReactNode; label: string }) {
 
 function SeatIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 40 44" fill="currentColor" stroke="rgba(15,23,42,0.18)" strokeWidth="1" className={className}>
-      <rect x="11" y="1.5" width="18" height="13" rx="5" />
-      <rect x="4" y="13" width="32" height="27" rx="9" />
-      <rect x="0" y="19" width="5" height="16" rx="2.5" />
-      <rect x="35" y="19" width="5" height="16" rx="2.5" />
+    <svg viewBox="0 0 40 44" className={className}>
+      <g fill="currentColor" stroke="rgba(15,23,42,0.18)" strokeWidth="1">
+        <rect x="11" y="1.5" width="18" height="13" rx="5" />
+        <rect x="4" y="13" width="32" height="27" rx="9" />
+        <rect x="0" y="19" width="5" height="16" rx="2.5" />
+        <rect x="35" y="19" width="5" height="16" rx="2.5" />
+      </g>
+      {/* Embossed shine/shadow overlays give the flat cushion shape a rounded,
+          upholstered look — plain white/black so they read correctly on top
+          of every seat color (available/selected/reserved/booked) without
+          needing per-instance gradients. */}
+      <rect x="12.5" y="2.5" width="15" height="5" rx="2.5" fill="#fff" fillOpacity="0.35" />
+      <rect x="6" y="15" width="28" height="7" rx="4.5" fill="#fff" fillOpacity="0.3" />
+      <rect x="5" y="31" width="30" height="7" rx="6" fill="#000" fillOpacity="0.14" />
+      <rect x="1" y="20" width="3" height="10" rx="1.5" fill="#fff" fillOpacity="0.25" />
+      <rect x="36" y="20" width="3" height="10" rx="1.5" fill="#fff" fillOpacity="0.25" />
     </svg>
   );
 }
