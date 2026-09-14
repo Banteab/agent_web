@@ -270,11 +270,23 @@ export default function SeatsPage() {
 
         <Card>
           <SectionLabel>{t("seat")}</SectionLabel>
-          <div className="mx-auto mt-3 max-w-sm overflow-hidden rounded-[28px] border-2 border-border bg-surface-muted/40">
+          <div className="relative mx-auto mt-3 max-w-sm overflow-hidden rounded-[28px] border-2 border-border bg-surface-muted/40 shadow-inner">
+            {/* Window strip along the coach body — purely decorative, echoes a
+                real coach's glazing running the length of the cabin. */}
+            <div
+              className="pointer-events-none absolute inset-y-16 left-1 w-[3px] rounded-full bg-gradient-to-b from-sky-200/0 via-sky-200/70 to-sky-200/0"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute inset-y-16 right-1 w-[3px] rounded-full bg-gradient-to-b from-sky-200/0 via-sky-200/70 to-sky-200/0"
+              aria-hidden
+            />
+
             <div className="flex items-center justify-between border-b border-border bg-surface px-5 py-2.5">
               <span className="flex items-center gap-1.5 text-xs font-medium text-text-faint">
                 <WheelIcon /> {t("driver")}
               </span>
+              <DoorIcon className="text-text-faint/50" aria-hidden />
               <span className="h-1.5 w-10 rounded-full bg-border-strong" aria-hidden />
             </div>
             <div className="space-y-2.5 px-4 py-5 sm:px-6">
@@ -325,6 +337,14 @@ export default function SeatsPage() {
                   })}
                 </div>
               ))}
+            </div>
+
+            {/* Rear wall — mirrors the front driver bar with a small wheel-well
+                bump on each side, capping the coach body at the back. */}
+            <div className="flex items-center justify-between border-t border-border bg-surface px-5 py-2">
+              <span className="h-2 w-2 rounded-full bg-border-strong/70" aria-hidden />
+              <span className="h-1.5 w-16 rounded-full bg-border-strong/40" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-border-strong/70" aria-hidden />
             </div>
           </div>
         </Card>
@@ -385,6 +405,15 @@ function WheelIcon() {
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="12" r="8" />
       <path d="M12 4v4M12 16v4M4 12h4M16 12h4M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8" />
+    </svg>
+  );
+}
+
+function DoorIcon({ className }: { className?: string }) {
+  return (
+    <svg width="12" height="14" viewBox="0 0 12 14" fill="none" stroke="currentColor" strokeWidth="1.5" className={className}>
+      <rect x="0.75" y="0.75" width="10.5" height="12.5" rx="1.5" />
+      <path d="M6 0.75v12.5" strokeDasharray="1.6 1.6" />
     </svg>
   );
 }
