@@ -50,7 +50,7 @@ export function AccountMenu({
         {trigger}
       </button>
       {open ? (
-        <div className="absolute right-0 top-full z-30 mt-2 w-56 animate-[fadeIn_120ms_ease-out] rounded-xl border border-border bg-surface py-1.5 shadow-lg">
+        <div className="absolute right-0 top-full z-30 mt-2 w-56 origin-top-right animate-[dropIn_150ms_ease-out] rounded-xl border border-border bg-surface py-1.5 shadow-lg">
           <div className="border-b border-border px-3.5 py-2.5">
             <p className="truncate text-[13px] font-semibold text-text">{name}</p>
             <p className="truncate text-[11px] text-text-faint">{profile?.phoneNo || ""}</p>

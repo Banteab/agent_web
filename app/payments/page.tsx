@@ -264,7 +264,7 @@ function PendingRow({
   return (
     <tr
       onClick={() => onConfirm(booking)}
-      className="cursor-pointer align-middle text-text transition hover:bg-surface-muted/60"
+      className="cursor-pointer animate-[riseIn_320ms_ease-out] align-middle text-text transition hover:bg-surface-muted/60"
     >
       <td className="px-4 py-3 font-semibold text-navy">{booking.refNumber || "-"}</td>
       <td className="px-4 py-3 text-text-muted">{booking.id}</td>
@@ -318,7 +318,7 @@ function PendingCard({
   const [expired, setExpired] = useState(() => isExpired(booking));
 
   return (
-    <Card className="cursor-pointer space-y-2 text-sm" onClick={() => onConfirm(booking)}>
+    <Card className="cursor-pointer animate-[riseIn_320ms_ease-out] space-y-2 text-sm" onClick={() => onConfirm(booking)}>
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="font-bold text-navy">{booking.refNumber || `#${booking.id}`}</p>

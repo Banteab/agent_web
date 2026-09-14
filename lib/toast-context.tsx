@@ -9,7 +9,11 @@ type Toast = {
   id: number;
   kind: ToastKind;
   message: string;
+  leaving?: boolean;
 };
+
+const TOAST_LIFETIME_MS = 3200;
+const TOAST_EXIT_MS = 180;
 
 type ToastContextValue = {
   success: (message: string) => void;
@@ -26,8 +30,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     const id = Date.now() + Math.random();
     setToasts((prev) => [...prev, { id, kind, message }]);
     window.setTimeout(() => {
-      setToasts((prev) => prev.filter((item) => item.id !== id));
-    }, 3200);
+      setToasts((prev) => prev.map((item) => (item.id === id ? { ...item, leaving: true } : item)));
+      window.setTimeout(() => {
+        setToasts((prev) => prev.filter((item) => item.id !== id));
+      }, TOAST_EXIT_MS);
+    }, TOAST_LIFETIME_MS - TOAST_EXIT_MS);
   }, []);
 
   const value = useMemo(
@@ -48,6 +55,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             key={toast.id}
             className={cn(
               "pointer-events-auto rounded-xl px-4 py-3 text-sm font-medium text-white shadow-lg",
+              toast.leaving
+                ? "animate-[toastOut_180ms_ease-in_forwards]"
+                : "animate-[toastIn_220ms_ease-out]",
               toast.kind === "success" && "bg-emerald-600",
               toast.kind === "error" && "bg-rose-600",
               toast.kind === "info" && "bg-primary",
