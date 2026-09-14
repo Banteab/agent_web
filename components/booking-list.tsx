@@ -34,6 +34,7 @@ export function BookingTable({ rows, onSelect, showAgentColumn, t, locale }: Lis
               {t("from")}/{t("to")}
             </th>
             <th className="px-4 py-3">{t("travel_date")}</th>
+            <th className="px-4 py-3">{t("bank_txn_no")}</th>
             {showAgentColumn ? <th className="px-4 py-3">{t("agent")}</th> : null}
             <th className="px-4 py-3">{t("status")}</th>
             <th className="px-4 py-3 text-right">{t("amount")}</th>
@@ -52,6 +53,7 @@ export function BookingTable({ rows, onSelect, showAgentColumn, t, locale }: Lis
               <td className="px-4 py-3 text-text-muted">{row.phone || "-"}</td>
               <td className="px-4 py-3">{routeLabel(row)}</td>
               <td className="px-4 py-3 text-text-muted">{formatDisplayDateValue(row.travelDate, locale)}</td>
+              <td className="px-4 py-3 font-mono text-xs text-text-muted">{row.bankTransactionNumber || "-"}</td>
               {showAgentColumn ? (
                 <td className="px-4 py-3 text-text-muted">
                   {row.isOwn ? <span className="font-semibold text-primary">{t("you")}</span> : row.agentName || "-"}
@@ -95,6 +97,8 @@ export function BookingCardList({ rows, onSelect, showAgentColumn, t, locale }: 
             <span className="text-right font-semibold text-navy">{row.phone || "-"}</span>
             <span>{t("travel_date")}</span>
             <span className="text-right font-semibold text-navy">{formatDisplayDateValue(row.travelDate, locale)}</span>
+            <span>{t("bank_txn_no")}</span>
+            <span className="text-right font-mono text-xs font-semibold text-navy">{row.bankTransactionNumber || "-"}</span>
             {showAgentColumn ? (
               <>
                 <span>{t("agent")}</span>

@@ -323,6 +323,7 @@
     "no_pending_payments_hint": "ማረጋገጺ ኣብ ምጽባይ ዘለዉ ናይ ባንክ ክፍሊታት ኣብዚ ክርአዩ እዮም።",
     "search_pending_payments": "ብPNR፣ ብቁጽሪ ምሕዛእ፣ ብተሳፋሪ ወይ ብተሌፎን ድለዩ",
     "reservation_no": "ቁጽሪ ምሕዛእ",
+    "bank_txn_no": "ቁጽሪ ግብረ-መልሲ ባንክ",
     "booking_date": "ዕለት ምሕዛእ",
     "amount": "መጠን",
     "pending_payment": "ኣብ ምጽባይ ዘሎ ክፍሊት",

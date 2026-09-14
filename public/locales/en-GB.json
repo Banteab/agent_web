@@ -323,6 +323,7 @@
     "no_pending_payments_hint": "Bank payments awaiting confirmation will show up here.",
     "search_pending_payments": "Search by PNR, reservation no, passenger or phone",
     "reservation_no": "Reservation No",
+    "bank_txn_no": "Bank Txn No",
     "booking_date": "Booking Date",
     "amount": "Amount",
     "pending_payment": "Pending Payment",
