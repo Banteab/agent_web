@@ -90,7 +90,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           {mobileOpen ? (
-            <nav className="animate-[fadeIn_120ms_ease-out] border-t border-border bg-surface px-3 py-2 lg:hidden">
+            <nav className="origin-top animate-[dropIn_150ms_ease-out] border-t border-border bg-surface px-3 py-2 lg:hidden">
               {NAV_ITEMS.map((item) => (
                 <NavLink
                   key={item.href}
@@ -106,7 +106,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
 
         <main className="min-w-0 px-4 py-6 sm:px-6 sm:py-8">
-          <div className="mx-auto max-w-6xl">{children}</div>
+          <div key={pathname} className="mx-auto max-w-6xl animate-[riseIn_320ms_ease-out]">
+            {children}
+          </div>
         </main>
       </div>
     </Protected>

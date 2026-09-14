@@ -18,7 +18,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold transition duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100",
         size === "md" && "min-h-10 px-4",
         size === "sm" && "min-h-8 px-3 text-[13px]",
         variant === "primary" && "bg-primary text-white hover:bg-primary-dark",
@@ -193,20 +193,28 @@ const badgeTones = {
 export function Badge({
   children,
   tone = "neutral",
+  pulse = false,
   className,
 }: {
   children: React.ReactNode;
   tone?: keyof typeof badgeTones;
+  pulse?: boolean;
   className?: string;
 }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide",
         badgeTones[tone],
         className,
       )}
     >
+      {pulse ? (
+        <span className="relative flex h-1.5 w-1.5 shrink-0">
+          <span className="absolute inline-flex h-full w-full animate-[pulseRing_1.6s_ease-out_infinite] rounded-full bg-current opacity-60" />
+          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-current" />
+        </span>
+      ) : null}
       {children}
     </span>
   );
@@ -307,7 +315,11 @@ export function StatusBadge({ status }: { status?: string | null }) {
   if (!status) return <Badge tone="neutral">-</Badge>;
   const key = status.trim().toUpperCase().replace(/\s+/g, "_");
   const tone = STATUS_TONE[key] || "neutral";
-  return <Badge tone={tone}>{status.replaceAll("_", " ")}</Badge>;
+  return (
+    <Badge tone={tone} pulse={tone === "pending"}>
+      {status.replaceAll("_", " ")}
+    </Badge>
+  );
 }
 
 export function TableFrame({ children, className }: { children: React.ReactNode; className?: string }) {
