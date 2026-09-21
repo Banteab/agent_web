@@ -30,7 +30,7 @@ export default function PaymentsPage() {
 
     const load = () => {
       api
-        .getPendingBankPayments()
+        .getAllPendingBankPayments()
         .then((list) => {
           if (!cancelled) setBookings(list);
         })

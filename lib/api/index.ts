@@ -181,6 +181,19 @@ export const api = {
     return parsePaginated<Booking>(data);
   },
 
+  /** Fetches every pending bank booking (paginated API, max 100 per request). */
+  async getAllPendingBankPayments() {
+    const all: Booking[] = [];
+    let page = 1;
+    while (true) {
+      const batch = await this.getPendingBankPayments(page, 100);
+      all.push(...batch.data);
+      if (!batch.hasMore) break;
+      page += 1;
+    }
+    return all;
+  },
+
   // Agent bank confirm — saves txn, marks BOOKED, issues tickets (no bank API)
   confirmBankPayment(
     bookingId: number,
