@@ -48,8 +48,8 @@ export default function MenuPage() {
       });
 
     api
-      .getBookedTickets()
-      .then((data) => setRecent(Array.isArray(data) ? data.slice(0, 5) : []))
+      .getBookedTickets(1, 5)
+      .then((result) => setRecent(result.data))
       .catch((err) => toast.error(err instanceof Error ? err.message : t("error_occured")))
       .finally(() => setLoadingRecent(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps

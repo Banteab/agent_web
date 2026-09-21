@@ -381,5 +381,8 @@
     "expires_in": "የሚያበቃበት ጊዜ",
     "expired": "ጊዜው አልፏል",
     "payment_window_expired_hint": "የክፍያ ጊዜው አልፏል፤ ከዚህ በኋላ ማረጋገጥ አይቻልም።",
-    "reserved_seat": "በመጠባበቅ ላይ ያለ ወንበር"
+    "reserved_seat": "በመጠባበቅ ላይ ያለ ወንበር",
+    "load_more": "ተጨማሪ አሳይ",
+    "list_showing_count": "{shown} ከ {total} ታይቷል",
+    "list_end": "የዝርዝር መጨረሻ"
 }

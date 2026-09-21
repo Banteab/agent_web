@@ -17,6 +17,12 @@ import type {
 } from "../types";
 import { citySearchName } from "../cities";
 import { apiRequest } from "./client";
+import {
+  AGENT_LIST_PAGE_SIZE,
+  parsePaginated,
+  withPageQuery,
+  type PaginatedResult,
+} from "../pagination";
 
 function asList<T>(payload: unknown): T[] {
   if (Array.isArray(payload)) return payload as T[];
@@ -167,10 +173,12 @@ export const api = {
     });
   },
 
-  // GET /booking/agent/pending-bank-payments
-  async getPendingBankPayments() {
-    const data = await apiRequest<Booking[]>(ENDPOINTS.pendingBankPayments);
-    return asList<Booking>(data);
+  // GET /booking/agent/pending-bank-payments?page=&limit=
+  async getPendingBankPayments(page = 1, limit = AGENT_LIST_PAGE_SIZE) {
+    const data = await apiRequest<unknown>(
+      withPageQuery(ENDPOINTS.pendingBankPayments, page, limit),
+    );
+    return parsePaginated<Booking>(data);
   },
 
   // Agent bank confirm — saves txn, marks BOOKED, issues tickets (no bank API)
@@ -257,14 +265,16 @@ export const api = {
     });
   },
 
-  // TicketService.getBookedTicket  GET /tickets/agent/booked
-  async getBookedTickets() {
-    return asList<TicketListItem>(await apiRequest<unknown>(ENDPOINTS.bookedTickets));
+  // TicketService.getBookedTicket  GET /tickets/agent/booked?page=&limit=
+  async getBookedTickets(page = 1, limit = AGENT_LIST_PAGE_SIZE): Promise<PaginatedResult<TicketListItem>> {
+    const data = await apiRequest<unknown>(withPageQuery(ENDPOINTS.bookedTickets, page, limit));
+    return parsePaginated<TicketListItem>(data);
   },
 
-  // TicketService.getCancelledTicket  GET /tickets/agent/cancelled
-  async getCancelledTickets() {
-    return asList<TicketListItem>(await apiRequest<unknown>(ENDPOINTS.cancelledTickets));
+  // TicketService.getCancelledTicket  GET /tickets/agent/cancelled?page=&limit=
+  async getCancelledTickets(page = 1, limit = AGENT_LIST_PAGE_SIZE): Promise<PaginatedResult<TicketListItem>> {
+    const data = await apiRequest<unknown>(withPageQuery(ENDPOINTS.cancelledTickets, page, limit));
+    return parsePaginated<TicketListItem>(data);
   },
 
   // TicketService.updateTicket  PUT /tickets/:id

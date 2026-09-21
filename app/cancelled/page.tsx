@@ -1,29 +1,35 @@
 "use client";
 
+import { ListLoadMore } from "@/components/list-load-more";
 import { Protected } from "@/components/protected";
 import { Card, EmptyState, PageHeader, Spinner, StatusBadge } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
+import { usePaginatedApiList } from "@/lib/use-paginated-api-list";
 import type { TicketListItem } from "@/lib/types";
 import { parseSelectedRoute } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 
 export default function CancelledPage() {
   const { t } = useI18n();
   const toast = useToast();
   const router = useRouter();
-  const [tickets, setTickets] = useState<TicketListItem[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  const fetchPage = useCallback(
+    (page: number, limit: number) => api.getCancelledTickets(page, limit),
+    [],
+  );
+
+  const { items: tickets, total, loading, loadingMore, hasMore, error, loadMore } =
+    usePaginatedApiList<TicketListItem>(fetchPage);
 
   useEffect(() => {
-    api
-      .getCancelledTickets()
-      .then((data) => setTickets(Array.isArray(data) ? data : []))
-      .catch((err) => toast.error(err instanceof Error ? err.message : t("error_occured")))
-      .finally(() => setLoading(false));
-  }, [t, toast]);
+    if (error) {
+      toast.error(error.message || t("error_occured"));
+    }
+  }, [error, t, toast]);
 
   return (
     <Protected>
@@ -60,6 +66,15 @@ export default function CancelledPage() {
             );
           })}
         </div>
+        {!loading ? (
+          <ListLoadMore
+            hasMore={hasMore}
+            loading={loadingMore}
+            onLoadMore={loadMore}
+            shown={tickets.length}
+            total={total}
+          />
+        ) : null}
       </div>
     </Protected>
   );

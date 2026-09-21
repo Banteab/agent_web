@@ -12,9 +12,9 @@ export function usePendingBankPaymentsCount() {
 
     const sync = () => {
       api
-        .getPendingBankPayments()
-        .then((list) => {
-          if (!cancelled) setCount(list.length);
+        .getPendingBankPayments(1, 1)
+        .then((result) => {
+          if (!cancelled) setCount(result.total);
         })
         .catch(() => {
           if (!cancelled) setCount(0);
