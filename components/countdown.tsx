@@ -1,6 +1,6 @@
 "use client";
 
-import { remainingLabel } from "@/lib/utils";
+import { cn, remainingLabel } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 export function Countdown({
@@ -10,13 +10,15 @@ export function Countdown({
   endTime?: number;
   onExpire?: () => void;
 }) {
-  const [, setTick] = useState(0);
+  const [remainingMs, setRemainingMs] = useState<number>();
 
   useEffect(() => {
     if (!endTime) return;
+    Promise.resolve().then(() => setRemainingMs(endTime - Date.now()));
     const id = window.setInterval(() => {
-      setTick((n) => n + 1);
-      if (Date.now() >= endTime) {
+      const left = endTime - Date.now();
+      setRemainingMs(left);
+      if (left <= 0) {
         window.clearInterval(id);
         onExpire?.();
       }
@@ -26,8 +28,15 @@ export function Countdown({
 
   if (!endTime) return null;
 
+  const urgent = remainingMs != null && remainingMs <= 60_000;
+
   return (
-    <span className="rounded-full bg-navy px-3 py-1 text-xs font-bold text-gold">
+    <span
+      className={cn(
+        "rounded-full px-3 py-1 text-xs font-bold transition-colors",
+        urgent ? "animate-pulse bg-danger text-white" : "bg-navy text-gold",
+      )}
+    >
       {remainingLabel(endTime)}
     </span>
   );

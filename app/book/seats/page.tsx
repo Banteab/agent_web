@@ -1,5 +1,6 @@
 "use client";
 
+import { BookingStepper } from "@/components/booking-stepper";
 import { Countdown } from "@/components/countdown";
 import { Protected } from "@/components/protected";
 import { Button, Card, PageHeader, SectionLabel, Spinner } from "@/components/ui";
@@ -10,7 +11,7 @@ import { clearBookingSession, getBookingSession, setBookingSession } from "@/lib
 import { useToast } from "@/lib/toast-context";
 import { asNumberList, cn, formatMoney, selectedRoutePayload } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 /**
  * Splits a bus's seat-map string into rows of seat/aisle cells ("p"/"_").
@@ -41,10 +42,32 @@ export default function SeatsPage() {
   const toast = useToast();
   const router = useRouter();
   const [ready, setReady] = useState(false);
-  const [selected, setSelected] = useState<number[]>([]);
-  const [bookingId, setBookingId] = useState<number>();
+  const [selected, setSelectedState] = useState<number[]>([]);
+  const [bookingId, setBookingIdState] = useState<number>();
   const [endTime, setEndTime] = useState<number>();
   const [busy, setBusy] = useState(false);
+
+  // Seat taps can arrive faster than their network round trips resolve (an
+  // agent picking several seats for a group, for instance). `toggleSeat`
+  // queues each tap instead of dropping the ones that land while a previous
+  // one is still in flight, so `performToggle` must read the *latest*
+  // selection/booking id at the moment it actually runs rather than whatever
+  // was captured in the click's closure — hence mirroring both into refs
+  // that are updated synchronously, right alongside the state setters.
+  const selectedRef = useRef<number[]>([]);
+  const bookingIdRef = useRef<number | undefined>(undefined);
+  const queueRef = useRef<Promise<void>>(Promise.resolve());
+  const pendingCountRef = useRef(0);
+
+  function setSelected(next: number[]) {
+    selectedRef.current = next;
+    setSelectedState(next);
+  }
+
+  function setBookingIdValue(next: number | undefined) {
+    bookingIdRef.current = next;
+    setBookingIdState(next);
+  }
 
   const [liveBooked, setLiveBooked] = useState<number[]>([]);
   const session = useMemo(() => getBookingSession(), [ready, selected, bookingId]);
@@ -66,7 +89,7 @@ export default function SeatsPage() {
       return;
     }
     setSelected(current.selectedSeats || []);
-    setBookingId(current.bookingId);
+    setBookingIdValue(current.bookingId);
     setEndTime(current.endTime);
     setReady(true);
     api
@@ -116,41 +139,43 @@ export default function SeatsPage() {
     router.replace("/home");
   }, [router, t, toast]);
 
-  async function toggleSeat(seat: number) {
-    if (busy) return;
+  // Runs one seat tap. Reads/writes the refs (not `selected`/`bookingId`
+  // directly) so it always sees the outcome of whichever taps the queue has
+  // already processed, even though this function itself was created back
+  // when the tap happened.
+  async function performToggle(seat: number) {
+    const currentSelected = selectedRef.current;
+    const currentBookingId = bookingIdRef.current;
+
     // Check the agent's own selection before the booked/reserved guard: once a
     // seat they've picked shows up again in the live occupied-seats poll (which
     // it will, since the backend now genuinely considers it held), it must stay
     // deselectable — otherwise a seat becomes permanently stuck a few seconds
     // after being selected.
-    if (selected.includes(seat)) {
-      if (!bookingId) return;
-      setBusy(true);
+    if (currentSelected.includes(seat)) {
+      if (!currentBookingId) return;
       try {
-        await api.removeSeat(seat, bookingId);
-        const next = selected.filter((s) => s !== seat);
+        await api.removeSeat(seat, currentBookingId);
+        const next = currentSelected.filter((s) => s !== seat);
         setSelected(next);
         const current = getBookingSession();
         if (current) setBookingSession({ ...current, selectedSeats: next });
         toast.success(t("seat_removed"));
       } catch (err) {
         toast.error(err instanceof Error ? err.message : t("err"));
-      } finally {
-        setBusy(false);
       }
       return;
     }
 
     if (booked.includes(seat)) return;
 
-    if (selected.length >= MAX_SEATS) {
+    if (currentSelected.length >= MAX_SEATS) {
       toast.error(t("more_than_six"));
       return;
     }
 
-    setBusy(true);
     try {
-      if (!bookingId) {
+      if (!currentBookingId) {
         const res = await api.reserveFirstSeat(
           String(seat),
           trip!.busId || 0,
@@ -162,7 +187,7 @@ export default function SeatsPage() {
           throw new Error(res.message || t("err"));
         }
         const hold = Date.now() + BOOKING_HOLD_MS;
-        setBookingId(id);
+        setBookingIdValue(id);
         setEndTime(hold);
         const next = [seat];
         setSelected(next);
@@ -172,17 +197,31 @@ export default function SeatsPage() {
         }
         toast.success(res.message || t("booking_added"));
       } else {
-        await api.addSeat(bookingId, seat);
-        const next = [...selected, seat];
+        await api.addSeat(currentBookingId, seat);
+        const next = [...currentSelected, seat];
         setSelected(next);
         const current = getBookingSession();
         if (current) setBookingSession({ ...current, selectedSeats: next });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("err"));
-    } finally {
-      setBusy(false);
     }
+  }
+
+  // Queues seat taps instead of dropping the ones that land while an earlier
+  // one is still in flight — an agent picking several seats for a group taps
+  // faster than each add/remove round trip resolves, and a plain "ignore
+  // while busy" guard here would silently swallow every seat but the first.
+  function toggleSeat(seat: number) {
+    pendingCountRef.current += 1;
+    setBusy(true);
+    queueRef.current = queueRef.current
+      .then(() => performToggle(seat))
+      .catch(() => {})
+      .finally(() => {
+        pendingCountRef.current -= 1;
+        if (pendingCountRef.current === 0) setBusy(false);
+      });
   }
 
   async function next() {
@@ -216,28 +255,38 @@ export default function SeatsPage() {
   return (
     <Protected>
       <div className="mx-auto max-w-3xl">
+        <BookingStepper current="seats" t={t} />
         <PageHeader
           title={`${session?.fromCity} → ${session?.toCity}`}
           backHref="/home"
           action={<Countdown endTime={endTime} onExpire={expire} />}
         />
-        <Card className="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-5">
+        <Card className="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-4">
           <Legend icon={<SeatIcon className="text-white" />} label={t("available_seat")} />
           <Legend icon={<SeatIcon className="text-success" />} label={t("selected_seat")} />
           <Legend icon={<SeatIcon className="text-gold" />} label={t("reserved_seat")} />
           <Legend icon={<SeatIcon className="text-danger" />} label={t("booked_seat")} />
-          <p className="col-span-2 text-right font-semibold text-primary sm:col-span-1">
-            {formatMoney((trip.price || 0) * selected.length)}
-          </p>
         </Card>
 
         <Card>
           <SectionLabel>{t("seat")}</SectionLabel>
-          <div className="mx-auto mt-3 max-w-sm overflow-hidden rounded-[28px] border-2 border-border bg-surface-muted/40">
+          <div className="relative mx-auto mt-3 max-w-sm overflow-hidden rounded-[28px] border-2 border-border bg-surface-muted/40 shadow-inner">
+            {/* Window strip along the coach body — purely decorative, echoes a
+                real coach's glazing running the length of the cabin. */}
+            <div
+              className="pointer-events-none absolute inset-y-16 left-1 w-[3px] rounded-full bg-gradient-to-b from-sky-200/0 via-sky-200/70 to-sky-200/0"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute inset-y-16 right-1 w-[3px] rounded-full bg-gradient-to-b from-sky-200/0 via-sky-200/70 to-sky-200/0"
+              aria-hidden
+            />
+
             <div className="flex items-center justify-between border-b border-border bg-surface px-5 py-2.5">
               <span className="flex items-center gap-1.5 text-xs font-medium text-text-faint">
                 <WheelIcon /> {t("driver")}
               </span>
+              <DoorIcon className="text-text-faint/50" aria-hidden />
               <span className="h-1.5 w-10 rounded-full bg-border-strong" aria-hidden />
             </div>
             <div className="space-y-2.5 px-4 py-5 sm:px-6">
@@ -262,17 +311,17 @@ export default function SeatsPage() {
                         aria-label={`${t("seat")} ${current}`}
                         aria-pressed={isSelected}
                         className={cn(
-                          "group relative flex shrink-0 flex-col items-center transition disabled:cursor-not-allowed",
-                          !isBlocked && "cursor-pointer",
+                          "group relative flex shrink-0 flex-col items-center transition duration-150 disabled:cursor-not-allowed",
+                          !isBlocked && "cursor-pointer hover:-translate-y-0.5 active:scale-90",
                         )}
                       >
                         <SeatIcon
                           className={cn(
-                            "h-10 w-9 drop-shadow-sm transition",
+                            "h-10 w-9 drop-shadow-md transition-colors duration-150",
                             isSelected && "text-success",
                             !isSelected && isBooked && "text-danger",
                             !isSelected && isReserved && "text-gold",
-                            !isSelected && !isBooked && !isReserved && "text-white group-hover:text-success/20",
+                            !isSelected && !isBooked && !isReserved && "text-white group-hover:text-success/30",
                           )}
                         />
                         <span
@@ -289,12 +338,32 @@ export default function SeatsPage() {
                 </div>
               ))}
             </div>
+
+            {/* Rear wall — mirrors the front driver bar with a small wheel-well
+                bump on each side, capping the coach body at the back. */}
+            <div className="flex items-center justify-between border-t border-border bg-surface px-5 py-2">
+              <span className="h-2 w-2 rounded-full bg-border-strong/70" aria-hidden />
+              <span className="h-1.5 w-16 rounded-full bg-border-strong/40" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-border-strong/70" aria-hidden />
+            </div>
           </div>
         </Card>
 
-        <Button className="mt-4 w-full" loading={busy} onClick={next}>
-          {t("next")} · {selected.length} {t("seats")}
-        </Button>
+        <div className="sticky bottom-4 z-10 mt-4 rounded-2xl border border-border bg-surface/95 p-3 shadow-xl shadow-navy/10 backdrop-blur-md sm:p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-xs font-medium text-text-faint">
+                {selected.length} {t("seats")}
+              </p>
+              <p className="text-lg font-bold text-primary sm:text-xl">
+                {formatMoney((trip.price || 0) * selected.length)}
+              </p>
+            </div>
+            <Button loading={busy} onClick={next} className="shrink-0 shadow-lg shadow-primary/25">
+              {t("next")}
+            </Button>
+          </div>
+        </div>
       </div>
     </Protected>
   );
@@ -311,11 +380,22 @@ function Legend({ icon, label }: { icon: React.ReactNode; label: string }) {
 
 function SeatIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 40 44" fill="currentColor" stroke="rgba(15,23,42,0.18)" strokeWidth="1" className={className}>
-      <rect x="11" y="1.5" width="18" height="13" rx="5" />
-      <rect x="4" y="13" width="32" height="27" rx="9" />
-      <rect x="0" y="19" width="5" height="16" rx="2.5" />
-      <rect x="35" y="19" width="5" height="16" rx="2.5" />
+    <svg viewBox="0 0 40 44" className={className}>
+      <g fill="currentColor" stroke="rgba(15,23,42,0.18)" strokeWidth="1">
+        <rect x="11" y="1.5" width="18" height="13" rx="5" />
+        <rect x="4" y="13" width="32" height="27" rx="9" />
+        <rect x="0" y="19" width="5" height="16" rx="2.5" />
+        <rect x="35" y="19" width="5" height="16" rx="2.5" />
+      </g>
+      {/* Embossed shine/shadow overlays give the flat cushion shape a rounded,
+          upholstered look — plain white/black so they read correctly on top
+          of every seat color (available/selected/reserved/booked) without
+          needing per-instance gradients. */}
+      <rect x="12.5" y="2.5" width="15" height="5" rx="2.5" fill="#fff" fillOpacity="0.35" />
+      <rect x="6" y="15" width="28" height="7" rx="4.5" fill="#fff" fillOpacity="0.3" />
+      <rect x="5" y="31" width="30" height="7" rx="6" fill="#000" fillOpacity="0.14" />
+      <rect x="1" y="20" width="3" height="10" rx="1.5" fill="#fff" fillOpacity="0.25" />
+      <rect x="36" y="20" width="3" height="10" rx="1.5" fill="#fff" fillOpacity="0.25" />
     </svg>
   );
 }
@@ -325,6 +405,15 @@ function WheelIcon() {
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="12" r="8" />
       <path d="M12 4v4M12 16v4M4 12h4M16 12h4M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8" />
+    </svg>
+  );
+}
+
+function DoorIcon({ className }: { className?: string }) {
+  return (
+    <svg width="12" height="14" viewBox="0 0 12 14" fill="none" stroke="currentColor" strokeWidth="1.5" className={className}>
+      <rect x="0.75" y="0.75" width="10.5" height="12.5" rx="1.5" />
+      <path d="M6 0.75v12.5" strokeDasharray="1.6 1.6" />
     </svg>
   );
 }

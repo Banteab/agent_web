@@ -32,6 +32,13 @@ export const ENDPOINTS = {
   pendingBankPayments: "/booking/agent/pending-bank-payments",
   confirmBankPayment: (bookingId: number | string) =>
     `/booking/agent/${bookingId}/confirm-bank-payment`,
+  // Proposed — not live on the backend yet, see the booking-search page.
+  searchBookings: (params: { phone?: string; passenger?: string }) => {
+    const query = new URLSearchParams();
+    if (params.phone) query.set("phone", params.phone);
+    if (params.passenger) query.set("passenger", params.passenger);
+    return `/booking/agent/search?${query.toString()}`;
+  },
   refundRequest: "/refunds/request-cancellation",
   generateTickets: "/tickets/generate/agent",
   issueTicket: "/tickets/issue/agent",
@@ -64,7 +71,6 @@ export const STORAGE_KEYS = {
   recentHistories: "recentHistories",
   searchedBus: "searchedBus",
   bookingSession: "bookingSession",
-  pendingBankPayments: "pendingBankPayments",
   cancellationReasons: "cancellationReasons",
 } as const;
 
@@ -85,11 +91,15 @@ export const DEFAULT_LOCALE = "am-ET";
 
 export const BANKS = [
   { id: "CBE", name: "Commercial Bank of Ethiopia", logo: "/images/cbe.jpg" },
-  { id: "AWASH", name: "Awash Bank", logo: "/images/awash.png" },
+  { id: "AWASH", name: "Awash Bank", logo: "/images/awash.svg" },
   { id: "DASHEN", name: "Dashen Bank", logo: "/images/dashen.png" },
   { id: "COOP", name: "Cooperative Bank", logo: "/images/coop.png" },
+  { id: "TELEBIRR", name: "telebirr", logo: "/images/telebirr.png" },
 ] as const;
 
-// Banks offered at booking checkout for the BANK payment method. A small,
-// explicit subset of BANKS — CASH and REFERENCE are hidden there for now.
-export const CHECKOUT_BANKS = [BANKS[1], BANKS[0]];
+// Payment options offered at booking checkout for the BANK payment method. A
+// small, explicit subset of BANKS — CASH and REFERENCE are hidden there for now.
+const CHECKOUT_BANK_IDS = ["AWASH", "CBE", "TELEBIRR"] as const;
+export const CHECKOUT_BANKS = CHECKOUT_BANK_IDS.map(
+  (id) => BANKS.find((bank) => bank.id === id)!,
+);

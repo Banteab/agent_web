@@ -1,5 +1,6 @@
 "use client";
 
+import { BookingStepper } from "@/components/booking-stepper";
 import { Countdown } from "@/components/countdown";
 import { Protected } from "@/components/protected";
 import { Button, Card, DetailRow, Input, PageHeader, SectionLabel, Spinner } from "@/components/ui";
@@ -14,7 +15,7 @@ import {
 } from "@/lib/storage";
 import { notifyPendingPaymentsRefresh } from "@/lib/use-pending-bank-payments-count";
 import { useToast } from "@/lib/toast-context";
-import type { Booking } from "@/lib/types";
+import type { Booking, BookingCompleteSummary } from "@/lib/types";
 import { cn, formatMoney, parsePassengerNames } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -80,10 +81,21 @@ export default function PaymentPage() {
       }
       setBookingSession(current);
       if (method === "BANK") {
-        toast.success(res.message || t("booking_added"));
+        const summary: BookingCompleteSummary = {
+          kind: "bank_pending",
+          reservationNo: booking?.refNumber || String(current.bookingId),
+          fromCity: current.fromCity,
+          toCity: current.toCity,
+          travelDate: current.isoDate || booking?.trip?.travelDate,
+          passengers,
+          seats: (current.selectedSeats || []).map(String),
+          amount: total,
+          bank: bankName,
+        };
+        sessionStorage.setItem("bookingComplete", JSON.stringify(summary));
         clearBookingSession();
         notifyPendingPaymentsRefresh();
-        router.replace("/home");
+        router.replace("/book/complete");
         return;
       }
       router.push("/book/reservation");
@@ -99,6 +111,7 @@ export default function PaymentPage() {
   return (
     <Protected>
       <div className="mx-auto max-w-3xl">
+        <BookingStepper current="payment" t={t} />
         <PageHeader
           title={t("how_to_pay")}
           backHref="/book/passengers"
@@ -151,21 +164,25 @@ export default function PaymentPage() {
                       type="button"
                       onClick={() => setBank(item.id)}
                       className={cn(
-                        "flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition",
-                        active ? "border-primary bg-primary/10" : "border-border hover:bg-surface-muted",
+                        "relative flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition duration-150 active:scale-[0.98]",
+                        active
+                          ? "border-primary bg-primary/10 shadow-sm"
+                          : "border-border hover:-translate-y-0.5 hover:border-primary/30 hover:bg-surface-muted hover:shadow-sm",
                       )}
                     >
-                      <span
-                        className={cn(
-                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-                          active ? "bg-primary text-white" : "bg-surface-muted text-text-muted",
-                        )}
-                      >
-                        <BankIcon />
+                      <span className="flex h-11 w-16 shrink-0 items-center justify-center rounded-lg border border-border bg-white p-1.5">
+                        <img src={item.logo} alt={item.name} className="h-full w-full object-contain" />
                       </span>
                       <span className={cn("text-sm font-semibold", active ? "text-primary" : "text-navy")}>
                         {item.name}
                       </span>
+                      {active ? (
+                        <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                            <path d="m5 13 4 4 10-10" />
+                          </svg>
+                        </span>
+                      ) : null}
                     </button>
                   );
                 })}
@@ -188,20 +205,23 @@ export default function PaymentPage() {
           <DetailRow label={t("total")} value={<span className="text-primary">{formatMoney(total)}</span>} />
         </Card>
 
-        <Button className="mt-4 w-full" loading={saving} onClick={submit}>
-          {t("next")}
+        <Button
+          className="group mt-4 h-12 w-full text-[15px] shadow-md shadow-primary/25"
+          loading={saving}
+          onClick={submit}
+        >
+          {t("confirm_booking")}
+          <ArrowRightIcon className="transition-transform duration-150 group-hover:translate-x-1" />
         </Button>
       </div>
     </Protected>
   );
 }
 
-function BankIcon() {
+function ArrowRightIcon({ className }: { className?: string }) {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 10 12 4l9 6" />
-      <path d="M5 10v9M10 10v9M14 10v9M19 10v9" />
-      <path d="M3 19h18" />
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={className}>
+      <path d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   );
 }

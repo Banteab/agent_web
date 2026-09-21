@@ -1,28 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand */
-  --background: #f3f5f8;
-  --foreground: #101828;
-  --primary: #0a5fa0;
-  --primary-dark: #084b80;
-  --primary-soft: #eaf3fb;
+  /* Brand — teal/mint accent with a deep indigo-navy for headlines */
+  --background: #f0fbf9;
+  --foreground: #0f2138;
+  --primary: #0d9488;
+  --primary-dark: #0b7a70;
+  --primary-soft: #e3faf5;
   --gold: #eab308;
   --gold-soft: #fef9e6;
   --gold-ink: #92670a;
-  --navy: #0a1730;
-  --azure: #eaf1f6;
+  --navy: #122a52;
+  --azure: #e3f6f3;
   --accent-red: #dc2626;
   --accent-red-soft: #fdecec;
 
   /* Neutral surface scale */
   --surface: #ffffff;
-  --surface-muted: #f6f8fa;
-  --border: #e3e7ed;
-  --border-strong: #cbd2dc;
-  --text: #101828;
-  --text-muted: #5b6472;
-  --text-faint: #8891a0;
+  --surface-muted: #eef8f6;
+  --border: #dfe9e6;
+  --border-strong: #c4d3cf;
+  --text: #0f2138;
+  --text-muted: #5b6c72;
+  --text-faint: #8899a0;
 
   /* Semantic status */
   --success: #157a45;
@@ -31,8 +31,8 @@
   --warning-soft: #fef3c7;
   --danger: #dc2626;
   --danger-soft: #fdecec;
-  --info: #0a5fa0;
-  --info-soft: #eaf3fb;
+  --info: #0d9488;
+  --info-soft: #e3faf5;
 }
 
 @theme inline {
@@ -68,6 +68,7 @@
   --color-info-soft: var(--info-soft);
 
   --font-sans: var(--font-inter), "Segoe UI", Arial, Helvetica, sans-serif;
+  --font-display: var(--font-poppins), var(--font-inter), "Segoe UI", Arial, Helvetica, sans-serif;
 }
 
 html,
@@ -119,6 +120,120 @@ body {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleCheck {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(16px) scale(0.97);
+  }
+}
+
+@keyframes cloudDriftSlow {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(140vw);
+  }
+}
+
+@keyframes roadDashes {
+  from {
+    background-position-y: 0;
+  }
+  to {
+    background-position-y: 40px;
+  }
+}
+
+@keyframes driveAcross {
+  0% {
+    left: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
   }
 }
 

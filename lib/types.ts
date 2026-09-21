@@ -167,6 +167,9 @@ export type Booking = {
     travelDate?: string;
   };
   tickets?: unknown[];
+  // Proposed for the booking-search endpoint — lets the search result link
+  // straight to /cancel/summary for a booking the searching agent owns.
+  ticketNumbers?: string[];
 };
 
 export type Ticket = {
@@ -257,6 +260,23 @@ export type BookingSession = {
   dropoff?: string;
   phoneNumber?: string;
   passengers?: string;
+  ticketNumbers?: string[];
+};
+
+// Summary handed off from the payment/review step to the booking-complete
+// screen (app/book/complete). "bank_pending" is the live flow (a booking
+// awaiting bank confirmation); "ticket_issued" covers the cash/reference
+// flow where a ticket is generated immediately.
+export type BookingCompleteSummary = {
+  kind: "bank_pending" | "ticket_issued";
+  reservationNo?: string;
+  fromCity?: string;
+  toCity?: string;
+  travelDate?: string;
+  passengers: string[];
+  seats: string[];
+  amount?: number;
+  bank?: string;
   ticketNumbers?: string[];
 };
 

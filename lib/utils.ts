@@ -24,6 +24,21 @@ export function formatDisplayDate(date: Date, locale?: string) {
   });
 }
 
+/**
+ * Formats a raw date string from the API (a plain "YYYY-MM-DD" or a full
+ * timestamp) for display, switching to the Ethiopian calendar when the
+ * active locale is Amharic. Only the date part is used — parsing it at
+ * local midnight keeps the calendar day stable regardless of the API's
+ * time-of-day or timezone suffix.
+ */
+export function formatDisplayDateValue(value?: string | null, locale?: string) {
+  if (!value) return "-";
+  const ymd = value.slice(0, 10);
+  const parsed = new Date(`${ymd}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return formatDisplayDate(parsed, locale);
+}
+
 export function formatMoney(value?: number | string | null) {
   const n = Number(value ?? 0);
   return `${n.toLocaleString()} ETB`;

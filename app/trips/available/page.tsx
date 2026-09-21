@@ -7,12 +7,12 @@ import { useI18n } from "@/lib/i18n";
 import { getBookingSession, setBookingSession } from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { CancellationPolicy, SearchResult } from "@/lib/types";
-import { citySearchName, formatMoney } from "@/lib/utils";
+import { citySearchName, formatDisplayDateValue, formatMoney } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 function AvailableBuses() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const toast = useToast();
   const router = useRouter();
   const params = useSearchParams();
@@ -56,10 +56,14 @@ function AvailableBuses() {
         {loading ? <Spinner /> : null}
         {!loading && !trips.length ? <EmptyState title={t("no_available")} /> : null}
         <div className="space-y-3">
-          {trips.map((trip) => {
+          {trips.map((trip, index) => {
             const lowSeats = typeof trip.seatsLeft === "number" && trip.seatsLeft <= 5;
             return (
-              <Card key={trip.id} className="space-y-3">
+              <Card
+                key={trip.id}
+                style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
+                className="animate-[riseIn_360ms_ease-out_forwards] space-y-3 opacity-0 transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-bold text-navy">{trip.busAssociation || t("bus")}</p>
@@ -77,7 +81,7 @@ function AvailableBuses() {
                   <span>{trip.arrivalTime}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-text-muted">
-                  <span>{trip.travelDate}</span>
+                  <span>{formatDisplayDateValue(trip.travelDate, locale)}</span>
                   <Badge tone={lowSeats ? "danger" : "info"}>
                     {trip.seatsLeft} {t("seats")}
                   </Badge>
