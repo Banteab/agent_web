@@ -4,6 +4,8 @@ import { BrandLogo } from "@/components/brand-logo";
 import { SupportIllustration } from "@/components/support-illustration";
 import { Button, Field, Input } from "@/components/ui";
 import { useAuth } from "@/lib/auth-context";
+import { DEVTOOLS_GUARD_ENABLED } from "@/lib/constants";
+import { isDevToolsLikelyOpen } from "@/lib/devtools-guard";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
 import { useRouter } from "next/navigation";
@@ -19,7 +21,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (ready && token) router.replace("/home");
+    if (!ready || !token) return;
+    if (DEVTOOLS_GUARD_ENABLED && isDevToolsLikelyOpen()) return;
+    router.replace("/home");
   }, [ready, token, router]);
 
   async function onSubmit(e: FormEvent) {

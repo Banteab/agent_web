@@ -12,7 +12,8 @@ import {
 } from "react";
 import { api } from "./api";
 import { ApiError } from "./api/client";
-import { BRAND_LOGO, BRAND_NAME, STORAGE_KEYS } from "./constants";
+import { BRAND_LOGO, BRAND_NAME, DEVTOOLS_GUARD_ENABLED, STORAGE_KEYS } from "./constants";
+import { isDevToolsLikelyOpen } from "./devtools-guard";
 import { useI18n } from "./i18n";
 import { registerSessionInvalidHandler } from "./session-guard";
 import {
@@ -184,10 +185,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token, refreshProfile]);
 
   const login = useCallback(async (phone: string, password: string) => {
+    if (DEVTOOLS_GUARD_ENABLED && isDevToolsLikelyOpen()) {
+      throw new ApiError(t("devtools_blocked_toast"), 403);
+    }
     const res = await api.login(phone, password);
     const token = res.data?.access_token || (res.data as { accessToken?: string } | undefined)?.accessToken;
     if (!res?.success || !token) {
       throw new ApiError(res?.message || "Login failed", res?.status || 400, res);
+    }
+    if (DEVTOOLS_GUARD_ENABLED && isDevToolsLikelyOpen()) {
+      throw new ApiError(t("devtools_blocked_toast"), 403);
     }
     setAuthSession({
       token,
@@ -199,17 +206,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLogo(BRAND_LOGO);
     setAssociationName(BRAND_NAME);
     return res.message || "Logged in";
-  }, []);
+  }, [t]);
 
   const logoutManual = useCallback(() => {
     logout("manual");
   }, [logout]);
 
   const logoutOnDevTools = useCallback(() => {
+    const hadSession = Boolean(getToken());
     clearAuthSession();
     setToken(null);
     setProfile(null);
-    toast.error(t("devtools_blocked_toast"));
+    if (hadSession) {
+      toast.error(t("devtools_blocked_toast"));
+    }
     router.replace("/");
   }, [router, t, toast]);
 

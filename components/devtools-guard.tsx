@@ -1,16 +1,22 @@
 "use client";
 
+import { useAuth } from "@/lib/auth-context";
 import { DEVTOOLS_GUARD_ENABLED } from "@/lib/constants";
 import { isDevToolsLikelyOpen } from "@/lib/devtools-guard";
-import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
-import { useEffect, useRef, useState } from "react";
+import { getToken } from "@/lib/storage";
+import { useEffect, useState } from "react";
+
+function readBlocked() {
+  return DEVTOOLS_GUARD_ENABLED && isDevToolsLikelyOpen();
+}
 
 export function DevToolsGuard({ children }: { children: React.ReactNode }) {
   const { t } = useI18n();
-  const { token, logoutOnDevTools } = useAuth();
-  const [blocked, setBlocked] = useState(false);
-  const trippedRef = useRef(false);
+  const { logoutOnDevTools } = useAuth();
+  const [blocked, setBlocked] = useState(
+    () => typeof window !== "undefined" && readBlocked(),
+  );
 
   useEffect(() => {
     if (!DEVTOOLS_GUARD_ENABLED) return;
@@ -18,25 +24,23 @@ export function DevToolsGuard({ children }: { children: React.ReactNode }) {
     const check = () => {
       const detected = isDevToolsLikelyOpen();
       setBlocked(detected);
-
-      if (detected && !trippedRef.current) {
-        trippedRef.current = true;
+      if (detected && getToken()) {
         logoutOnDevTools();
-        return;
-      }
-      if (!detected) {
-        trippedRef.current = false;
       }
     };
 
     check();
-    const timer = window.setInterval(check, 800);
+    const timer = window.setInterval(check, 500);
     window.addEventListener("resize", check);
+    window.addEventListener("focus", check);
+    document.addEventListener("visibilitychange", check);
     return () => {
       window.clearInterval(timer);
       window.removeEventListener("resize", check);
+      window.removeEventListener("focus", check);
+      document.removeEventListener("visibilitychange", check);
     };
-  }, [logoutOnDevTools, token]);
+  }, [logoutOnDevTools]);
 
   if (!DEVTOOLS_GUARD_ENABLED) return <>{children}</>;
 
