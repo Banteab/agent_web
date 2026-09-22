@@ -12,15 +12,17 @@ import {
 } from "react";
 import { api } from "./api";
 import { ApiError } from "./api/client";
-import { BRAND_LOGO, BRAND_NAME } from "./constants";
+import { BRAND_LOGO, BRAND_NAME, STORAGE_KEYS } from "./constants";
 import { useI18n } from "./i18n";
 import { registerSessionInvalidHandler } from "./session-guard";
 import {
   clearAuthSession,
   getSessionExpiresAt,
   getToken,
+  isAuthStorageKey,
   isSessionExpired,
   setAuthSession,
+  storage,
 } from "./storage";
 import { useToast } from "./toast-context";
 import type { Profile } from "./types";
@@ -35,6 +37,8 @@ type AuthContextValue = {
   logout: () => void;
   refreshProfile: () => Promise<void>;
 };
+
+type LogoutReason = "expired" | "unauthorized" | "manual" | "sync";
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -57,16 +61,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [logo, setLogo] = useState(BRAND_LOGO);
   const [associationName, setAssociationName] = useState(BRAND_NAME);
-  const logoutRef = useRef<(reason?: "expired" | "unauthorized" | "manual") => void>(() => {});
+  const logoutRef = useRef<(reason?: LogoutReason) => void>(() => {});
 
   const logout = useCallback(
-    (reason: "expired" | "unauthorized" | "manual" = "manual") => {
+    (reason: LogoutReason = "manual") => {
+      if (reason === "sync") {
+        setToken(null);
+        setProfile(null);
+        router.replace("/");
+        return;
+      }
       clearAuthSession();
       setToken(null);
       setProfile(null);
-      if (reason === "expired") {
-        toast.error(t("session_expired"));
-      } else if (reason === "unauthorized") {
+      if (reason === "expired" || reason === "unauthorized") {
         toast.error(t("session_expired"));
       }
       router.replace("/");
@@ -76,24 +84,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   logoutRef.current = logout;
 
-  const hydrate = useCallback(() => {
+  const applyAuthFromStorage = useCallback((): boolean => {
     if (isSessionExpired()) {
       clearAuthSession();
       setToken(null);
-      setReady(true);
-      return;
+      setProfile(null);
+      return false;
     }
     const saved = getToken();
     if (saved && !isJwtExpired(saved)) {
       setToken(saved);
       setLogo(BRAND_LOGO);
       setAssociationName(BRAND_NAME);
-    } else {
-      clearAuthSession();
-      setToken(null);
+      return true;
     }
-    setReady(true);
+    if (saved) clearAuthSession();
+    setToken(null);
+    setProfile(null);
+    return false;
   }, []);
+
+  const hydrate = useCallback(() => {
+    applyAuthFromStorage();
+    setReady(true);
+  }, [applyAuthFromStorage]);
 
   useEffect(() => {
     hydrate();
@@ -105,11 +119,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const refreshProfile = useCallback(async () => {
+    if (!getToken()) return;
+    try {
+      const data = await api.getProfile();
+      setProfile(data);
+    } catch {
+      // Keep the session; profile can retry from screens.
+    }
+  }, []);
+
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (!isAuthStorageKey(event.key)) return;
+      const active = applyAuthFromStorage();
+      if (!active) {
+        logoutRef.current("sync");
+        return;
+      }
+      if (event.key === STORAGE_KEYS.token && event.newValue) {
+        void refreshProfile();
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [applyAuthFromStorage, refreshProfile]);
+
   useEffect(() => {
     if (!token) return;
 
     const syncExpiry = () => {
-      if (isSessionExpired()) logoutRef.current("expired");
+      if (!isSessionExpired()) return;
+      if (storage.get(STORAGE_KEYS.token)) {
+        logoutRef.current("expired");
+      } else {
+        logoutRef.current("sync");
+      }
     };
 
     syncExpiry();
@@ -118,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (expiresAt) {
       const remaining = expiresAt - Date.now();
       if (remaining > 0) {
-        timer = setTimeout(() => logoutRef.current("expired"), remaining);
+        timer = setTimeout(syncExpiry, remaining);
       }
     }
 
@@ -132,16 +177,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       document.removeEventListener("visibilitychange", onFocus);
     };
   }, [token]);
-
-  const refreshProfile = useCallback(async () => {
-    if (!getToken()) return;
-    try {
-      const data = await api.getProfile();
-      setProfile(data);
-    } catch {
-      // Keep the session; profile can retry from screens.
-    }
-  }, []);
 
   useEffect(() => {
     if (token) void refreshProfile();

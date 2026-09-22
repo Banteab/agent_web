@@ -3,6 +3,34 @@ import type { BookingSession, SearchResult } from "./types";
 
 const browser = () => typeof window !== "undefined";
 
+/** Shared across tabs in the same browser (localStorage). */
+export const AUTH_STORAGE_KEYS = [
+  STORAGE_KEYS.token,
+  STORAGE_KEYS.sessionExpiresAt,
+  STORAGE_KEYS.imageUrl,
+  STORAGE_KEYS.themeColor,
+  STORAGE_KEYS.busAssociationName,
+] as const;
+
+function clearLegacySessionStorageAuth() {
+  if (!browser()) return;
+  for (const key of AUTH_STORAGE_KEYS) {
+    window.sessionStorage.removeItem(key);
+  }
+}
+
+function migrateSessionStorageAuthToLocalStorage() {
+  if (!browser()) return;
+  if (storage.get(STORAGE_KEYS.token)) return;
+  const token = window.sessionStorage.getItem(STORAGE_KEYS.token);
+  if (!token) return;
+  for (const key of AUTH_STORAGE_KEYS) {
+    const value = window.sessionStorage.getItem(key);
+    if (value != null) storage.set(key, value);
+  }
+  clearLegacySessionStorageAuth();
+}
+
 export const storage = {
   get(key: string) {
     if (!browser()) return null;
@@ -19,11 +47,13 @@ export const storage = {
 };
 
 export function getToken() {
+  migrateSessionStorageAuthToLocalStorage();
   if (isSessionExpired()) return null;
   return storage.get(STORAGE_KEYS.token);
 }
 
 export function getSessionExpiresAt(): number | null {
+  migrateSessionStorageAuthToLocalStorage();
   const raw = storage.get(STORAGE_KEYS.sessionExpiresAt);
   if (!raw) return null;
   const ms = Number(raw);
@@ -31,6 +61,7 @@ export function getSessionExpiresAt(): number | null {
 }
 
 export function isSessionExpired(): boolean {
+  migrateSessionStorageAuthToLocalStorage();
   const token = storage.get(STORAGE_KEYS.token);
   if (!token) return false;
   const expiresAt = getSessionExpiresAt();
@@ -44,6 +75,7 @@ export function setAuthSession(data: {
   themeColor?: string;
   busAssociationName?: string;
 }) {
+  clearLegacySessionStorageAuth();
   storage.set(STORAGE_KEYS.token, data.token);
   storage.set(
     STORAGE_KEYS.sessionExpiresAt,
@@ -57,11 +89,15 @@ export function setAuthSession(data: {
 }
 
 export function clearAuthSession() {
-  storage.remove(STORAGE_KEYS.token);
-  storage.remove(STORAGE_KEYS.sessionExpiresAt);
-  storage.remove(STORAGE_KEYS.imageUrl);
-  storage.remove(STORAGE_KEYS.themeColor);
-  storage.remove(STORAGE_KEYS.busAssociationName);
+  for (const key of AUTH_STORAGE_KEYS) {
+    storage.remove(key);
+  }
+  clearLegacySessionStorageAuth();
+}
+
+export function isAuthStorageKey(key: string | null) {
+  if (!key) return false;
+  return (AUTH_STORAGE_KEYS as readonly string[]).includes(key);
 }
 
 export function getRecentHistory(): string[] {
