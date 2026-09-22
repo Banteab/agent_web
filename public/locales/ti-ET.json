@@ -320,6 +320,7 @@
     "reports_and_account": "ጸብጻባትን ሕሳብን",
     "logout": "ውጻእ",
     "session_expired": "ግዜ ክፍለ-ግዜኻ ተዛሪዱ። በጃኻ ደጊምካ እተው።",
+    "session_in_seconds": "ክፍለ-ግዜ ብሰከንድ:",
     "no_pending_payments": "ኣብ ምጽባይ ዘሎ ክፍሊት የለን",
     "no_pending_payments_hint": "ማረጋገጺ ኣብ ምጽባይ ዘለዉ ናይ ባንክ ክፍሊታት ኣብዚ ክርአዩ እዮም።",
     "search_pending_payments": "ብPNR፣ ብቁጽሪ ምሕዛእ፣ ብተሳፋሪ ወይ ብተሌፎን ድለዩ",

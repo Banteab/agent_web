@@ -10,6 +10,7 @@ import { useState } from "react";
 import { AccountMenu } from "./account-menu";
 import { BrandLogo } from "./brand-logo";
 import { Protected } from "./protected";
+import { SessionCountdown } from "./session-countdown";
 
 type NavItem = { href: string; key: string; icon: (props: { className?: string }) => React.ReactNode; badge?: boolean };
 
@@ -66,6 +67,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
             <div className="flex-1 lg:hidden" />
 
+            <div className="hidden shrink-0 items-center sm:flex">
+              <SessionCountdown />
+            </div>
+
             <div className="flex items-center gap-1.5">
               <AccountMenu
                 profile={profile}
@@ -91,6 +96,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           {mobileOpen ? (
             <nav className="origin-top animate-[dropIn_150ms_ease-out] border-t border-border bg-surface px-3 py-2 lg:hidden">
+              <div className="mb-2 flex justify-center border-b border-border pb-2 sm:hidden">
+                <SessionCountdown />
+              </div>
               {NAV_ITEMS.map((item) => (
                 <NavLink
                   key={item.href}

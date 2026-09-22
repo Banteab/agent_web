@@ -3,6 +3,21 @@ import type { BookingSession, SearchResult } from "./types";
 
 const browser = () => typeof window !== "undefined";
 
+export const SESSION_EXPIRY_CHANGED_EVENT = "session-expiry-changed";
+export const SESSION_COUNTDOWN_CHANNEL = "biftu-agent-session-countdown";
+
+function notifySessionExpiryChanged() {
+  if (!browser()) return;
+  window.dispatchEvent(new Event(SESSION_EXPIRY_CHANGED_EVENT));
+  try {
+    const channel = new BroadcastChannel(SESSION_COUNTDOWN_CHANNEL);
+    channel.postMessage({ at: Date.now() });
+    channel.close();
+  } catch {
+    // BroadcastChannel unsupported — localStorage + storage event still sync tabs.
+  }
+}
+
 /** Shared across tabs in the same browser (localStorage). */
 export const AUTH_STORAGE_KEYS = [
   STORAGE_KEYS.token,
@@ -60,6 +75,12 @@ export function getSessionExpiresAt(): number | null {
   return Number.isFinite(ms) ? ms : null;
 }
 
+export function getSessionRemainingSeconds(): number {
+  const expiresAt = getSessionExpiresAt();
+  if (!expiresAt) return 0;
+  return Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
+}
+
 export function isSessionExpired(): boolean {
   migrateSessionStorageAuthToLocalStorage();
   const token = storage.get(STORAGE_KEYS.token);
@@ -86,6 +107,7 @@ export function setAuthSession(data: {
   if (data.busAssociationName) {
     storage.set(STORAGE_KEYS.busAssociationName, data.busAssociationName);
   }
+  notifySessionExpiryChanged();
 }
 
 export function clearAuthSession() {
@@ -93,6 +115,7 @@ export function clearAuthSession() {
     storage.remove(key);
   }
   clearLegacySessionStorageAuth();
+  notifySessionExpiryChanged();
 }
 
 export function isAuthStorageKey(key: string | null) {
