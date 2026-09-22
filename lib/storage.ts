@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from "./constants";
+import { SESSION_TTL_SECONDS, STORAGE_KEYS } from "./constants";
 import type { BookingSession, SearchResult } from "./types";
 
 const browser = () => typeof window !== "undefined";
@@ -19,7 +19,23 @@ export const storage = {
 };
 
 export function getToken() {
+  if (isSessionExpired()) return null;
   return storage.get(STORAGE_KEYS.token);
+}
+
+export function getSessionExpiresAt(): number | null {
+  const raw = storage.get(STORAGE_KEYS.sessionExpiresAt);
+  if (!raw) return null;
+  const ms = Number(raw);
+  return Number.isFinite(ms) ? ms : null;
+}
+
+export function isSessionExpired(): boolean {
+  const token = storage.get(STORAGE_KEYS.token);
+  if (!token) return false;
+  const expiresAt = getSessionExpiresAt();
+  if (!expiresAt) return true;
+  return Date.now() >= expiresAt;
 }
 
 export function setAuthSession(data: {
@@ -29,6 +45,10 @@ export function setAuthSession(data: {
   busAssociationName?: string;
 }) {
   storage.set(STORAGE_KEYS.token, data.token);
+  storage.set(
+    STORAGE_KEYS.sessionExpiresAt,
+    String(Date.now() + SESSION_TTL_SECONDS * 1000),
+  );
   if (data.imageUrl) storage.set(STORAGE_KEYS.imageUrl, data.imageUrl);
   if (data.themeColor) storage.set(STORAGE_KEYS.themeColor, data.themeColor);
   if (data.busAssociationName) {
@@ -38,6 +58,7 @@ export function setAuthSession(data: {
 
 export function clearAuthSession() {
   storage.remove(STORAGE_KEYS.token);
+  storage.remove(STORAGE_KEYS.sessionExpiresAt);
   storage.remove(STORAGE_KEYS.imageUrl);
   storage.remove(STORAGE_KEYS.themeColor);
   storage.remove(STORAGE_KEYS.busAssociationName);

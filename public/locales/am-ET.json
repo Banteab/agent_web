@@ -318,6 +318,7 @@
     "workspace": "የስራ ቦታ",
     "reports_and_account": "ሪፖርቶች እና መለያ",
     "logout": "ውጣ",
+    "session_expired": "የእርስዎ ሴሽን ጊዜው አልፏል። እባክዎ እንደገና ይግቡ።",
     "no_pending_payments": "በመጠባበቅ ላይ ያለ ክፍያ የለም",
     "no_pending_payments_hint": "ማረጋገጫ በመጠባበቅ ላይ ያሉ የባንክ ክፍያዎች እዚህ ይታያሉ።",
     "search_pending_payments": "በPNR፣ በማስያዣ ቁጥር፣ በተጓዥ ወይም በስልክ ቁጥር ይፈልጉ",

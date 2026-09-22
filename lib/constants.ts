@@ -5,6 +5,12 @@ export const API_BASE_URL =
 
 export const API_KEY = process.env.NEXT_PUBLIC_API_KEY ?? "zR0ClHzLGi";
 
+const sessionTtlRaw = process.env.NEXT_PUBLIC_SESSION_TTL_SECONDS;
+const sessionTtlParsed = sessionTtlRaw ? Number.parseInt(sessionTtlRaw, 10) : 7200;
+/** Agent session length from login (seconds). Default 7200 = 2 hours. */
+export const SESSION_TTL_SECONDS =
+  Number.isFinite(sessionTtlParsed) && sessionTtlParsed > 0 ? sessionTtlParsed : 7200;
+
 export const ENDPOINTS = {
   login: "/agent/auth/login",
   profile: "/agent/profile",
@@ -64,6 +70,7 @@ export const logoUrl = (imageUrl?: string | null) =>
 
 export const STORAGE_KEYS = {
   token: "token_key",
+  sessionExpiresAt: "session_expires_at",
   imageUrl: "image_url",
   themeColor: "theme_color",
   busAssociationName: "bus_association_name",

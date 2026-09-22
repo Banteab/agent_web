@@ -1,5 +1,6 @@
 import { API_BASE_URL, API_KEY } from "../constants";
-import { getToken } from "../storage";
+import { notifySessionInvalid } from "../session-guard";
+import { getToken, isSessionExpired } from "../storage";
 
 export class ApiError extends Error {
   status: number;
@@ -38,6 +39,10 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
   if (options.apiKey) headers["x-api-key"] = API_KEY;
   if (options.auth !== false) {
+    if (isSessionExpired()) {
+      notifySessionInvalid("expired");
+      throw new ApiError("Session expired", 401);
+    }
     const token = getToken();
     if (token) headers.Authorization = `Bearer ${token}`;
   }
@@ -66,6 +71,9 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   const envelope = parsed && typeof parsed === "object" ? (parsed as { success?: boolean; message?: string; error?: string }) : null;
   const failed = !res.ok || envelope?.success === false || contentType.includes("text/html");
   if (failed) {
+    if (res.status === 401 && options.auth !== false) {
+      notifySessionInvalid("unauthorized");
+    }
     const message =
       (envelope?.message && String(envelope.message)) ||
       (envelope?.error && String(envelope.error)) ||

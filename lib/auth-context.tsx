@@ -7,12 +7,22 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { api } from "./api";
 import { ApiError } from "./api/client";
 import { BRAND_LOGO, BRAND_NAME } from "./constants";
-import { clearAuthSession, getToken, setAuthSession, storage } from "./storage";
+import { useI18n } from "./i18n";
+import { registerSessionInvalidHandler } from "./session-guard";
+import {
+  clearAuthSession,
+  getSessionExpiresAt,
+  getToken,
+  isSessionExpired,
+  setAuthSession,
+} from "./storage";
+import { useToast } from "./toast-context";
 import type { Profile } from "./types";
 
 type AuthContextValue = {
@@ -40,13 +50,39 @@ function isJwtExpired(token: string) {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const toast = useToast();
+  const { t } = useI18n();
   const [ready, setReady] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [logo, setLogo] = useState(BRAND_LOGO);
   const [associationName, setAssociationName] = useState(BRAND_NAME);
+  const logoutRef = useRef<(reason?: "expired" | "unauthorized" | "manual") => void>(() => {});
+
+  const logout = useCallback(
+    (reason: "expired" | "unauthorized" | "manual" = "manual") => {
+      clearAuthSession();
+      setToken(null);
+      setProfile(null);
+      if (reason === "expired") {
+        toast.error(t("session_expired"));
+      } else if (reason === "unauthorized") {
+        toast.error(t("session_expired"));
+      }
+      router.replace("/");
+    },
+    [router, t, toast],
+  );
+
+  logoutRef.current = logout;
 
   const hydrate = useCallback(() => {
+    if (isSessionExpired()) {
+      clearAuthSession();
+      setToken(null);
+      setReady(true);
+      return;
+    }
     const saved = getToken();
     if (saved && !isJwtExpired(saved)) {
       setToken(saved);
@@ -62,6 +98,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     hydrate();
   }, [hydrate]);
+
+  useEffect(() => {
+    registerSessionInvalidHandler((reason) => {
+      logoutRef.current(reason);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const syncExpiry = () => {
+      if (isSessionExpired()) logoutRef.current("expired");
+    };
+
+    syncExpiry();
+    const expiresAt = getSessionExpiresAt();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    if (expiresAt) {
+      const remaining = expiresAt - Date.now();
+      if (remaining > 0) {
+        timer = setTimeout(() => logoutRef.current("expired"), remaining);
+      }
+    }
+
+    const onFocus = () => syncExpiry();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [token]);
 
   const refreshProfile = useCallback(async () => {
     if (!getToken()) return;
@@ -95,12 +165,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return res.message || "Logged in";
   }, []);
 
-  const logout = useCallback(() => {
-    clearAuthSession();
-    setToken(null);
-    setProfile(null);
-    router.replace("/");
-  }, [router]);
+  const logoutManual = useCallback(() => {
+    logout("manual");
+  }, [logout]);
 
   const value = useMemo(
     () => ({
@@ -110,10 +177,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logo,
       associationName,
       login,
-      logout,
+      logout: logoutManual,
       refreshProfile,
     }),
-    [ready, token, profile, logo, associationName, login, logout, refreshProfile],
+    [ready, token, profile, logo, associationName, login, logoutManual, refreshProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

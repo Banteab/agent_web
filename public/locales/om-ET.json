@@ -319,6 +319,7 @@
     "workspace": "Bakka Hojii",
     "reports_and_account": "Gabaasaa fi Herrega",
     "logout": "Bahi",
+    "session_expired": "Yeroon seeshinii kee darbee jira. Maaloo irra deebi'ii seeni.",
     "no_pending_payments": "Kaffaltiin eegamaa jiru hin jiru",
     "no_pending_payments_hint": "Kaffaltiiwwan baankii mirkaneessa eegaa jiran asitti ni mul'atu.",
     "search_pending_payments": "PNR, lakkoofsa iyyannoo, imaltuu yookiin bilbilaan barbaadi",
