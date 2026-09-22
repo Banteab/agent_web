@@ -11,6 +11,12 @@ const sessionTtlParsed = sessionTtlRaw ? Number.parseInt(sessionTtlRaw, 10) : 72
 export const SESSION_TTL_SECONDS =
   Number.isFinite(sessionTtlParsed) && sessionTtlParsed > 0 ? sessionTtlParsed : 7200;
 
+/** Block the app when DevTools appears to be open (bypass: NEXT_PUBLIC_ALLOW_DEVTOOLS=true). */
+export const DEVTOOLS_GUARD_ENABLED =
+  process.env.NEXT_PUBLIC_ALLOW_DEVTOOLS !== "true" &&
+  (process.env.NODE_ENV === "production" ||
+    process.env.NEXT_PUBLIC_DEVTOOLS_GUARD === "true");
+
 export const ENDPOINTS = {
   login: "/agent/auth/login",
   profile: "/agent/profile",

@@ -35,6 +35,7 @@ type AuthContextValue = {
   associationName: string;
   login: (phone: string, password: string) => Promise<string>;
   logout: () => void;
+  logoutOnDevTools: () => void;
   refreshProfile: () => Promise<void>;
 };
 
@@ -204,6 +205,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout("manual");
   }, [logout]);
 
+  const logoutOnDevTools = useCallback(() => {
+    clearAuthSession();
+    setToken(null);
+    setProfile(null);
+    toast.error(t("devtools_blocked_toast"));
+    router.replace("/");
+  }, [router, t, toast]);
+
   const value = useMemo(
     () => ({
       ready,
@@ -213,9 +222,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       associationName,
       login,
       logout: logoutManual,
+      logoutOnDevTools,
       refreshProfile,
     }),
-    [ready, token, profile, logo, associationName, login, logoutManual, refreshProfile],
+    [ready, token, profile, logo, associationName, login, logoutManual, logoutOnDevTools, refreshProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
