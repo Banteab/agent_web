@@ -1,8 +1,14 @@
 import { formatEthiopianDate } from "./ethiopian-calendar";
-import type { ReportPassenger } from "./types";
+import type { ReportPassenger, SearchResult } from "./types";
 
 export function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
+}
+
+/** Trips marked INACTIVE in bus-admin must not be shown to agents. */
+export function isActiveTrip(trip: Pick<SearchResult, "status"> | null | undefined) {
+  const status = (trip?.status || "ACTIVE").toUpperCase();
+  return status !== "INACTIVE";
 }
 
 export function formatDateISO(date: Date) {

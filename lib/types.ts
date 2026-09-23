@@ -85,6 +85,7 @@ export type SearchResult = {
   selectedRoute?: string | RouteObject;
   travelDate?: string;
   isSubRoute?: boolean;
+  status?: string;
   route?: RouteObject;
   routeObject?: RouteObject;
   mainRoute?: RouteObject;

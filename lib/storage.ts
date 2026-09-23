@@ -1,5 +1,6 @@
 import { SESSION_TTL_SECONDS, STORAGE_KEYS } from "./constants";
 import type { BookingSession, SearchResult } from "./types";
+import { isActiveTrip } from "./utils";
 
 const browser = () => typeof window !== "undefined";
 
@@ -156,14 +157,18 @@ export function addRecentHistory(from: { name: string; sys: string }, to: { name
 
 export function getSearchedBus(): SearchResult[] {
   try {
-    return JSON.parse(storage.get(STORAGE_KEYS.searchedBus) || "[]");
+    const trips = JSON.parse(storage.get(STORAGE_KEYS.searchedBus) || "[]");
+    return Array.isArray(trips) ? trips.filter(isActiveTrip) : [];
   } catch {
     return [];
   }
 }
 
 export function setSearchedBus(trips: SearchResult[]) {
-  storage.set(STORAGE_KEYS.searchedBus, JSON.stringify(trips));
+  storage.set(
+    STORAGE_KEYS.searchedBus,
+    JSON.stringify(trips.filter(isActiveTrip))
+  );
 }
 
 export function getBookingSession(): BookingSession | null {

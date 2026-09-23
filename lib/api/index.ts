@@ -23,6 +23,7 @@ import {
   withPageQuery,
   type PaginatedResult,
 } from "../pagination";
+import { isActiveTrip } from "../utils";
 
 function asList<T>(payload: unknown): T[] {
   if (Array.isArray(payload)) return payload as T[];
@@ -32,6 +33,10 @@ function asList<T>(payload: unknown): T[] {
     if (Array.isArray(row.trips)) return row.trips as T[];
   }
   return [];
+}
+
+function activeTrips(payload: unknown): SearchResult[] {
+  return asList<SearchResult>(payload).filter(isActiveTrip);
 }
 
 /**
@@ -83,7 +88,7 @@ export const api = {
         date,
       },
     });
-    return asList<SearchResult>(data);
+    return activeTrips(data);
   },
 
   // TripService.searchTripByDate  POST /trips/search/date/:date/agent
@@ -91,7 +96,7 @@ export const api = {
     const data = await apiRequest<SearchResult[]>(ENDPOINTS.searchTripByDate(date), {
       method: "POST",
     });
-    return asList<SearchResult>(data);
+    return activeTrips(data);
   },
 
   // TripService.getTripById  GET /trips/:id
