@@ -12,12 +12,16 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 
 const PAGE_SIZE = 10;
 
+/** Search and status are mutually exclusive on each API request (last control used wins). */
+type LedgerQueryMode = "search" | "status";
+
 export default function TransactionsPage() {
   const { t, locale } = useI18n();
   const toast = useToast();
   const [searchInput, setSearchInput] = useState("");
   const [searchFilter, setSearchFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [queryMode, setQueryMode] = useState<LedgerQueryMode>("status");
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<PaymentTransactionListItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -25,9 +29,7 @@ export default function TransactionsPage() {
   const [loading, setLoading] = useState(true);
 
   const appliedSearch = searchFilter.trim();
-  const hasAppliedSearch = appliedSearch.length > 0;
-  /** Status only affects fetch when no search is applied (search is global). */
-  const statusForFetch = hasAppliedSearch ? "" : statusFilter;
+  const useSearchQuery = queryMode === "search" && appliedSearch.length > 0;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -35,8 +37,8 @@ export default function TransactionsPage() {
       const result = await api.getPaymentTransactionsPaged(
         page,
         PAGE_SIZE,
-        appliedSearch || undefined,
-        appliedSearch ? undefined : statusFilter || undefined,
+        useSearchQuery ? appliedSearch : undefined,
+        useSearchQuery ? undefined : statusFilter || undefined,
       );
       setRows(result.data);
       setTotal(result.total);
@@ -48,7 +50,7 @@ export default function TransactionsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, appliedSearch, statusForFetch, statusFilter, t, toast]);
+  }, [page, appliedSearch, queryMode, statusFilter, useSearchQuery, t, toast]);
 
   useEffect(() => {
     void load();
@@ -56,8 +58,14 @@ export default function TransactionsPage() {
 
   function onSearch(event?: FormEvent) {
     event?.preventDefault();
+    const term = searchInput.trim();
+    if (!term) {
+      return;
+    }
     setPage(1);
-    setSearchFilter(searchInput.trim());
+    setSearchFilter(term);
+    setStatusFilter("");
+    setQueryMode("search");
   }
 
   const rangeFrom = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
@@ -93,6 +101,7 @@ export default function TransactionsPage() {
                 setSearchInput(next);
                 if (!next.trim()) {
                   setSearchFilter("");
+                  setQueryMode("status");
                   setPage(1);
                 }
               }}
@@ -105,10 +114,11 @@ export default function TransactionsPage() {
               aria-label={t("status")}
               value={statusFilter}
               onChange={(e) => {
+                setPage(1);
+                setSearchInput("");
+                setSearchFilter("");
                 setStatusFilter(e.target.value);
-                if (!hasAppliedSearch) {
-                  setPage(1);
-                }
+                setQueryMode("status");
               }}
               className="min-h-11 w-full"
             >
