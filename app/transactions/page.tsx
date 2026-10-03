@@ -1,12 +1,12 @@
 "use client";
 
 import { TransactionStatusBadge } from "@/components/transactions/transaction-status-badge";
-import { Card, EmptyState, Input, PageHeader, Spinner, TableFrame } from "@/components/ui";
+import { Card, EmptyState, Input, PageHeader, Select, Spinner, TableFrame } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
 import type { PaymentTransactionListItem } from "@/lib/types";
-import { formatDisplayDateValue, formatMoney } from "@/lib/utils";
+import { formatMoney } from "@/lib/utils";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
@@ -17,6 +17,7 @@ export default function TransactionsPage() {
   const toast = useToast();
   const [searchInput, setSearchInput] = useState("");
   const [searchFilter, setSearchFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<PaymentTransactionListItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -30,6 +31,7 @@ export default function TransactionsPage() {
         page,
         PAGE_SIZE,
         searchFilter.trim() || undefined,
+        statusFilter || undefined,
       );
       setRows(result.data);
       setTotal(result.total);
@@ -41,7 +43,7 @@ export default function TransactionsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, searchFilter, t, toast]);
+  }, [page, searchFilter, statusFilter, t, toast]);
 
   useEffect(() => {
     void load();
@@ -57,12 +59,15 @@ export default function TransactionsPage() {
   const rangeTo = Math.min(page * PAGE_SIZE, total);
 
   return (
-    <div className="mx-auto max-w-[1400px]">
+    <div className="mx-auto w-full min-w-0 max-w-[1400px]">
       <PageHeader title={t("transactions")} subtitle={t("transactions_subtitle")} />
 
       <Card className="mb-4">
-        <form onSubmit={onSearch} className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative flex-1">
+        <form
+          onSubmit={onSearch}
+          className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_11rem_7.5rem] lg:items-stretch"
+        >
+          <div className="relative min-w-0 sm:col-span-2 lg:col-span-1">
             <svg
               width="16"
               height="16"
@@ -83,9 +88,24 @@ export default function TransactionsPage() {
               className="pl-10"
             />
           </div>
+          <div className="min-w-0 w-full">
+            <Select
+              aria-label={t("status")}
+              value={statusFilter}
+              onChange={(e) => {
+                setPage(1);
+                setStatusFilter(e.target.value);
+              }}
+              className="min-h-11 w-full"
+            >
+              <option value="">{t("all_statuses")}</option>
+              <option value="PENDING">{t("ledger_pending")}</option>
+              <option value="VERIFIED">{t("ledger_verified")}</option>
+            </Select>
+          </div>
           <button
             type="submit"
-            className="inline-flex h-11 items-center justify-center rounded-xl bg-navy px-5 text-sm font-semibold text-white sm:w-32"
+            className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-navy px-5 text-sm font-semibold text-white sm:col-span-2 lg:col-span-1"
           >
             {t("search")}
           </button>
@@ -100,8 +120,8 @@ export default function TransactionsPage() {
 
       {!loading && rows.length > 0 ? (
         <>
-          <TableFrame className="hidden overflow-x-auto lg:block">
-            <table className="w-full min-w-[860px] text-left text-sm">
+          <TableFrame className="hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[720px] text-left text-sm">
               <thead className="bg-surface-muted text-xs font-semibold uppercase tracking-wide text-text-faint">
                 <tr>
                   <th className="px-3 py-3">{t("col_id")}</th>
@@ -122,7 +142,9 @@ export default function TransactionsPage() {
                     <td className="max-w-[200px] truncate px-3 py-3 text-text-muted">
                       {row.description || ""}
                     </td>
-                    <td className="px-3 py-3 font-semibold text-navy">{row.transactionNumber}</td>
+                    <td className="max-w-[140px] break-all px-3 py-3 font-semibold text-navy sm:max-w-none">
+                      {row.transactionNumber}
+                    </td>
                     <td className="px-3 py-3 text-right font-semibold text-navy">
                       {moneyOrEmpty(row.credit ?? row.amount)}
                     </td>
@@ -148,18 +170,21 @@ export default function TransactionsPage() {
             </table>
           </TableFrame>
 
-          <div className="space-y-3 lg:hidden">
+          <div className="space-y-3 md:hidden">
             {rows.map((row) => (
-              <Card key={row.id} className="space-y-2 text-sm">
+              <Card key={row.id} className="min-w-0 space-y-2 text-sm">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-bold text-navy">{row.transactionNumber}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="break-all font-bold text-navy">{row.transactionNumber}</p>
                     <p className="text-xs text-text-faint">#{row.id}</p>
                   </div>
                   <TransactionStatusBadge status={row.status} t={t} />
                 </div>
                 <p className="font-semibold text-navy">{moneyOrEmpty(row.credit ?? row.amount)}</p>
-                <p className="text-text-muted">{row.description || ""}</p>
+                {row.transactionType ? (
+                  <p className="text-xs text-text-faint">{row.transactionType}</p>
+                ) : null}
+                <p className="break-words text-text-muted">{row.description || ""}</p>
                 <Link
                   href={`/transactions/${row.id}`}
                   className="inline-block text-sm font-semibold text-navy hover:underline"
@@ -170,8 +195,8 @@ export default function TransactionsPage() {
             ))}
           </div>
 
-          <div className="mt-4 flex flex-col items-center justify-between gap-3 text-sm text-text-muted sm:flex-row">
-            <span>
+          <div className="mt-4 flex min-w-0 flex-col items-center justify-between gap-3 text-center text-sm text-text-muted sm:flex-row sm:text-left">
+            <span className="max-w-full break-words">
               {t("pagination_range")
                 .replace("{from}", String(rangeFrom))
                 .replace("{to}", String(rangeTo))

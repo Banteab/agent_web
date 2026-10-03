@@ -68,7 +68,6 @@ export default function TransactionDetailPage() {
               label={t("status")}
               value={<TransactionStatusBadge status={row.status} t={t} />}
             />
-            <DetailRow label={t("detail_account_reference")} value={row.accountReference} />
             <DetailRow label={t("detail_bank")} value={row.bank} />
             <DetailRow label={t("detail_currency")} value={row.currency} />
             <DetailRow label={t("transaction_type")} value={row.transactionType} />

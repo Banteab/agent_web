@@ -90,13 +90,14 @@ export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
 }
 
 export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  const { className, ...rest } = props;
   return (
-    <div className="relative">
+    <div className="relative min-w-0 w-full">
       <select
-        {...props}
+        {...rest}
         className={cn(
           "min-h-10 w-full appearance-none rounded-lg border border-border bg-surface pl-3.5 pr-9 text-sm text-text outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary-soft",
-          props.className,
+          className,
         )}
       />
       <svg

@@ -202,11 +202,12 @@ export const api = {
     return all;
   },
 
-  // GET /payment-transactions/paged?page=&limit=&search=
+  // GET /payment-transactions/paged?page=&limit=&search=&status=
   async getPaymentTransactionsPaged(
     page: number,
     limit: number,
     search?: string,
+    status?: string,
   ) {
     const params = new URLSearchParams({
       page: String(page),
@@ -215,6 +216,10 @@ export const api = {
     const term = search?.trim();
     if (term) {
       params.set("search", term);
+    }
+    const statusTerm = status?.trim();
+    if (statusTerm) {
+      params.set("status", statusTerm);
     }
     const data = await apiRequest<unknown>(
       `${ENDPOINTS.paymentTransactionsPaged}?${params.toString()}`,
