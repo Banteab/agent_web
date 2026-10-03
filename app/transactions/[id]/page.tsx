@@ -1,5 +1,6 @@
 "use client";
 
+import { AllocationChildrenTable } from "@/components/transactions/allocation-children-table";
 import { Card, PageHeader, Spinner } from "@/components/ui";
 import { TransactionStatusBadge } from "@/components/transactions/transaction-status-badge";
 import { api } from "@/lib/api";
@@ -7,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
 import type { PaymentTransactionDetail } from "@/lib/types";
 import { formatDisplayDateValue, formatMoney } from "@/lib/utils";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { type ReactNode, useEffect, useState } from "react";
 
@@ -64,6 +66,20 @@ export default function TransactionDetailPage() {
               mono
               full
             />
+            {row.parentId ? (
+              <DetailRow
+                label={t("parent_transaction")}
+                value={
+                  <Link
+                    href={`/transactions/${row.parentId}`}
+                    className="break-all font-semibold text-navy hover:underline"
+                  >
+                    {row.parent?.transactionNumber ?? row.parentId}
+                  </Link>
+                }
+                full
+              />
+            ) : null}
             <DetailRow
               label={t("status")}
               value={<TransactionStatusBadge status={row.status} t={t} />}
@@ -80,8 +96,28 @@ export default function TransactionDetailPage() {
               label={t("booking_id")}
               value={row.bookingId != null ? String(row.bookingId) : row.booking?.id != null ? String(row.booking.id) : undefined}
             />
+            <DetailRow
+              label={t("ticket_id")}
+              value={
+                row.ticketId != null
+                  ? String(row.ticketId)
+                  : row.ticket?.id != null
+                    ? String(row.ticket.id)
+                    : undefined
+              }
+              mono
+            />
+            <DetailRow
+              label={t("ticket_no")}
+              value={row.ticketNo ?? row.ticket?.ticketNo ?? undefined}
+              mono
+            />
             <DetailRow label={t("used_by")} value={formatPerson(row.usedBy)} full />
             <DetailRow label={t("used_at")} value={formatDateTime(row.usedAt, locale)} />
+            <DetailRow
+              label={t("cancelled_at")}
+              value={formatDateTime(row.cancelledAt, locale)}
+            />
             <DetailRow
               label={t("detail_uploaded_by")}
               value={formatUploadedBy(row.uploadedBy)}
@@ -98,6 +134,11 @@ export default function TransactionDetailPage() {
             />
             <DetailRow label={t("detail_remarks")} value={row.remarks} full />
           </DetailSection>
+          {row.children?.length ? (
+            <div className="border-t border-border p-4">
+              <AllocationChildrenTable rows={row.children} t={t} />
+            </div>
+          ) : null}
         </Card>
       ) : null}
     </div>

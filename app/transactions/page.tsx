@@ -125,6 +125,7 @@ export default function TransactionsPage() {
               <option value="">{t("all_statuses")}</option>
               <option value="PENDING">{t("ledger_pending")}</option>
               <option value="VERIFIED">{t("ledger_verified")}</option>
+              <option value="CANCELLED">{t("ledger_cancelled")}</option>
             </Select>
           </div>
           <button
@@ -145,13 +146,14 @@ export default function TransactionsPage() {
       {!loading && rows.length > 0 ? (
         <>
           <TableFrame className="hidden overflow-x-auto md:block">
-            <table className="w-full min-w-[720px] text-left text-sm">
+            <table className="w-full min-w-[820px] text-left text-sm">
               <thead className="bg-surface-muted text-xs font-semibold uppercase tracking-wide text-text-faint">
                 <tr>
                   <th className="px-3 py-3">{t("col_id")}</th>
                   <th className="px-3 py-3">{t("transaction_type")}</th>
                   <th className="px-3 py-3">{t("narration")}</th>
                   <th className="px-3 py-3">{t("transaction_reference")}</th>
+                  <th className="px-3 py-3">{t("ticket_id")}</th>
                   <th className="px-3 py-3 text-right">{t("credit")}</th>
                   <th className="px-3 py-3">{t("status")}</th>
                   <th className="px-3 py-3">{t("uploaded_at")}</th>
@@ -168,6 +170,9 @@ export default function TransactionsPage() {
                     </td>
                     <td className="max-w-[140px] break-all px-3 py-3 font-semibold text-navy sm:max-w-none">
                       {row.transactionNumber}
+                    </td>
+                    <td className="px-3 py-3 font-mono text-xs">
+                      {formatTicketId(row.ticketId)}
                     </td>
                     <td className="px-3 py-3 text-right font-semibold text-navy">
                       {moneyOrEmpty(row.credit ?? row.amount)}
@@ -205,6 +210,9 @@ export default function TransactionsPage() {
                   <TransactionStatusBadge status={row.status} t={t} />
                 </div>
                 <p className="font-semibold text-navy">{moneyOrEmpty(row.credit ?? row.amount)}</p>
+                <p className="text-xs text-text-muted">
+                  {t("ticket_id")}: {formatTicketId(row.ticketId)}
+                </p>
                 {row.transactionType ? (
                   <p className="text-xs text-text-faint">{row.transactionType}</p>
                 ) : null}
@@ -252,6 +260,11 @@ export default function TransactionsPage() {
       ) : null}
     </div>
   );
+}
+
+function formatTicketId(ticketId?: number | null) {
+  if (ticketId == null) return "—";
+  return String(ticketId);
 }
 
 function moneyOrEmpty(value?: string | null) {

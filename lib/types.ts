@@ -1,3 +1,13 @@
+export type PaymentTransactionChildItem = {
+  id: string;
+  transactionNumber: string;
+  credit?: string | null;
+  status?: string | null;
+  cancelledAt?: string | null;
+  ticketId?: number | null;
+  ticketNo?: string | null;
+};
+
 export type PaymentTransactionListItem = {
   id: string;
   transactionNumber: string;
@@ -9,6 +19,8 @@ export type PaymentTransactionListItem = {
   credit?: string | null;
   amount?: string | null;
   status?: string | null;
+  ticketId?: number | null;
+  ticketNo?: string | null;
   createdAt?: string | null;
 };
 
@@ -20,8 +32,13 @@ export type PaymentTransactionDetail = PaymentTransactionListItem & {
   payerPhone?: string | null;
   pnr?: string | null;
   bookingId?: number | null;
+  ticket?: { id?: number; ticketNo?: string } | null;
+  parentId?: string | null;
+  parent?: { id: string; transactionNumber?: string } | null;
+  children?: PaymentTransactionChildItem[] | null;
   booking?: { id?: number; refNumber?: string } | null;
   usedAt?: string | null;
+  cancelledAt?: string | null;
   updatedAt?: string | null;
   remarks?: string | null;
   used?: boolean;

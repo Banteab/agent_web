@@ -189,7 +189,7 @@ const badgeTones = {
   info: "bg-info-soft text-info",
   pending: "bg-warning-soft text-warning",
   success: "bg-success-soft text-success",
-  danger: "bg-danger-soft text-danger",
+  danger: "bg-danger text-white",
 } as const;
 
 export function Badge({
