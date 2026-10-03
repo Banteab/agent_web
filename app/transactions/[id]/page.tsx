@@ -71,16 +71,7 @@ export default function TransactionDetailPage() {
             <DetailRow label={t("detail_account_reference")} value={row.accountReference} />
             <DetailRow label={t("detail_bank")} value={row.bank} />
             <DetailRow label={t("detail_currency")} value={row.currency} />
-            <DetailRow
-              label={t("value_date")}
-              value={formatDisplayDateValue(row.transactionAt, locale)}
-            />
-            <DetailRow
-              label={t("post_date")}
-              value={formatDisplayDateValue(row.postDate, locale)}
-            />
             <DetailRow label={t("transaction_type")} value={row.transactionType} />
-            <DetailRow label={t("debit")} value={moneyOrEmpty(row.debit)} />
             <DetailRow label={t("credit")} value={moneyOrEmpty(row.credit ?? row.amount)} />
             <DetailRow label={t("narration")} value={row.description} full />
             <DetailRow label={t("payer_name")} value={row.payerName} full />

@@ -101,16 +101,13 @@ export default function TransactionsPage() {
       {!loading && rows.length > 0 ? (
         <>
           <TableFrame className="hidden overflow-x-auto lg:block">
-            <table className="w-full min-w-[1000px] text-left text-sm">
+            <table className="w-full min-w-[860px] text-left text-sm">
               <thead className="bg-surface-muted text-xs font-semibold uppercase tracking-wide text-text-faint">
                 <tr>
                   <th className="px-3 py-3">{t("col_id")}</th>
-                  <th className="px-3 py-3">{t("value_date")}</th>
-                  <th className="px-3 py-3">{t("post_date")}</th>
                   <th className="px-3 py-3">{t("transaction_type")}</th>
                   <th className="px-3 py-3">{t("narration")}</th>
                   <th className="px-3 py-3">{t("transaction_reference")}</th>
-                  <th className="px-3 py-3 text-right">{t("debit")}</th>
                   <th className="px-3 py-3 text-right">{t("credit")}</th>
                   <th className="px-3 py-3">{t("status")}</th>
                   <th className="px-3 py-3">{t("uploaded_at")}</th>
@@ -121,18 +118,11 @@ export default function TransactionsPage() {
                 {rows.map((row) => (
                   <tr key={row.id} className="align-top text-text">
                     <td className="px-3 py-3 font-mono text-xs">{row.id}</td>
-                    <td className="px-3 py-3 text-text-muted">
-                      {formatDisplayDateValue(row.transactionAt, locale)}
-                    </td>
-                    <td className="px-3 py-3 text-text-muted">
-                      {formatDisplayDateValue(row.postDate, locale)}
-                    </td>
                     <td className="px-3 py-3">{row.transactionType || ""}</td>
                     <td className="max-w-[200px] truncate px-3 py-3 text-text-muted">
                       {row.description || ""}
                     </td>
                     <td className="px-3 py-3 font-semibold text-navy">{row.transactionNumber}</td>
-                    <td className="px-3 py-3 text-right">{moneyOrEmpty(row.debit)}</td>
                     <td className="px-3 py-3 text-right font-semibold text-navy">
                       {moneyOrEmpty(row.credit ?? row.amount)}
                     </td>
