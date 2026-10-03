@@ -22,7 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/bookings", key: "manage_bookings", icon: TicketIcon },
   { href: "/find-ticket", key: "find_ticket", icon: CheckIcon },
   { href: "/payments", key: "payments", icon: PendingPaymentIcon, badge: true },
-  { href: "/check-transaction", key: "check_transaction", icon: SearchRefIcon },
+  { href: "/transactions", key: "transactions", icon: SearchRefIcon },
   { href: "/bookings?status=cancelled", key: "requests", icon: XCircleIcon },
   { href: "/help", key: "help", icon: HelpIcon },
 ];

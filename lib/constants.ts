@@ -43,6 +43,7 @@ export const ENDPOINTS = {
     `/booking/payment-data/${bookingId}`,
   pendingBankPayments: "/booking/agent/pending-bank-payments",
   paymentTransactionByReference: "/payment-transactions/by-reference",
+  paymentTransactionsPaged: "/payment-transactions/paged",
   confirmBankPayment: (bookingId: number | string) =>
     `/booking/agent/${bookingId}/confirm-bank-payment`,
   // Proposed — not live on the backend yet, see the booking-search page.

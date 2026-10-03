@@ -1,3 +1,17 @@
+export type PaymentTransactionListItem = {
+  id: string;
+  transactionNumber: string;
+  transactionAt?: string | null;
+  postDate?: string | null;
+  transactionType?: string | null;
+  description?: string | null;
+  debit?: string | null;
+  credit?: string | null;
+  amount?: string | null;
+  status?: string | null;
+  createdAt?: string | null;
+};
+
 export type PaymentTransactionLookup = {
   credit?: string | null;
   transactionNumber: string;
