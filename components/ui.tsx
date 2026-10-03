@@ -399,8 +399,8 @@ export function PageHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mb-5 flex items-start justify-between gap-3">
-      <div className="flex items-start gap-3">
+    <div className="mb-5 flex min-w-0 items-start justify-between gap-3">
+      <div className="flex min-w-0 flex-1 items-start gap-3">
         {backHref ? (
           <Link
             href={backHref}
@@ -412,9 +412,11 @@ export function PageHeader({
             </svg>
           </Link>
         ) : null}
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="font-display text-lg font-bold tracking-tight text-navy sm:text-xl">{title}</h1>
-          {subtitle ? <p className="mt-0.5 text-sm text-text-muted">{subtitle}</p> : null}
+          {subtitle ? (
+            <p className="mt-0.5 break-words text-sm text-text-muted">{subtitle}</p>
+          ) : null}
         </div>
       </div>
       {action}
