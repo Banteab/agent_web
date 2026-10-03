@@ -7,7 +7,6 @@ import { useI18n } from "@/lib/i18n";
 import { useToast } from "@/lib/toast-context";
 import type { PaymentTransactionDetail } from "@/lib/types";
 import { formatDisplayDateValue, formatMoney } from "@/lib/utils";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { type ReactNode, useEffect, useState } from "react";
 
@@ -42,17 +41,11 @@ export default function TransactionDetailPage() {
   }, [id, t, toast]);
 
   return (
-    <div className="mx-auto w-full min-w-0 max-w-4xl px-1 sm:px-0">
-      <Link
-        href="/transactions"
-        className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-navy hover:underline"
-      >
-        ← {t("back_to_transactions")}
-      </Link>
-
+    <div className="mx-auto w-full min-w-0 max-w-4xl">
       <PageHeader
         title={t("transaction_detail")}
         subtitle={row?.transactionNumber}
+        backHref="/transactions"
       />
 
       {loading ? <Spinner label={t("transaction_detail")} /> : null}
