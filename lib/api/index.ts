@@ -10,6 +10,7 @@ import type {
   Profile,
   RouteSalesData,
   SearchResult,
+  PaymentTransactionLookup,
   Ticket,
   TicketListItem,
   TicketReport,
@@ -197,6 +198,15 @@ export const api = {
       page += 1;
     }
     return all;
+  },
+
+  // GET /payment-transactions/by-reference?transactionReference=
+  async getPaymentTransactionByReference(transactionReference: string) {
+    const query = new URLSearchParams({ transactionReference });
+    const data = await apiRequest<unknown>(
+      `${ENDPOINTS.paymentTransactionByReference}?${query.toString()}`,
+    );
+    return asList<PaymentTransactionLookup>(data);
   },
 
   // Agent bank confirm — saves txn, marks BOOKED, issues tickets (no bank API)

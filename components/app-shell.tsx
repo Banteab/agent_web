@@ -22,6 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/bookings", key: "manage_bookings", icon: TicketIcon },
   { href: "/find-ticket", key: "find_ticket", icon: CheckIcon },
   { href: "/payments", key: "payments", icon: PendingPaymentIcon, badge: true },
+  { href: "/check-transaction", key: "check_transaction", icon: SearchRefIcon },
   { href: "/bookings?status=cancelled", key: "requests", icon: XCircleIcon },
   { href: "/help", key: "help", icon: HelpIcon },
 ];
@@ -170,6 +171,15 @@ function PendingPaymentIcon({ className }: { className?: string }) {
       <rect x="3" y="6" width="18" height="13" rx="2" />
       <path d="M3 10h18" />
       <path d="M12 14.5v2M10.6 15.2h2.8a1 1 0 1 1 0 2h-2.1" />
+    </svg>
+  );
+}
+function SearchRefIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="m15.5 15.5 5 5" />
+      <path d="M8 10.5h5" />
     </svg>
   );
 }

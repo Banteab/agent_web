@@ -1,3 +1,19 @@
+export type PaymentTransactionLookup = {
+  credit?: string | null;
+  transactionNumber: string;
+  status?: string | null;
+  transactionAt?: string | null;
+  transactionType?: string | null;
+  description?: string | null;
+  payerName?: string | null;
+  payerPhone?: string | null;
+  pnr?: string | null;
+  bookingId?: number | null;
+  postDate?: string | null;
+  usedBy?: { id: number; firstName: string; lastName: string } | null;
+  usedAt?: string | null;
+};
+
 export type ApiMessage<T = unknown> = {
   success?: boolean;
   status?: number;
