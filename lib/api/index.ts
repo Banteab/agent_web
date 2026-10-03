@@ -10,6 +10,7 @@ import type {
   Profile,
   RouteSalesData,
   SearchResult,
+  PaymentTransactionDetail,
   PaymentTransactionListItem,
   PaymentTransactionLookup,
   Ticket,
@@ -201,24 +202,29 @@ export const api = {
     return all;
   },
 
-  // GET /payment-transactions/paged?page=&limit=&transactionNumber=
+  // GET /payment-transactions/paged?page=&limit=&search=
   async getPaymentTransactionsPaged(
     page: number,
     limit: number,
-    transactionNumber?: string,
+    search?: string,
   ) {
     const params = new URLSearchParams({
       page: String(page),
       limit: String(limit),
     });
-    const term = transactionNumber?.trim();
+    const term = search?.trim();
     if (term) {
-      params.set("transactionNumber", term);
+      params.set("search", term);
     }
     const data = await apiRequest<unknown>(
       `${ENDPOINTS.paymentTransactionsPaged}?${params.toString()}`,
     );
     return parsePaginated<PaymentTransactionListItem>(data);
+  },
+
+  // GET /payment-transactions/:id (balance omitted for agents)
+  async getPaymentTransaction(id: string | number) {
+    return apiRequest<PaymentTransactionDetail>(ENDPOINTS.paymentTransactionById(id));
   },
 
   // GET /payment-transactions/by-reference?transactionReference=

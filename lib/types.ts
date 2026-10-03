@@ -12,6 +12,25 @@ export type PaymentTransactionListItem = {
   createdAt?: string | null;
 };
 
+export type PaymentTransactionDetail = PaymentTransactionListItem & {
+  accountReference?: string | null;
+  bank?: string | null;
+  currency?: string | null;
+  payerName?: string | null;
+  payerPhone?: string | null;
+  pnr?: string | null;
+  bookingId?: number | null;
+  booking?: { id?: number; refNumber?: string } | null;
+  usedAt?: string | null;
+  updatedAt?: string | null;
+  remarks?: string | null;
+  used?: boolean;
+  usedBy?: { id: number; firstName?: string; lastName?: string; phoneNo?: string } | null;
+  uploadedBy?: { id: number; firstName?: string; lastName?: string; email?: string } | null;
+  /** Present only for Director/Finance bus-admin; agents never receive this. */
+  balance?: string | null;
+};
+
 export type PaymentTransactionLookup = {
   credit?: string | null;
   transactionNumber: string;
