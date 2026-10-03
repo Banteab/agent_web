@@ -163,7 +163,14 @@ function ManageBookings() {
       if (routeFilter && `${row.from || "-"} → ${row.to || "-"}` !== routeFilter) return false;
       if (travelDate && (row.travelDate || "").slice(0, 10) !== travelDate) return false;
       if (!needle) return true;
-      const haystack = [row.refNumber, row.ticketNo, row.passenger, row.phone, row.bookingId ? String(row.bookingId) : ""]
+      const haystack = [
+        row.refNumber,
+        row.ticketNo,
+        row.passenger,
+        row.phone,
+        row.bankTransactionNumber,
+        row.bookingId ? String(row.bookingId) : "",
+      ]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
