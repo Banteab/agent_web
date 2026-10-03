@@ -8,12 +8,18 @@ import {
   useMemo,
   useState,
 } from "react";
-import { BRAND_NAME, DEFAULT_LOCALE, LOCALES, STORAGE_KEYS } from "./constants";
+import {
+  BRAND_NAME,
+  DEFAULT_LOCALE,
+  LOCALE_CATALOG_IDS,
+  STORAGE_KEYS,
+} from "./constants";
 import { storage } from "./storage";
 import amET from "../public/locales/am-ET.json";
 import enGB from "../public/locales/en-GB.json";
 import enUS from "../public/locales/en-US.json";
 import omET from "../public/locales/om-ET.json";
+import soET from "../public/locales/so-ET.json";
 import tiET from "../public/locales/ti-ET.json";
 
 type Messages = Record<string, string>;
@@ -23,8 +29,11 @@ const catalogs: Record<string, Messages> = {
   "en-GB": enGB as Messages,
   "en-US": enUS as Messages,
   "om-ET": omET as Messages,
+  "so-ET": soET as Messages,
   "ti-ET": tiET as Messages,
 };
+
+const EN_FALLBACK = catalogs["en-US"];
 
 type I18nContextValue = {
   locale: string;
@@ -35,9 +44,19 @@ type I18nContextValue = {
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
-function translate(messages: Messages, key: string) {
-  if (key === "title") return messages.title || BRAND_NAME;
-  return messages[key] ?? key.replaceAll("_", " ");
+function translate(messages: Messages, key: string, fallback: Messages) {
+  if (key === "title") {
+    return messages.title || fallback.title || BRAND_NAME;
+  }
+  const value = messages[key];
+  if (value != null && value !== "") {
+    return value;
+  }
+  const fb = fallback[key];
+  if (fb != null && fb !== "") {
+    return fb;
+  }
+  return key.replaceAll("_", " ");
 }
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
@@ -46,19 +65,31 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const saved = storage.get(STORAGE_KEYS.locale);
-    const next = LOCALES.some((item) => item.id === saved) ? saved! : DEFAULT_LOCALE;
+    const known = LOCALE_CATALOG_IDS as readonly string[];
+    const next = saved && known.includes(saved) ? saved : DEFAULT_LOCALE;
     setLocaleState(next);
     setReady(true);
   }, []);
 
   const setLocale = useCallback((next: string) => {
+    if (!(LOCALE_CATALOG_IDS as readonly string[]).includes(next)) {
+      return;
+    }
     storage.set(STORAGE_KEYS.locale, next);
     setLocaleState(next);
   }, []);
 
-  const messages = catalogs[locale] ?? catalogs[DEFAULT_LOCALE];
+  useEffect(() => {
+    if (!ready) return;
+    document.documentElement.lang = locale;
+  }, [locale, ready]);
 
-  const t = useCallback((key: string) => translate(messages, key), [messages]);
+  const messages = catalogs[locale] ?? catalogs[DEFAULT_LOCALE] ?? EN_FALLBACK;
+
+  const t = useCallback(
+    (key: string) => translate(messages, key, EN_FALLBACK),
+    [messages],
+  );
 
   const value = useMemo(
     () => ({ locale, setLocale, t, ready }),

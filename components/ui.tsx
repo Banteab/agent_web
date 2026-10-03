@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -398,6 +399,8 @@ export function PageHeader({
   backHref?: string;
   action?: React.ReactNode;
 }) {
+  const { t } = useI18n();
+
   return (
     <div className="mb-5 flex min-w-0 items-start justify-between gap-3">
       <div className="flex min-w-0 flex-1 items-start gap-3">
@@ -405,7 +408,7 @@ export function PageHeader({
           <Link
             href={backHref}
             className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-text-muted transition hover:bg-surface-muted hover:text-text"
-            aria-label="Back"
+            aria-label={t("nav_back")}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="m15 18-6-6 6-6" />

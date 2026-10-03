@@ -95,12 +95,22 @@ export const MAX_SEATS = 6;
 export const PENDING_BANK_PAYMENT_TTL_MS = 10 * 60_000;
 export const PENDING_PAYMENTS_REFRESH_EVENT = "pending-payments-refresh";
 
-export const LOCALES = [
-  { id: "en-US", label: "English (US)", flag: "🇺🇸" },
-  { id: "en-GB", label: "English (UK)", flag: "🇬🇧" },
-  { id: "am-ET", label: "አማርኛ", flag: "🇪🇹" },
-  { id: "om-ET", label: "Afaan Oromoo", flag: "🇪🇹" },
-  { id: "ti-ET", label: "ትግርኛ", flag: "🇪🇹" },
+/** Primary languages shown in header switcher and settings. */
+export const HEADER_LOCALES = [
+  { id: "en-US", label: "English", nativeLabel: "English", flag: "🇬🇧" },
+  { id: "am-ET", label: "Amharic", nativeLabel: "አማርኛ", flag: "🇪🇹" },
+  { id: "om-ET", label: "Afan Oromo", nativeLabel: "Afaan Oromoo", flag: "🇪🇹" },
+  { id: "so-ET", label: "Somali", nativeLabel: "Soomaali", flag: "🇸🇴" },
+  { id: "ti-ET", label: "Tigrinya", nativeLabel: "ትግርኛ", flag: "🇪🇹" },
+] as const;
+
+/** @deprecated Use HEADER_LOCALES — kept for legacy saved locale ids. */
+export const LOCALES = HEADER_LOCALES;
+
+/** All catalog locale ids (includes legacy en-GB). */
+export const LOCALE_CATALOG_IDS = [
+  ...HEADER_LOCALES.map((item) => item.id),
+  "en-GB",
 ] as const;
 
 export const DEFAULT_LOCALE = "am-ET";

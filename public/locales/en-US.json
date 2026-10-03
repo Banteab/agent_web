@@ -22,6 +22,7 @@
     "departure_time": "Departure time",
     "return_optinal": "Return(optional)",
     "close": "Close",
+    "nav_back": "Back",
     "search_bus": "Search Bus",
     "error": "Fields cannot be empty",
     "search_city": "Search City",

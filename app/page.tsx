@@ -1,6 +1,7 @@
 "use client";
 
 import { BrandLogo } from "@/components/brand-logo";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { SupportIllustration } from "@/components/support-illustration";
 import { Button, Field, Input } from "@/components/ui";
 import { useAuth } from "@/lib/auth-context";
@@ -60,10 +61,13 @@ export default function LoginPage() {
             <BrandLogo compact imgClassName="h-9 w-9" />
             <span className="text-base font-semibold tracking-tight">Biftu Bus</span>
           </div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <LanguageSwitcher className="[&_select]:border-white/20 [&_select]:bg-white/10 [&_select]:text-white [&_select]:hover:bg-white/15" />
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-primary-soft">
             <PhoneIcon />
             {t("call_center_line")} 8477
           </span>
+          </div>
         </div>
 
         <div className="relative flex flex-1 flex-col items-center justify-center gap-6 py-6">
@@ -81,9 +85,12 @@ export default function LoginPage() {
 
       <div className="flex flex-1 flex-col justify-center overflow-y-auto px-6 py-10 sm:px-10 lg:px-16">
         <div className="mx-auto w-full max-w-sm">
-          <div className="mb-8 flex items-center gap-2.5 md:hidden">
-            <BrandLogo compact imgClassName="h-9 w-9" />
-            <span className="text-base font-semibold tracking-tight text-navy">Biftu Bus</span>
+          <div className="mb-6 flex items-center justify-between gap-3 md:hidden">
+            <div className="flex items-center gap-2.5">
+              <BrandLogo compact imgClassName="h-9 w-9" />
+              <span className="text-base font-semibold tracking-tight text-navy">Biftu Bus</span>
+            </div>
+            <LanguageSwitcher />
           </div>
 
           <h1 className="font-display text-2xl font-bold tracking-tight text-navy">{t("log_in")}</h1>

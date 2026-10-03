@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { AccountMenu } from "./account-menu";
 import { BrandLogo } from "./brand-logo";
+import { LanguageSwitcher } from "./language-switcher";
 import { Protected } from "./protected";
 import { SessionCountdown } from "./session-countdown";
 
@@ -17,15 +18,16 @@ type NavItem = { href: string; key: string; icon: (props: { className?: string }
 // The redesign's target IA is 6 flat destinations, surfaced directly in the
 // header nav — no sidebar, no grouping. Profile/Report/Sales
 // Report/Settings/About/Logout live in the header account menu instead.
-const NAV_ITEMS: NavItem[] = [
+const MAIN_NAV_ITEMS: NavItem[] = [
   { href: "/home", key: "new_booking", icon: HomeIcon },
   { href: "/bookings", key: "manage_bookings", icon: TicketIcon },
   { href: "/find-ticket", key: "find_ticket", icon: CheckIcon },
   { href: "/payments", key: "payments", icon: PendingPaymentIcon, badge: true },
   { href: "/transactions", key: "transactions", icon: SearchRefIcon },
   { href: "/bookings?status=cancelled", key: "requests", icon: XCircleIcon },
-  { href: "/help", key: "help", icon: HelpIcon },
 ];
+
+const HELP_NAV_ITEM: NavItem = { href: "/help", key: "help", icon: HelpIcon };
 
 function isActive(pathname: string, href: string) {
   const path = href.split("?")[0];
@@ -67,9 +69,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 "lg:justify-evenly lg:overflow-visible lg:px-1 xl:gap-1 xl:px-2",
               )}
             >
-              {NAV_ITEMS.map((item) => (
+              {MAIN_NAV_ITEMS.map((item) => (
                 <NavLink key={item.href} item={item} active={isActive(pathname, item.href)} pendingCount={pendingCount} t={t} />
               ))}
+              <LanguageSwitcher className="mx-0.5 hidden md:block" />
+              <NavLink
+                item={HELP_NAV_ITEM}
+                active={isActive(pathname, HELP_NAV_ITEM.href)}
+                pendingCount={pendingCount}
+                t={t}
+              />
             </nav>
 
             <div className="flex-1 md:hidden" />
@@ -79,6 +88,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+              <LanguageSwitcher className="md:hidden" />
               <AccountMenu
                 profile={profile}
                 t={t}
@@ -106,8 +116,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="mb-2 flex justify-center border-b border-border pb-2 sm:hidden">
                 <SessionCountdown />
               </div>
+              <LanguageSwitcher block className="mb-2" />
               <div className="grid grid-cols-1 gap-0.5 min-[420px]:grid-cols-2">
-                {NAV_ITEMS.map((item) => (
+                {MAIN_NAV_ITEMS.map((item) => (
                   <NavLink
                     key={item.href}
                     item={item}
@@ -117,6 +128,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     block
                   />
                 ))}
+                <NavLink
+                  item={HELP_NAV_ITEM}
+                  active={isActive(pathname, HELP_NAV_ITEM.href)}
+                  pendingCount={pendingCount}
+                  t={t}
+                  block
+                />
               </div>
             </nav>
           ) : null}
