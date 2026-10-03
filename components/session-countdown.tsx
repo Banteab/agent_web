@@ -1,6 +1,7 @@
 "use client";
 
 import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 import {
   getSessionRemainingSeconds,
   isAuthStorageKey,
@@ -10,7 +11,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 /** Re-render trigger — displayed seconds always come from shared localStorage expiry. */
-export function SessionCountdown() {
+export function SessionCountdown({ compact = false }: { compact?: boolean }) {
   const { t } = useI18n();
   const [tick, setTick] = useState(0);
 
@@ -51,9 +52,14 @@ export function SessionCountdown() {
   const seconds = useMemo(() => getSessionRemainingSeconds(), [tick]);
 
   return (
-    <span className="inline-flex items-center gap-1 whitespace-nowrap text-[13px] font-medium">
-      <span className="text-primary">{t("session_in_seconds")}</span>
-      <span className="font-semibold tabular-nums text-danger">{seconds}</span>
+    <span
+      className={cn(
+        "inline-flex max-w-[min(100vw-8rem,14rem)] items-center gap-1 whitespace-nowrap font-medium sm:max-w-none",
+        compact ? "text-[10px] sm:text-[11px] xl:text-[13px]" : "text-[11px] xl:text-[13px]",
+      )}
+    >
+      <span className={cn("text-primary", compact && "truncate")}>{t("session_in_seconds")}</span>
+      <span className="shrink-0 font-semibold tabular-nums text-danger">{seconds}</span>
     </span>
   );
 }

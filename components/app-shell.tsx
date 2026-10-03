@@ -51,34 +51,40 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <Protected>
       <div className="min-h-dvh bg-page">
         <header className="sticky top-0 z-40 bg-surface/95 shadow-sm backdrop-blur-md print:hidden">
-          <div className="mx-auto flex h-16 max-w-7xl items-center gap-1.5 px-4 sm:px-6">
-            <Link href="/home" className="flex shrink-0 items-center gap-2.5">
-              <BrandLogo compact imgClassName="h-8 w-8" />
-              <span className="hidden leading-none sm:block">
-                <span className="block text-sm font-semibold text-navy">Biftu Bus</span>
-                <span className="block truncate text-[10px] text-text-faint">{associationName}</span>
+          <div className="flex h-14 w-full items-center gap-1.5 pl-3 pr-3 sm:h-16 sm:gap-2 sm:pl-4 sm:pr-4 md:gap-2 lg:gap-3">
+            <Link href="/home" className="flex shrink-0 items-center gap-2 lg:gap-2.5">
+              <BrandLogo compact imgClassName="h-8 w-8 sm:h-8 sm:w-8" />
+              <span className="hidden max-w-[6.5rem] leading-none sm:block md:max-w-[7.5rem] xl:max-w-[9rem]">
+                <span className="block truncate text-sm font-semibold text-navy">Biftu Bus</span>
+                <span className="hidden truncate text-[10px] text-text-faint md:block">{associationName}</span>
               </span>
             </Link>
 
-            <nav className="ml-4 hidden flex-1 items-center gap-1 lg:flex">
+            <nav
+              className={cn(
+                "hidden min-w-0 flex-1 items-center gap-0.5 px-0.5 md:flex",
+                "md:justify-start md:overflow-x-auto md:overscroll-x-contain md:[scrollbar-width:none] md:[&::-webkit-scrollbar]:hidden",
+                "lg:justify-evenly lg:overflow-visible lg:px-1 xl:gap-1 xl:px-2",
+              )}
+            >
               {NAV_ITEMS.map((item) => (
                 <NavLink key={item.href} item={item} active={isActive(pathname, item.href)} pendingCount={pendingCount} t={t} />
               ))}
             </nav>
 
-            <div className="flex-1 lg:hidden" />
+            <div className="flex-1 md:hidden" />
 
             <div className="hidden shrink-0 items-center sm:flex">
-              <SessionCountdown />
+              <SessionCountdown compact />
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
               <AccountMenu
                 profile={profile}
                 t={t}
                 onLogout={logout}
                 trigger={
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft text-[11px] font-semibold text-primary sm:h-9 sm:w-9 sm:text-xs">
                     {initials}
                   </span>
                 }
@@ -88,7 +94,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 onClick={() => setMobileOpen((o) => !o)}
                 aria-label={mobileOpen ? t("close_menu") : t("open_menu")}
                 aria-expanded={mobileOpen}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted lg:hidden"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-muted sm:h-9 sm:w-9 md:hidden"
               >
                 {mobileOpen ? <CloseIcon /> : <MenuIcon />}
               </button>
@@ -96,20 +102,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           {mobileOpen ? (
-            <nav className="origin-top animate-[dropIn_150ms_ease-out] border-t border-border bg-surface px-3 py-2 lg:hidden">
+            <nav className="origin-top animate-[dropIn_150ms_ease-out] border-t border-border bg-surface px-3 py-2 md:hidden">
               <div className="mb-2 flex justify-center border-b border-border pb-2 sm:hidden">
                 <SessionCountdown />
               </div>
-              {NAV_ITEMS.map((item) => (
-                <NavLink
-                  key={item.href}
-                  item={item}
-                  active={isActive(pathname, item.href)}
-                  pendingCount={pendingCount}
-                  t={t}
-                  block
-                />
-              ))}
+              <div className="grid grid-cols-1 gap-0.5 min-[420px]:grid-cols-2">
+                {NAV_ITEMS.map((item) => (
+                  <NavLink
+                    key={item.href}
+                    item={item}
+                    active={isActive(pathname, item.href)}
+                    pendingCount={pendingCount}
+                    t={t}
+                    block
+                  />
+                ))}
+              </div>
             </nav>
           ) : null}
         </header>
@@ -138,17 +146,33 @@ function NavLink({
   block?: boolean;
 }) {
   const Icon = item.icon;
+  const label = t(item.key);
+
   return (
     <Link
       href={item.href}
+      title={block ? undefined : label}
+      aria-label={block ? undefined : label}
       className={cn(
-        "group relative flex items-center gap-2 rounded-lg text-[13.5px] font-medium transition",
-        block ? "px-3 py-2.5" : "px-3 py-2",
+        "group relative flex shrink-0 items-center rounded-lg font-medium leading-none transition",
+        block ? "gap-2 px-3 py-2.5 text-[13.5px]" : "gap-1.5 px-2 py-2 text-[11px] md:text-[12px] lg:px-1.5 xl:gap-2 xl:px-2.5 xl:text-[13px]",
         active ? "bg-primary-soft text-primary" : "text-text-muted hover:bg-surface-muted hover:text-text",
       )}
     >
-      <Icon className={cn("h-[17px] w-[17px] shrink-0", active ? "text-primary" : "text-text-faint group-hover:text-text-muted")} />
-      <span className={block ? "flex-1" : undefined}>{t(item.key)}</span>
+      <Icon
+        className={cn(
+          "h-4 w-4 shrink-0 md:h-[17px] md:w-[17px]",
+          active ? "text-primary" : "text-text-faint group-hover:text-text-muted",
+        )}
+      />
+      <span
+        className={cn(
+          "whitespace-nowrap",
+          block ? "min-w-0 flex-1" : "hidden md:inline lg:hidden xl:inline",
+        )}
+      >
+        {label}
+      </span>
       {item.badge && pendingCount > 0 ? (
         <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-[11px] font-semibold text-white">
           {pendingCount > 99 ? "99+" : pendingCount}
