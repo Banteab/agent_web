@@ -24,14 +24,19 @@ export default function TransactionsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
 
+  const appliedSearch = searchFilter.trim();
+  const hasAppliedSearch = appliedSearch.length > 0;
+  /** Status only affects fetch when no search is applied (search is global). */
+  const statusForFetch = hasAppliedSearch ? "" : statusFilter;
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const result = await api.getPaymentTransactionsPaged(
         page,
         PAGE_SIZE,
-        searchFilter.trim() || undefined,
-        statusFilter || undefined,
+        appliedSearch || undefined,
+        appliedSearch ? undefined : statusFilter || undefined,
       );
       setRows(result.data);
       setTotal(result.total);
@@ -43,7 +48,7 @@ export default function TransactionsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, searchFilter, statusFilter, t, toast]);
+  }, [page, appliedSearch, statusForFetch, statusFilter, t, toast]);
 
   useEffect(() => {
     void load();
@@ -83,7 +88,14 @@ export default function TransactionsPage() {
             <Input
               placeholder={t("search_by_reference")}
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              onChange={(e) => {
+                const next = e.target.value;
+                setSearchInput(next);
+                if (!next.trim()) {
+                  setSearchFilter("");
+                  setPage(1);
+                }
+              }}
               aria-label={t("transaction_reference")}
               className="pl-10"
             />
@@ -93,8 +105,10 @@ export default function TransactionsPage() {
               aria-label={t("status")}
               value={statusFilter}
               onChange={(e) => {
-                setPage(1);
                 setStatusFilter(e.target.value);
+                if (!hasAppliedSearch) {
+                  setPage(1);
+                }
               }}
               className="min-h-11 w-full"
             >
