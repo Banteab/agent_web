@@ -134,9 +134,9 @@ export default function TransactionDetailPage() {
             />
             <DetailRow label={t("detail_remarks")} value={row.remarks} full />
           </DetailSection>
-          {row.children?.length ? (
+          {!row.parentId && (row.children?.length ?? 0) > 0 ? (
             <div className="border-t border-border p-4">
-              <AllocationChildrenTable rows={row.children} t={t} />
+              <AllocationChildrenTable rows={row.children ?? []} t={t} />
             </div>
           ) : null}
         </Card>
