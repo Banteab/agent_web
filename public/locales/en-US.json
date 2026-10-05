@@ -265,7 +265,7 @@
     "booking_added": "Booking Added",
     "seat_removed": "Seat Removed",
     "err": "ERR",
-    "more_than_six": "Seats can not be more than 15",
+    "more_than_six": "Seats can not be more than 20",
     "loading": "loading",
     "inproper_seat": "inproper seat number",
     "booking_could_not_updated": "Booking couldn't be updated",

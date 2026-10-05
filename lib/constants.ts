@@ -91,7 +91,7 @@ export const STORAGE_KEYS = {
 } as const;
 
 export const BOOKING_HOLD_MS = 180_000;
-export const MAX_SEATS = 15;
+export const MAX_SEATS = 20;
 export const PENDING_BANK_PAYMENT_TTL_MS = 10 * 60_000;
 export const PENDING_PAYMENTS_REFRESH_EVENT = "pending-payments-refresh";
 
