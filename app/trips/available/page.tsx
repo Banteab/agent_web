@@ -45,6 +45,7 @@ function AvailableBuses() {
       visualDate: current?.visualDate,
       trip,
       selectedSeats: [],
+      reschedule: current?.reschedule,
     });
     router.push("/book/seats");
   }

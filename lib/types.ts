@@ -313,6 +313,20 @@ export type TicketReport = {
   }[];
 };
 
+// Carried through the normal booking flow when that flow is actually a
+// reschedule of an existing ticket — set once at the entry point (Booking
+// Detail or the Home "Reschedule" action) and read at the passenger-prefill
+// and payment steps.
+export type RescheduleContext = {
+  originalTicketId: number;
+  originalTicketNo?: string;
+  originalBookingId?: number;
+  penalty: 0 | 50;
+  originalPassengers?: string;
+  originalPhoneNumber?: string;
+  originalPrice?: number;
+};
+
 export type BookingSession = {
   fromCity: string;
   toCity: string;
@@ -328,14 +342,16 @@ export type BookingSession = {
   phoneNumber?: string;
   passengers?: string;
   ticketNumbers?: string[];
+  reschedule?: RescheduleContext;
 };
 
 // Summary handed off from the payment/review step to the booking-complete
 // screen (app/book/complete). "bank_pending" is the live flow (a booking
 // awaiting bank confirmation); "ticket_issued" covers the cash/reference
-// flow where a ticket is generated immediately.
+// flow where a ticket is generated immediately; "reschedule_pending" covers
+// a reschedule request submitted for Operations + Finance approval.
 export type BookingCompleteSummary = {
-  kind: "bank_pending" | "ticket_issued";
+  kind: "bank_pending" | "ticket_issued" | "reschedule_pending";
   reservationNo?: string;
   fromCity?: string;
   toCity?: string;
@@ -345,6 +361,8 @@ export type BookingCompleteSummary = {
   amount?: number;
   bank?: string;
   ticketNumbers?: string[];
+  originalTicketNo?: string;
+  holdExpiresAt?: number;
 };
 
 export type City = {

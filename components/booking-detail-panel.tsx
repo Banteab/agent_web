@@ -2,6 +2,7 @@
 
 import { CancelReasonPanel } from "@/components/cancel-reason-panel";
 import { ConfirmPaymentModal } from "@/components/confirm-payment-modal";
+import { RescheduleEntryModal } from "@/components/reschedule-entry-modal";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button, Card, DetailRow, Field, Input, PageHeader, SectionLabel, StatusBadge } from "@/components/ui";
 import { isClosedStatus, isPendingStatus } from "@/lib/booking-rows";
@@ -25,6 +26,7 @@ export function BookingDetailPanel(props: Props) {
   const [editing, setEditing] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [rescheduleOpen, setRescheduleOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const isTicket = props.mode === "ticket";
@@ -46,6 +48,7 @@ export function BookingDetailPanel(props: Props) {
   const canEdit = isTicket && !closed;
   const canCancel = isTicket && !closed;
   const canActivate = isTicket && !closed;
+  const canReschedule = isTicket && !closed;
 
   const [editPassenger, setEditPassenger] = useState(passenger || "");
   const [editPhone, setEditPhone] = useState(phone || "");
@@ -206,11 +209,13 @@ export function BookingDetailPanel(props: Props) {
               {t("request_cancellation")}
             </Button>
           ) : null}
+          {canReschedule ? (
+            <Button variant="secondary" onClick={() => setRescheduleOpen(true)}>
+              {t("reschedule")}
+            </Button>
+          ) : null}
         </div>
         <div className="flex flex-wrap gap-2 opacity-60">
-          <Button variant="ghost" disabled title={t("requires_backend_update")}>
-            {t("reschedule_travel_date")}
-          </Button>
           <Button variant="ghost" disabled title={t("requires_backend_update")}>
             {t("change_seat")}
           </Button>
@@ -234,6 +239,10 @@ export function BookingDetailPanel(props: Props) {
           onClose={() => setCancelOpen(false)}
           t={t}
         />
+      ) : null}
+
+      {isTicket ? (
+        <RescheduleEntryModal open={rescheduleOpen} onClose={() => setRescheduleOpen(false)} ticket={props.ticket} />
       ) : null}
 
       {props.mode === "pending" ? (

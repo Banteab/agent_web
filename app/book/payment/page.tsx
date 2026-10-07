@@ -3,10 +3,11 @@
 import { BookingStepper } from "@/components/booking-stepper";
 import { Countdown } from "@/components/countdown";
 import { Protected } from "@/components/protected";
+import { TransactionStatusBadge, normalizeLedgerStatus } from "@/components/transactions/transaction-status-badge";
 import { Button, Card, DetailRow, Input, PageHeader, SectionLabel, Spinner } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
-import { CHECKOUT_BANKS } from "@/lib/constants";
+import { CHECKOUT_BANKS, RESCHEDULE_HOLD_MS } from "@/lib/constants";
 import { useI18n } from "@/lib/i18n";
 import {
   clearBookingSession,
@@ -15,7 +16,7 @@ import {
 } from "@/lib/storage";
 import { notifyPendingPaymentsRefresh } from "@/lib/use-pending-bank-payments-count";
 import { useToast } from "@/lib/toast-context";
-import type { Booking, BookingCompleteSummary } from "@/lib/types";
+import type { Booking, BookingCompleteSummary, PaymentTransactionLookup } from "@/lib/types";
 import { cn, formatMoney, parsePassengerNames } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -36,7 +37,11 @@ export default function PaymentPage() {
   const [bank, setBank] = useState<(typeof CHECKOUT_BANKS)[number]["id"] | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [rescheduleTxn, setRescheduleTxn] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [lookup, setLookup] = useState<PaymentTransactionLookup | null | "not_found">(null);
   const session = getBookingSession();
+  const reschedule = session?.reschedule;
 
   useEffect(() => {
     const current = getBookingSession();
@@ -106,6 +111,66 @@ export default function PaymentPage() {
     }
   }
 
+  async function verifyTransaction() {
+    const number = rescheduleTxn.trim();
+    if (!number) return;
+    setVerifying(true);
+    setLookup(null);
+    try {
+      const results = await api.getPaymentTransactionByReference(number);
+      setLookup(results[0] || "not_found");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("error_occured"));
+    } finally {
+      setVerifying(false);
+    }
+  }
+
+  async function submitReschedule() {
+    const current = getBookingSession();
+    if (!current?.bookingId || !current.reschedule) return;
+    if (current.reschedule.penalty === 50 && !rescheduleTxn.trim()) {
+      toast.error(t("reschedule_transaction_required"));
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await api.rescheduleRequest({
+        newBookingId: current.bookingId,
+        originalTicketId: current.reschedule.originalTicketId,
+        penalty: current.reschedule.penalty,
+        newTransactionNumber: current.reschedule.penalty === 50 ? rescheduleTxn.trim() : undefined,
+      });
+      if (res.success === false) {
+        toast.error(res.message || t("error_occured"));
+        return;
+      }
+      const summary: BookingCompleteSummary = {
+        kind: "reschedule_pending",
+        reservationNo: booking?.refNumber || String(current.bookingId),
+        fromCity: current.fromCity,
+        toCity: current.toCity,
+        travelDate: current.isoDate || booking?.trip?.travelDate,
+        passengers,
+        seats: (current.selectedSeats || []).map(String),
+        amount: total,
+        originalTicketNo: current.reschedule.originalTicketNo,
+        holdExpiresAt: Date.now() + RESCHEDULE_HOLD_MS,
+      };
+      sessionStorage.setItem("bookingComplete", JSON.stringify(summary));
+      clearBookingSession();
+      router.replace("/book/complete");
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? `${t("reschedule_submit_not_live")} (${err.message})`
+          : t("reschedule_submit_not_live"),
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (loading) return <Spinner />;
 
   return (
@@ -117,6 +182,61 @@ export default function PaymentPage() {
           backHref="/book/passengers"
           action={<Countdown endTime={session?.endTime} />}
         />
+        {reschedule ? (
+          <Card className="mb-4 space-y-4">
+            <div className="flex items-center justify-between rounded-lg bg-gold-soft px-3.5 py-2.5">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gold-ink">{t("rescheduling_banner")}</span>
+              <span className="text-xs text-gold-ink">{reschedule.originalTicketNo}</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-border p-3.5">
+              <span className="text-sm text-text-muted">
+                {reschedule.penalty}% {t("reschedule_penalty_charge")}
+              </span>
+              <span className="text-base font-bold text-navy">
+                {formatMoney(Math.round((reschedule.originalPrice || 0) * (reschedule.penalty / 100)))}
+              </span>
+            </div>
+
+            {reschedule.penalty === 50 ? (
+              <div className="space-y-2">
+                <label className="block space-y-1.5">
+                  <span className="text-[13px] font-semibold text-navy">
+                    {t("reschedule_transaction_number")} <span className="text-danger">*</span>
+                  </span>
+                  <div className="flex gap-2">
+                    <Input
+                      value={rescheduleTxn}
+                      onChange={(e) => {
+                        setRescheduleTxn(e.target.value);
+                        setLookup(null);
+                      }}
+                      placeholder={t("bank_transaction_number_placeholder")}
+                    />
+                    <Button variant="secondary" loading={verifying} disabled={!rescheduleTxn.trim()} onClick={verifyTransaction}>
+                      {t("verify")}
+                    </Button>
+                  </div>
+                </label>
+                {lookup === "not_found" ? (
+                  <p className="text-xs font-semibold text-danger">{t("transaction_not_found")}</p>
+                ) : lookup ? (
+                  <div className="flex items-center justify-between rounded-lg border border-border p-3 text-sm">
+                    <div>
+                      <p className="font-semibold text-navy">{formatMoney(lookup.credit)}</p>
+                      <p className="text-xs text-text-faint">{lookup.transactionAt}</p>
+                    </div>
+                    <TransactionStatusBadge status={lookup.status} t={t} />
+                  </div>
+                ) : null}
+                {lookup && lookup !== "not_found" && normalizeLedgerStatus(lookup.status || "") === "VERIFIED" ? (
+                  <p className="text-xs font-semibold text-danger">{t("transaction_already_used")}</p>
+                ) : null}
+              </div>
+            ) : (
+              <p className="text-xs text-text-muted">{t("reschedule_zero_penalty_hint")}</p>
+            )}
+          </Card>
+        ) : (
         <Card className="mb-4 space-y-3">
           {SHOW_ALL_PAYMENT_METHODS ? (
             <>
@@ -190,6 +310,7 @@ export default function PaymentPage() {
             </>
           ) : null}
         </Card>
+        )}
 
         <Card className="space-y-2">
           <SectionLabel>{t("travel_summery")}</SectionLabel>
@@ -201,16 +322,16 @@ export default function PaymentPage() {
           <DetailRow label={t("passengers")} value={passengers.join(", ")} />
           <hr className="border-border" />
           <DetailRow label={t("price")} value={formatMoney(price)} strong={false} />
-          <DetailRow label="Commission" value={formatMoney(commission)} strong={false} />
+          {!reschedule ? <DetailRow label="Commission" value={formatMoney(commission)} strong={false} /> : null}
           <DetailRow label={t("total")} value={<span className="text-primary">{formatMoney(total)}</span>} />
         </Card>
 
         <Button
           className="group mt-4 h-12 w-full text-[15px] shadow-md shadow-primary/25"
           loading={saving}
-          onClick={submit}
+          onClick={reschedule ? submitReschedule : submit}
         >
-          {t("confirm_booking")}
+          {reschedule ? t("reschedule_submit") : t("confirm_booking")}
           <ArrowRightIcon className="transition-transform duration-150 group-hover:translate-x-1" />
         </Button>
       </div>

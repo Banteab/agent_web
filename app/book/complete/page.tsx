@@ -2,6 +2,7 @@
 
 import { BookingStepper } from "@/components/booking-stepper";
 import { BrandLogo } from "@/components/brand-logo";
+import { Countdown } from "@/components/countdown";
 import { Protected } from "@/components/protected";
 import { Button, Card, DetailRow } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
@@ -35,6 +36,7 @@ export default function BookingCompletePage() {
   if (!ready || !summary) return null;
 
   const isBankPending = summary.kind === "bank_pending";
+  const isReschedulePending = summary.kind === "reschedule_pending";
 
   return (
     <Protected>
@@ -56,10 +58,18 @@ export default function BookingCompletePage() {
           </div>
 
           <h1 className="relative mt-5 text-xl font-bold tracking-tight text-navy sm:text-2xl">
-            {isBankPending ? t("booking_confirmed_title") : t("tickets_issued_title")}
+            {isReschedulePending
+              ? t("reschedule_submitted_title")
+              : isBankPending
+                ? t("booking_confirmed_title")
+                : t("tickets_issued_title")}
           </h1>
           <p className="relative mt-2 max-w-md text-sm text-text-muted">
-            {isBankPending ? t("booking_confirmed_subtitle") : t("tickets_issued_subtitle")}
+            {isReschedulePending
+              ? t("reschedule_submitted_message")
+              : isBankPending
+                ? t("booking_confirmed_subtitle")
+                : t("tickets_issued_subtitle")}
           </p>
 
           {isBankPending ? (
@@ -70,6 +80,17 @@ export default function BookingCompletePage() {
               </svg>
               {t("pending_payment")}
             </span>
+          ) : null}
+
+          {isReschedulePending ? (
+            <div className="relative mt-4 flex items-center gap-2 rounded-full bg-warning-soft px-3 py-1.5 text-xs font-semibold text-warning">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+              {t("seat_held_for")}
+              <Countdown endTime={summary.holdExpiresAt} />
+            </div>
           ) : null}
         </div>
 
@@ -84,11 +105,14 @@ export default function BookingCompletePage() {
           <DetailRow label={t("passengers")} value={summary.passengers.join(", ")} />
           <DetailRow label={t("seat")} value={summary.seats.join(", ")} />
           {summary.bank ? <DetailRow label={t("bank")} value={summary.bank} /> : null}
+          {isReschedulePending && summary.originalTicketNo ? (
+            <DetailRow label={t("original_ticket")} value={summary.originalTicketNo} />
+          ) : null}
           <div className="my-1 border-t border-border" />
           <DetailRow label={t("total")} value={<span className="text-primary">{formatMoney(summary.amount)}</span>} />
         </Card>
 
-        {!isBankPending && summary.ticketNumbers?.length ? (
+        {!isBankPending && !isReschedulePending && summary.ticketNumbers?.length ? (
           <Card className="mt-4 space-y-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">{t("ticket")}</p>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -103,7 +127,11 @@ export default function BookingCompletePage() {
         ) : null}
 
         <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
-          {isBankPending ? (
+          {isReschedulePending ? (
+            <Button className="flex-1 shadow-md shadow-primary/20" onClick={() => router.push("/bookings")}>
+              {t("view_my_bookings")}
+            </Button>
+          ) : isBankPending ? (
             <Button className="flex-1 shadow-md shadow-primary/20" onClick={() => router.push("/payments")}>
               {t("view_pending_payments")}
             </Button>

@@ -54,6 +54,8 @@ export const ENDPOINTS = {
     if (params.passenger) query.set("passenger", params.passenger);
     return `/booking/agent/search?${query.toString()}`;
   },
+  // Proposed — not live on the backend yet, see the reschedule flow.
+  rescheduleRequest: "/booking/agent/reschedule-request",
   refundRequest: "/refunds/request-cancellation",
   generateTickets: "/tickets/generate/agent",
   issueTicket: "/tickets/issue/agent",
@@ -93,6 +95,10 @@ export const STORAGE_KEYS = {
 export const BOOKING_HOLD_MS = 180_000;
 export const MAX_SEATS = 20;
 export const PENDING_BANK_PAYMENT_TTL_MS = 10 * 60_000;
+// Display-only until the backend extends its seat-hold TTL for reschedule
+// requests specifically — the actual auto-release after 20 minutes has to be
+// enforced server-side, this only drives the on-screen countdown.
+export const RESCHEDULE_HOLD_MS = 20 * 60_000;
 export const PENDING_PAYMENTS_REFRESH_EVENT = "pending-payments-refresh";
 
 /** Primary languages shown in header switcher and settings. */

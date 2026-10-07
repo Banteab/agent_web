@@ -9,6 +9,7 @@ import { useI18n } from "@/lib/i18n";
 import { getBookingSession, setBookingSession } from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { TripDetail } from "@/lib/types";
+import { parsePassengerNames } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -31,8 +32,16 @@ export default function PassengerPage() {
       router.replace("/home");
       return;
     }
-    setNames(current.selectedSeats.map(() => ""));
-    setPhones(current.selectedSeats.map(() => ""));
+    // Rescheduling an existing ticket — prefill from the original passenger
+    // data instead of starting blank.
+    const originalNames = current.reschedule?.originalPassengers
+      ? parsePassengerNames(current.reschedule.originalPassengers)
+      : [];
+    const originalPhones = current.reschedule?.originalPhoneNumber
+      ? current.reschedule.originalPhoneNumber.split(",").map((p) => p.trim())
+      : [];
+    setNames(current.selectedSeats.map((_, index) => originalNames[index] || ""));
+    setPhones(current.selectedSeats.map((_, index) => originalPhones[index] || ""));
     api
       .getTrip(current.trip.id)
       .then((data) => {
@@ -105,6 +114,7 @@ export default function PassengerPage() {
         <BookingStepper current="passengers" t={t} />
         <PageHeader
           title={t("passanger_data")}
+          subtitle={session?.reschedule ? `${t("rescheduling_banner")} · ${session.reschedule.originalTicketNo || ""}` : undefined}
           backHref="/book/seats"
           action={<Countdown endTime={session?.endTime} />}
         />

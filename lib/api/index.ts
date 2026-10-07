@@ -268,6 +268,22 @@ export const api = {
     return asList<Booking>(data);
   },
 
+  // Proposed — POST /booking/agent/reschedule-request, not live on the
+  // backend yet. Submits a completed reschedule (new booking already seat-
+  // held) into the same Operations + Finance approval workflow used for
+  // cancellations. See the reschedule flow in app/book/payment/page.tsx.
+  rescheduleRequest(params: {
+    newBookingId: number;
+    originalTicketId: number;
+    penalty: 0 | 50;
+    newTransactionNumber?: string;
+  }) {
+    return apiRequest<ApiMessage>(ENDPOINTS.rescheduleRequest, {
+      method: "POST",
+      json: params,
+    });
+  },
+
   // BookingService.deleteBooking  DELETE /booking/:id
   deleteBooking(id: number) {
     return apiRequest<ApiMessage>(ENDPOINTS.booking(id), { method: "DELETE" });

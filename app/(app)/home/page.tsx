@@ -4,13 +4,14 @@ import { CallCenterBadge } from "@/components/call-center-badge";
 import { CinematicSkyline } from "@/components/cinematic-skyline";
 import { CityPicker } from "@/components/city-picker";
 import { EthiopianDatePicker } from "@/components/ethiopian-date-picker";
+import { RescheduleEntryModal } from "@/components/reschedule-entry-modal";
 import { Button, EmptyState, SectionLabel } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { cityApiName, citiesFromApi, FALLBACK_CITIES, mergeCities, normalizeCity } from "@/lib/cities";
 import { useI18n } from "@/lib/i18n";
 import { formatEthiopianDate } from "@/lib/ethiopian-calendar";
-import { addRecentHistory, parseRecentHistory, setBookingSession } from "@/lib/storage";
+import { addRecentHistory, getBookingSession, parseRecentHistory, setBookingSession } from "@/lib/storage";
 import { useToast } from "@/lib/toast-context";
 import type { City } from "@/lib/types";
 import { usePendingBankPaymentsCount } from "@/lib/use-pending-bank-payments-count";
@@ -31,13 +32,28 @@ export default function HomeSearchPage() {
   const router = useRouter();
   const { profile } = useAuth();
   const pendingCount = usePendingBankPaymentsCount();
-  const [from, setFrom] = useState<City | null>(null);
-  const [to, setTo] = useState<City | null>(null);
+  const [from, setFrom] = useState<City | null>(() => {
+    const session = getBookingSession();
+    return session?.reschedule && session.fromCity
+      ? normalizeCity({ name: session.fromCity, sys: session.fromCity })
+      : null;
+  });
+  const [to, setTo] = useState<City | null>(() => {
+    const session = getBookingSession();
+    return session?.reschedule && session.toCity
+      ? normalizeCity({ name: session.toCity, sys: session.toCity })
+      : null;
+  });
   const [date, setDate] = useState(formatDateISO(new Date()));
   const [picker, setPicker] = useState<"from" | "to" | null>(null);
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<City[]>(FALLBACK_CITIES);
   const [recents, setRecents] = useState<{ from: City; to: City }[]>([]);
+  const [rescheduling, setRescheduling] = useState<{ ticketNo?: string } | null>(() => {
+    const session = getBookingSession();
+    return session?.reschedule ? { ticketNo: session.reschedule.originalTicketNo } : null;
+  });
+  const [reschedulePromptOpen, setReschedulePromptOpen] = useState(false);
 
   useEffect(() => {
     setRecents(parseRecentHistory());
@@ -46,6 +62,19 @@ export default function HomeSearchPage() {
       .then((names) => setCities(mergeCities(citiesFromApi(names), FALLBACK_CITIES)))
       .catch(() => setCities(FALLBACK_CITIES));
   }, []);
+
+  function syncRescheduleFromSession() {
+    const session = getBookingSession();
+    if (!session?.reschedule) return;
+    setRescheduling({ ticketNo: session.reschedule.originalTicketNo });
+    if (session.fromCity) setFrom(normalizeCity({ name: session.fromCity, sys: session.fromCity }));
+    if (session.toCity) setTo(normalizeCity({ name: session.toCity, sys: session.toCity }));
+  }
+
+  function cancelReschedule() {
+    setRescheduling(null);
+    setBookingSession({ fromCity: "", toCity: "", selectedSeats: [] });
+  }
 
   function search() {
     if (!from || !to) {
@@ -58,12 +87,14 @@ export default function HomeSearchPage() {
     setRecents(parseRecentHistory());
     const fromName = cityApiName(origin);
     const toName = cityApiName(destination);
+    const current = getBookingSession();
     setBookingSession({
       fromCity: fromName,
       toCity: toName,
       visualDate: formatDisplayDate(new Date(date), locale),
       isoDate: date,
       selectedSeats: [],
+      reschedule: current?.reschedule,
     });
     setLoading(true);
     router.push(`/trips/available?from=${encodeURIComponent(fromName)}&to=${encodeURIComponent(toName)}&date=${date}`);
@@ -123,6 +154,16 @@ export default function HomeSearchPage() {
 
       {/* Large glass booking console — the visual anchor the road leads into */}
       <div className="relative z-10 mx-[calc(50%-50vw)] -mt-24 w-screen px-4 sm:-mt-32 sm:px-6 lg:-mt-40">
+        {rescheduling ? (
+          <div className="mx-auto mb-3 flex max-w-[1360px] flex-wrap items-center justify-between gap-2 rounded-2xl border border-gold/40 bg-gold-soft px-4 py-2.5 text-sm">
+            <span className="font-semibold text-gold-ink">
+              {t("rescheduling_banner")} {rescheduling.ticketNo ? `· ${rescheduling.ticketNo}` : ""}
+            </span>
+            <button type="button" onClick={cancelReschedule} className="text-xs font-semibold text-gold-ink underline underline-offset-2">
+              {t("cancel_reschedule")}
+            </button>
+          </div>
+        ) : null}
         <div className="mx-auto max-w-[1360px] animate-[riseIn_500ms_ease-out] rounded-[1.75rem] border border-white/60 bg-surface/95 p-3 shadow-2xl shadow-navy/30 backdrop-blur-xl sm:rounded-[2rem] sm:p-5 lg:p-6">
           <div className="flex flex-col divide-y divide-border lg:flex-row lg:divide-x lg:divide-y-0">
             <div className="relative flex flex-1 items-stretch">
@@ -198,12 +239,25 @@ export default function HomeSearchPage() {
         </div>
       </div>
 
-      {/* Quick link to single-passenger express issuing */}
-      <div className="mt-4 text-center">
+      {/* Quick links: single-passenger express issuing + reschedule entry */}
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center">
         <Link href="/trips" className="text-xs font-medium text-text-faint transition hover:text-primary">
           {t("fast_booking_hint")}
         </Link>
+        <button
+          type="button"
+          onClick={() => setReschedulePromptOpen(true)}
+          className="text-xs font-medium text-text-faint transition hover:text-primary"
+        >
+          {t("reschedule_a_ticket")}
+        </button>
       </div>
+
+      <RescheduleEntryModal
+        open={reschedulePromptOpen}
+        onClose={() => setReschedulePromptOpen(false)}
+        onConfirmed={syncRescheduleFromSession}
+      />
 
       {/* Popular / recent routes */}
       <div className="mt-8">
