@@ -3,7 +3,8 @@ export const API_ORIGIN = "https://biftubus-api.liyubus.com";
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "/api-proxy";
 
-export const API_KEY = process.env.NEXT_PUBLIC_API_KEY ?? "zR0ClHzLGi";
+/** Must match API CLIENT_API_KEY — set NEXT_PUBLIC_API_KEY in env (no hardcoded fallback). */
+export const API_KEY = (process.env.NEXT_PUBLIC_API_KEY ?? "").trim();
 
 const sessionTtlRaw = process.env.NEXT_PUBLIC_SESSION_TTL_SECONDS;
 const sessionTtlParsed = sessionTtlRaw ? Number.parseInt(sessionTtlRaw, 10) : 7200;
@@ -43,6 +44,9 @@ export const ENDPOINTS = {
     `/booking/payment-data/${bookingId}`,
   pendingBankPayments: "/booking/agent/pending-bank-payments",
   paymentTransactionByReference: "/payment-transactions/by-reference",
+  paymentTransactionsByTicket: (ticketId: number | string) =>
+    `/tickets/payment-transactions/${ticketId}`,
+  paymentTransactionLinkTicket: "/payment-transactions/link-ticket",
   paymentTransactionsPaged: "/payment-transactions/paged",
   paymentTransactionById: (id: string | number) => `/payment-transactions/${id}`,
   confirmBankPayment: (bookingId: number | string) =>
