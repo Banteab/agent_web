@@ -37,7 +37,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     Accept: "application/json",
   };
 
-  if (options.apiKey) headers["x-api-key"] = API_KEY;
+  if (API_KEY) headers["x-api-key"] = API_KEY;
   if (options.auth !== false) {
     if (isSessionExpired()) {
       notifySessionInvalid("expired");
